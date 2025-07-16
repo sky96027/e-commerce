@@ -4,7 +4,6 @@ erDiagram
     USER {
         long userId PK
         long balance
-        string role
     }
 
     TRANSACTION_HISTORY {
@@ -20,20 +19,19 @@ erDiagram
         long productId PK
         string productName
         string status
-        long createdBy FK
         datetime createdAt
         datetime expiredAt
     }
 
     PRODUCT_OPTION {
         long optionId PK
-        string content
         long productId FK
+        string content
         string status
         long price
         int stock
-        long createdBy FK
         datetime createdAt
+        datetime expiredAt
     }
 
     ORDER {
@@ -72,7 +70,6 @@ erDiagram
         long minimumOrderAmount
         int expiredDays
         string type
-        long createdBy
         string status
     }
 
@@ -82,7 +79,6 @@ erDiagram
         int totalIssued
         int remaining
         datetime issueStartDate
-        long createdBy
         string status
         float discountRateSnapshot
         long discountAmountSnapshot
@@ -93,7 +89,7 @@ erDiagram
     USER_COUPON {
         long userCouponId PK
         long couponId FK
-        long policyIdSnapshot
+        long policyId FK
         string status
         datetime expiredAt
     }
@@ -113,8 +109,6 @@ erDiagram
     USER ||--o{ ORDER : places
     USER ||--o{ PAYMENT : pays
     USER ||--o{ USER_COUPON : owns
-    USER ||--o{ PRODUCT : creates
-    USER ||--o{ PRODUCT_OPTION : creates
 
     PRODUCT ||--o{ PRODUCT_OPTION : has
     PRODUCT ||--o{ ORDER_ITEM : included_in
@@ -127,4 +121,5 @@ erDiagram
 
     COUPON_POLICY ||--o{ COUPON_BATCH : defines
     COUPON_BATCH ||--o{ USER_COUPON : issues
+    COUPON_POLICY ||--o{ USER_COUPON : ref
 ```
