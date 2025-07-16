@@ -2,27 +2,24 @@
 
 ---
 
-1. [잔액](#잔액)
-    1. [잔액 조회](#잔액-조회)
-    2. [잔액 충전](#잔액-충전)
+1. [유저](#유저)
+   1. 잔액 조회
+    2. 잔액 충전
 2. [상품](#상품)
-    1. [상품 목록 조회](#상품-목록-조회)
-    2. [상품 상세 조회](#상품-상세-조회)
-    3. [상품 등록 및 수정](#상품-등록-및-수정)
+    1. 상품 목록 조회
+    2. 상품 상세 조회
 3. [쿠폰](#쿠폰)
-    1. [쿠폰 조회](#쿠폰-조회)
-    2. [쿠폰 발급](#쿠폰-발급)
-    3. [쿠폰 수령](#쿠폰-수령)
-4. [주문 및 결제](#주문-및-결제)
-    1. [주문](#주문)
-    2. [결제](#결제)
-5. [인기 상품](#인기-상품)
-    1. [인기 상품](#인기-상품)
+    1. 쿠폰 조회
+    2. 쿠폰 수령
+4. [주문](#주문)
+    1. 주문
+5. [결제](#결제)
+    1. 결제
+6. [인기 상품](#인기-상품)
+    1. 인기 상품
 
 
----
-
-## 잔액
+## 유저
 
 ---
 
@@ -140,39 +137,6 @@ sequenceDiagram
     deactivate ProductAPI
 ```
 
-1. 상품 등록 및 수정
-
-```mermaid
-sequenceDiagram
-    actor Admin as 관리자
-    participant ProductAPI as 상품 API
-    participant ProductDB as 상품 DB
-    participant ProductOptionDB as 상품 옵션 DB
-
-    Admin ->> ProductAPI: 상품 등록 요청 (상품 ID, 상품 이름, 옵션 ID, 옵션 내용, 가격, 재고 등)
-    activate ProductAPI
-
-    ProductAPI ->> ProductAPI: 유효성 검사 (양수 여부, ID 중복, 권한 등)
-
-    alt 유효성 검사 실패
-        ProductAPI -->> Admin: 유효성 검사 실패 알림
-    else 유효성 검사 성공
-        ProductAPI ->> ProductDB: 상품 데이터 저장
-        activate ProductDB
-        ProductDB -->> ProductAPI: 저장 완료
-        deactivate ProductDB
-
-        ProductAPI ->> ProductOptionDB: 상품 옵션 데이터 저장
-        activate ProductOptionDB
-        ProductOptionDB -->> ProductAPI: 저장 완료
-        deactivate ProductOptionDB
-
-        ProductAPI -->> Admin: 등록 완료 메시지
-    end
-
-    deactivate ProductAPI
-```
-
 ### 쿠폰
 
 ---
@@ -199,58 +163,35 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    actor Admin as 관리자
-    participant CouponAPI as 쿠폰 API
-    participant CouponBatchDB as 쿠폰 DB
-    
-    Admin ->> CouponAPI: 쿠폰 등록 요청 (couponId, 쿠폰 정책Id, 발급량 등)
-    activate CouponAPI
-    CouponAPI ->> CouponAPI: 유효성 검사
-    alt 유효성 검사 실패
-	    CouponAPI -->> Admin: 유효성 검사 실패 메시지
-	  else 유효성 검사 성공
-	    CouponAPI ->> CouponBatchDB: 쿠폰 발급 데이터 저장 (couponId, 쿠폰 정책Id, 발급량 등)
-	    activate CouponBatchDB
-	    CouponBatchDB -->> CouponAPI: 저장 완료 응답
-	    deactivate CouponBatchDB
-	    CouponAPI -->> Admin: 등록 완료 응답
-    end
-    deactivate CouponAPI
-```
-
-1. 쿠폰 수령
-
-```mermaid
-sequenceDiagram
     actor User as 사용자
     participant CouponAPI as 쿠폰 API
     participant CouponBatchDB as 쿠폰 DB
     participant UserCouponDB as 유저 쿠폰 DB
 
-    User ->> CouponAPI: 쿠폰 수령 요청 (couponId, userId)
+    User ->> CouponAPI: 쿠폰 발급 요청 (couponId, userId)
     activate CouponAPI
 
     %% 1. 발급 가능 기간 확인
     CouponAPI ->> CouponBatchDB: 쿠폰 정보 확인 (couponId)
 
     alt 발급 기간 아님
-        CouponAPI -->> User: 수령 실패 (발급 기간이 아님)
+        CouponAPI -->> User: 발급 실패 (발급 기간이 아님)
     else 발급 가능
-        %% 2. 중복 수령 확인
-        CouponAPI ->> UserCouponDB: 중복 수령 확인 (couponId, userId)
+        %% 2. 중복 발급 확인
+        CouponAPI ->> UserCouponDB: 중복 발급 확인 (couponId, userId)
 
-        alt 이미 수령함
-            CouponAPI -->> User: 수령 실패 (이미 수령한 쿠폰)
-        else 수령 가능
+        alt 이미 발급함
+            CouponAPI -->> User: 발급 실패 (이미 발급한 쿠폰)
+        else 발급 가능
             CouponAPI ->> CouponBatchDB: 수량 선점 시도 (LOCK AND DECREMENT) 
             alt 수량 초과
-                CouponAPI -->> User: 수령 실패 (발급량 초과)
+                CouponAPI -->> User: 발급 실패 (발급량 초과)
             else 수량 가능
                 CouponAPI ->> UserCouponDB: 유저 쿠폰 저장 (userCouponId, couponId, userId 등)
                 activate UserCouponDB
                 UserCouponDB -->> CouponAPI: 저장 완료
                 deactivate UserCouponDB
-                CouponAPI -->> User: 쿠폰 수령 완료 메시지
+                CouponAPI -->> User: 쿠폰 발급 완료 메시지
             end
         end
     end
