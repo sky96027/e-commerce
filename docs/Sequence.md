@@ -3,20 +3,11 @@
 ---
 
 1. [유저](#유저)
-    1. 잔액 조회
-    2. 잔액 충전
 2. [상품](#상품)
-    1. 상품 목록 조회
-    2. 상품 상세 조회
 3. [쿠폰](#쿠폰)
-    1. 쿠폰 조회
-    2. 쿠폰 수령
 4. [주문](#주문)
-    1. 주문
 5. [결제](#결제)
-    1. 결제
 6. [인기 상품](#인기-상품)
-    1. 인기 상품
 
 
 ## 유저
@@ -47,7 +38,7 @@ sequenceDiagram
     deactivate BalanceAPI
 ```
 
-1. **잔액 충전**
+2. **잔액 충전**
 
 ```mermaid
 sequenceDiagram
@@ -86,6 +77,27 @@ sequenceDiagram
         BalanceAPI-->>User: 충전 실패 예외 반환
     end
     deactivate BalanceAPI
+```
+
+3. **거래 내역 조회**
+sequenceDiagram
+   actor User as 사용자
+   participant BalanceAPI as 거래 내역 API
+   participant TransactionHistoryDB as 거래 내역 DB
+
+   User ->> BalanceAPI: 거래 내역 조회 요청 (userId)
+   activate BalanceAPI
+
+   BalanceAPI ->> TransactionHistoryDB: 거래 내역 조회 (userId 기준)
+   activate TransactionHistoryDB
+   TransactionHistoryDB -->> BalanceAPI: 거래 내역 리스트 반환
+   deactivate TransactionHistoryDB
+
+   BalanceAPI -->> User: 거래 내역 JSON 응답
+   deactivate BalanceAPI
+```mermaid
+
+
 ```
 
 ### 상품
