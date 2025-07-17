@@ -47,7 +47,8 @@ erDiagram
         long orderItemId PK
         long orderId FK
         long productId FK
-        long productPriceSnapshot
+        string productName FK
+        long productPrice FK
         long discountAmount
         long couponId FK
         int quantity
@@ -89,6 +90,7 @@ erDiagram
     USER_COUPON {
         long userCouponId PK
         long couponId FK
+        long userId FK
         long policyId FK
         string status
         datetime expiredAt
