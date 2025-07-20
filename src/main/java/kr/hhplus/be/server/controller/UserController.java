@@ -2,7 +2,7 @@ package kr.hhplus.be.server.controller;
 
 import kr.hhplus.be.server.controller.dto.UserRequest;
 import kr.hhplus.be.server.controller.dto.UserResponse;
-import kr.hhplus.be.server.controller.spec.UserApiSpec;
+import kr.hhplus.be.server.spec.UserApiSpec;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

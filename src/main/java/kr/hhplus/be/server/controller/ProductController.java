@@ -1,13 +1,9 @@
 package kr.hhplus.be.server.controller;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import kr.hhplus.be.server.controller.dto.ProductResponse;
-import kr.hhplus.be.server.controller.dto.UserResponse;
-import kr.hhplus.be.server.controller.spec.ProductApiSpec;
-import org.springframework.http.HttpStatus;
+import kr.hhplus.be.server.spec.ProductApiSpec;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
