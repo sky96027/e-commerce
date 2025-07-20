@@ -2,8 +2,7 @@ package kr.hhplus.be.server.controller;
 
 import kr.hhplus.be.server.controller.dto.CouponRequest;
 import kr.hhplus.be.server.controller.dto.CouponResponse;
-import kr.hhplus.be.server.controller.dto.ProductResponse;
-import kr.hhplus.be.server.controller.spec.CouponApiSpec;
+import kr.hhplus.be.server.spec.CouponApiSpec;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

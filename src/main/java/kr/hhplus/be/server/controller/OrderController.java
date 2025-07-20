@@ -2,14 +2,12 @@ package kr.hhplus.be.server.controller;
 
 import kr.hhplus.be.server.controller.dto.OrderRequest;
 import kr.hhplus.be.server.controller.dto.OrderResponse;
-import kr.hhplus.be.server.controller.dto.UserResponse;
-import kr.hhplus.be.server.controller.spec.OrderApiSpec;
+import kr.hhplus.be.server.spec.OrderApiSpec;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 @RequestMapping("/order")

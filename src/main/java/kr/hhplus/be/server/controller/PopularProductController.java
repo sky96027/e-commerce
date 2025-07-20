@@ -1,15 +1,13 @@
 package kr.hhplus.be.server.controller;
 
 import kr.hhplus.be.server.controller.dto.PopularProductResponse;
-import kr.hhplus.be.server.controller.dto.UserResponse;
-import kr.hhplus.be.server.controller.spec.PopularProductApiSpec;
+import kr.hhplus.be.server.spec.PopularProductApiSpec;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/popular-products")

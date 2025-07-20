@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.controller.spec;
+package kr.hhplus.be.server.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
