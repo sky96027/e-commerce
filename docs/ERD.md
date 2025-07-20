@@ -69,7 +69,7 @@ erDiagram
         float discountRate
         long discountAmount
         long minimumOrderAmount
-        int expiredDays
+        int usagePeriod
         string type
         string status
     }
@@ -84,7 +84,7 @@ erDiagram
         float discountRateSnapshot
         long discountAmountSnapshot
         long minimumOrderAmountSnapshot
-        int expiredDaysSnapshot
+        int usagePeriodSnapshot
         string typeSnapshot
     }
     USER_COUPON {
@@ -93,6 +93,7 @@ erDiagram
         long userId FK
         long policyId FK
         string status
+        int usagePeriodSnapshot
         datetime expiredAt
     }
 
