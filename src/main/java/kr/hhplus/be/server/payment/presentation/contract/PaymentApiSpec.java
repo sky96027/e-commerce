@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.payment.presentation.dto.PaymentRequest;
 import kr.hhplus.be.server.payment.presentation.dto.PaymentResponse;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 

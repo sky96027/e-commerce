@@ -1,12 +1,15 @@
 package kr.hhplus.be.server.product.presentation.web;
 
-import kr.hhplus.be.server.product.presentation.dto.ProductResponse;
 import kr.hhplus.be.server.product.presentation.contract.ProductApiSpec;
+import kr.hhplus.be.server.product.presentation.dto.ProductResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")

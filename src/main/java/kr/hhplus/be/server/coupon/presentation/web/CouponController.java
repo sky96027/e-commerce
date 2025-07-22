@@ -1,13 +1,13 @@
 package kr.hhplus.be.server.coupon.presentation.web;
 
+import kr.hhplus.be.server.coupon.presentation.contract.CouponApiSpec;
 import kr.hhplus.be.server.coupon.presentation.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.presentation.dto.CouponResponse;
-import kr.hhplus.be.server.coupon.presentation.contract.CouponApiSpec;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/coupon")
