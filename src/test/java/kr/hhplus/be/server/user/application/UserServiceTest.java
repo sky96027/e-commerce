@@ -4,8 +4,6 @@ import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistory
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
 import kr.hhplus.be.server.user.application.dto.UserDto;
-import kr.hhplus.be.server.transactionhistory.domain.TransactionHistoryEntity;
-import kr.hhplus.be.server.transactionhistory.domain.TransactionHistoryRepository;
 import kr.hhplus.be.server.transactionhistory.domain.TransactionType;
 import kr.hhplus.be.server.user.application.facade.UserFacade;
 import kr.hhplus.be.server.user.application.service.FindUserService;
@@ -17,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,8 +29,6 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private TransactionHistoryRepository transactionHistoryRepository;
     @Mock
     private ChargeUserBalanceUseCase chargeUseCase;
     @Mock

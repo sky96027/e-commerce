@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.transactionhistory.domain;
 
 import jakarta.persistence.*;
-import kr.hhplus.be.server.user.domain.UserEntity;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

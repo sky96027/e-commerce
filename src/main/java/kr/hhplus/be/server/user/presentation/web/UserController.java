@@ -4,9 +4,9 @@ import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistory
 import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.facade.UserFacade;
 import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
+import kr.hhplus.be.server.user.presentation.contract.UserApiSpec;
 import kr.hhplus.be.server.user.presentation.dto.UserRequest;
 import kr.hhplus.be.server.user.presentation.dto.UserResponse;
-import kr.hhplus.be.server.user.presentation.contract.UserApiSpec;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
