@@ -2,8 +2,8 @@ package kr.hhplus.be.server.user.application.service;
 
 import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
-import kr.hhplus.be.server.user.domain.UserEntity;
-import kr.hhplus.be.server.user.domain.UserRepository;
+import kr.hhplus.be.server.user.domain.model.User;
+import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,7 +32,7 @@ public class FindUserService implements FindUserUseCase {
      */
     @Override
     public UserDto findById(long userId) {
-        UserEntity user = userRepository.selectById(userId);
+        User user = userRepository.selectById(userId);
 
         return UserDto.from(user);
     }

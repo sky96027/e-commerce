@@ -1,19 +1,18 @@
-package kr.hhplus.be.server.user.domain;
+package kr.hhplus.be.server.user.infrastructure.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 
 /**
  * 유저 정보를 나타내는 JPA 엔티티 클래스
- * 상태 변경 로직을 포함함
  */
 @Getter
 @Entity
 @Table(name = "user")
-public class UserEntity {
-    public UserEntity() {}
+public class UserJpaEntity {
+    public UserJpaEntity() {}
 
-    public UserEntity(long userId, long balance) {
+    public UserJpaEntity(long userId, long balance) {
         this.userId = userId;
         this.balance = balance;
     }
@@ -25,12 +24,4 @@ public class UserEntity {
 
     @Column(name = "balance", nullable = false)
     private long balance;
-
-    public static UserEntity empty(long userId) {
-        return new UserEntity(userId, 0L);
-    }
-
-    public UserEntity charge(long amount) {
-        return new UserEntity(this.userId, this.balance + amount);
-    }
 }
