@@ -5,10 +5,11 @@ import lombok.Getter;
 
 /**
  * 유저 정보를 나타내는 JPA 엔티티 클래스
- * 상태 변경을 포함함
+ * 상태 변경 로직을 포함함
  */
 @Getter
 @Entity
+@Table(name = "user")
 public class UserEntity {
     public UserEntity() {}
 
