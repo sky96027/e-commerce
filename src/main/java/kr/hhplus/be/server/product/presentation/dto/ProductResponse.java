@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.product.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
+import kr.hhplus.be.server.product.domain.type.ProductStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +18,7 @@ public class ProductResponse {
             String productName,
 
             @Schema(description = "판매 상태", requiredMode = Schema.RequiredMode.REQUIRED)
-            String status,
+            ProductStatus status,
 
             @Schema(description = "등록일", requiredMode = Schema.RequiredMode.REQUIRED)
             LocalDateTime createdAt,
@@ -37,7 +39,7 @@ public class ProductResponse {
             String productName,
 
             @Schema(description = "판매 상태", requiredMode = Schema.RequiredMode.REQUIRED)
-            String status,
+            ProductStatus status,
 
             @Schema(description = "가격", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             Long price,
@@ -61,7 +63,7 @@ public class ProductResponse {
             String content,
 
             @Schema(description = "판매 상태", requiredMode = Schema.RequiredMode.REQUIRED)
-            String status,
+            ProductOptionStatus status,
 
             @Schema(description = "가격", requiredMode = Schema.RequiredMode.REQUIRED)
             Long price,
