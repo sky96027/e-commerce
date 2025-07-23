@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * [Facade]
  * 사용자 관련 복합 유스케이스를 조합하는 파사드 클래스.
- * 충전과 거래 내역 기록을 함께 처리한다.
+ * 도메인 간 경계를 명확히 하기 위해 다른 도메인은 항상 facade를 거친다.
  */
 @Component
 public class UserFacade {
