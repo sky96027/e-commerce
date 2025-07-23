@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * [Mapper]
- * ProductOptionJpaEntity → ProductOption 도메인 모델로 변환하는 매퍼 클래스.
+ * 도메인 모델로 변환하는 매퍼 클래스.
  *
  * 이 매퍼는 JPA Entity를 도메인 모델로 변환함으로써
  * application 계층이 인프라 계층에 직접 의존하지 않도록 돕는다.
