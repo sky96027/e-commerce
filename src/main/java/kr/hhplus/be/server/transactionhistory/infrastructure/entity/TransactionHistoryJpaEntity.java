@@ -1,21 +1,22 @@
-package kr.hhplus.be.server.transactionhistory.domain;
+package kr.hhplus.be.server.transactionhistory.infrastructure.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 /**
  * 거래 내역 정보를 나타내는 JPA 엔티티 클래스
- * 상태 변경을 포함함
  */
 @Getter
 @Entity
-public class TransactionHistoryEntity {
+@Table(name = "TRANSACTION_HISTORY")
+public class TransactionHistoryJpaEntity {
 
-    protected TransactionHistoryEntity() {}
+    protected TransactionHistoryJpaEntity() {}
 
-    public TransactionHistoryEntity(long userId, TransactionType type, long amount) {
+    public TransactionHistoryJpaEntity(long userId, TransactionType type, long amount) {
         this.userId = userId;
         this.type = type;
         this.amount = amount;

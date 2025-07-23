@@ -4,7 +4,7 @@ import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistory
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
 import kr.hhplus.be.server.user.application.dto.UserDto;
-import kr.hhplus.be.server.transactionhistory.domain.TransactionType;
+import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 import kr.hhplus.be.server.user.application.facade.UserFacade;
 import kr.hhplus.be.server.user.application.service.FindUserService;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
