@@ -14,11 +14,10 @@ import java.util.List;
  * 구현체는 service 패키지 내에서 정의되며,
  * presentation 계층은 이 인터페이스만 의존함으로써 구현체에 대한 결합을 피할 수 있다.
  */
-public interface FindSummariesUseCase {
+public interface FindProductSummaryUseCase {
     /**
-     * 상품 ID를 받아 사용자 정보를 조회한다..
-     * @param productId 사용자 ID
+     * 전체 상품 목록을 조회한다..
      * @return 상품 정보
      */
-    List<ProductDto> findSummaries(long productId);
+    List<ProductDto> findSummary();
 }
