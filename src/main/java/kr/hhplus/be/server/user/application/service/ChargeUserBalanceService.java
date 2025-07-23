@@ -2,8 +2,8 @@ package kr.hhplus.be.server.user.application.service;
 
 import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
-import kr.hhplus.be.server.user.domain.UserEntity;
-import kr.hhplus.be.server.user.domain.UserRepository;
+import kr.hhplus.be.server.user.domain.model.User;
+import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,9 +34,9 @@ public class ChargeUserBalanceService implements ChargeUserBalanceUseCase {
      */
     @Override
     public UserDto charge(long userId, long amount) {
-        UserEntity user = userRepository.selectById(userId);
-        UserEntity updated = user.charge(amount);
-        UserEntity saved = userRepository.insertOrUpdate(userId, updated.getBalance());
+        User user = userRepository.selectById(userId);
+        User updated = user.charge(amount);
+        User saved = userRepository.insertOrUpdate(userId, updated.getBalance());
 
         return UserDto.from(saved);
     }

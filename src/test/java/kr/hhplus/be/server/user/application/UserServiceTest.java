@@ -9,8 +9,9 @@ import kr.hhplus.be.server.user.application.facade.UserFacade;
 import kr.hhplus.be.server.user.application.service.FindUserService;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
 import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
-import kr.hhplus.be.server.user.domain.UserEntity;
-import kr.hhplus.be.server.user.domain.UserRepository;
+import kr.hhplus.be.server.user.domain.model.User;
+import kr.hhplus.be.server.user.infrastructure.entity.UserJpaEntity;
+import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -59,7 +60,7 @@ class UserServiceTest {
     void 유저_조회_성공() {
         // given
         long userId = 1L;
-        UserEntity user = new UserEntity(userId, 5000L);
+        User user = new User(userId, 5000L);
         when(userRepository.selectById(userId)).thenReturn(user);
 
         // when

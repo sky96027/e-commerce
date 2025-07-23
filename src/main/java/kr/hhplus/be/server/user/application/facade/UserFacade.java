@@ -59,10 +59,8 @@ public class UserFacade {
      * @return 대상 사용자의 거래 내역
      */
     public List<TransactionHistoryDto> findUserHistories(long userId) {
-        // userId 유효성 확인용으로 유저 존재 여부를 선 조회
         findUserUseCase.findById(userId);
 
-        // 실제 거래 내역 조회는 다른 도메인 유스케이스 사용
         return findHistoryUseCase.findByUserId(userId);
     }
 }

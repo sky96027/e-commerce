@@ -18,7 +18,13 @@ public class ProductJpaEntity {
     public ProductJpaEntity(
             long productId, String productName, ProductStatus status,
             LocalDateTime createdAt, LocalDateTime expiredAt
-    ) {}
+    ) {
+        this.productId = productId;
+        this.productName = productName;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.expiredAt = expiredAt;
+    }
 
     @Id
     @Column(name = "product_id")

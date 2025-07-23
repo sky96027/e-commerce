@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * [Facade]
  * 상품 도메인과 옵션 도메인을 조합하여 외부에 통합된 정보를 제공하는 파사드 클래스.
- * 상품 목록/상세 조회 시 도메인 간 경계를 넘지 않도록 유스케이스를 조합한다.
+ * 도메인 간 경계를 명확히 하기 위해 다른 도메인은 항상 facade를 거친다.
  */
 @Component
 public class ProductFacade {
