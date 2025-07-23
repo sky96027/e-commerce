@@ -1,89 +1,78 @@
 package kr.hhplus.be.server.product.presentation.web;
 
+import kr.hhplus.be.server.product.application.dto.ProductDetailDto;
+import kr.hhplus.be.server.product.application.dto.ProductSummaryDto;
+import kr.hhplus.be.server.product.application.facade.ProductFacade;
 import kr.hhplus.be.server.product.presentation.contract.ProductApiSpec;
 import kr.hhplus.be.server.product.presentation.dto.ProductResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/product")
 public class ProductController implements ProductApiSpec {
 
+    private final ProductFacade productFacade;
+
+    public ProductController(ProductFacade productFacade) {
+        this.productFacade = productFacade;
+    }
+
+    /**
+     * 상품 목록 조회 API
+     * 상품 정보와 최저 옵션 가격을 포함한 응답 반환
+     */
     @GetMapping
     @Override
     public ResponseEntity<List<ProductResponse.GetProductSummary>> getProductSummaries() {
-        List<ProductResponse.GetProductSummary> response = List.of(
-                new ProductResponse.GetProductSummary(
-                        101L,
-                        "커피",
-                        "FOR-SALE",
-                        5000L,
-                        LocalDateTime.parse("2025-07-17T21:00"),
-                        LocalDateTime.parse("2027-07-17T21:00")
+        List<ProductResponse.GetProductSummary> response = productFacade.getProductSummaries().stream()
+                .map(dto -> new ProductResponse.GetProductSummary(
+                        dto.productId(),
+                        dto.productName(),
+                        dto.status(),
+                        dto.minPrice(),
+                        dto.createdAt(),
+                        dto.expiredAt()
+                ))
+                .collect(Collectors.toList());
 
-                ),
-                new ProductResponse.GetProductSummary(
-                        102L,
-                        "칫솔",
-                        "NOT-SALE",
-                        3000L,
-                        LocalDateTime.parse("2025-06-17T21:00"),
-                        LocalDateTime.parse("2025-06-30T21:00")
-
-                ),
-                new ProductResponse.GetProductSummary(
-                        103L,
-                        "양말",
-                        "FOR-SALE",
-                        2000L,
-                        LocalDateTime.parse("2025-06-17T21:00"),
-                        LocalDateTime.parse("2025-06-30T21:00")
-
-                )
-        );
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 상품 상세 조회 API
+     * 상품 정보와 옵션 목록을 포함한 응답 반환
+     */
     @GetMapping("/product/{id}")
     @Override
     public ResponseEntity<ProductResponse.GetProductDetail> getProductDetail(@PathVariable("id") Long productId) {
-        List<ProductResponse.GetProductOption> options = List.of(
-                new ProductResponse.GetProductOption(
-                        1001L,
-                        productId,
-                        "100g",
-                        "AVAILABLE",
-                        5000L,
-                        20,
-                        LocalDateTime.parse("2025-07-17T21:00"),
-                        null
-                ),
-                new ProductResponse.GetProductOption(
-                        1002L,
-                        productId,
-                        "200g",
-                        "SOLD_OUT",
-                        9000L,
-                        0,
-                        LocalDateTime.parse("2025-07-17T21:00"),
-                        LocalDateTime.parse("2026-01-01T00:00")
-                )
-        );
+        ProductDetailDto dto = productFacade.getProductDetail(productId);
+
+        List<ProductResponse.GetProductOption> options = dto.options().stream()
+                .map(opt -> new ProductResponse.GetProductOption(
+                        opt.optionId(),
+                        opt.productId(),
+                        opt.content(),
+                        opt.status(),
+                        opt.price(),
+                        opt.stock(),
+                        opt.createdAt(),
+                        opt.expiredAt()
+                ))
+                .collect(Collectors.toList());
 
         ProductResponse.GetProductDetail response = new ProductResponse.GetProductDetail(
-                productId,
-                "커피",
-                "FOR-SALE",
-                LocalDateTime.parse("2025-07-17T21:00"),
-                LocalDateTime.parse("2027-07-17T21:00"),
+                dto.productId(),
+                dto.productName(),
+                dto.status(),
+                dto.createdAt(),
+                dto.expiredAt(),
                 options
         );
+
         return ResponseEntity.ok(response);
     }
 }
