@@ -1,8 +1,9 @@
-package kr.hhplus.be.server.product.application.service;
+package kr.hhplus.be.server.popularproduct.application.service;
 
+import kr.hhplus.be.server.popularproduct.application.dto.PopularProductDto;
+import kr.hhplus.be.server.popularproduct.application.usecase.FindPopularProductSummaryUseCase;
+import kr.hhplus.be.server.popularproduct.domain.repository.PopularProductRepository;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
-import kr.hhplus.be.server.product.application.usecase.FindSummariesUseCase;
-import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,23 +20,22 @@ import java.util.stream.Collectors;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
-public class FindSummariesService implements FindSummariesUseCase {
+public class FindPopularProductSummaryService implements FindPopularProductSummaryUseCase {
 
-    private final ProductRepository productRepository;
+    private final PopularProductRepository popularProductRepository;
 
-    public FindSummariesService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    public FindPopularProductSummaryService(PopularProductRepository popularProductRepository) {
+        this.popularProductRepository = popularProductRepository;
     }
 
     /**
      * 전체 상품 목록을 조회하여 DTO 리스트로 변환한다.
-     * @param productId 현재는 사용되지 않지만 필터 조건으로 확장 가능
      * @return 상품 DTO 목록
      */
     @Override
-    public List<ProductDto> findSummaries(long productId) {
-        return productRepository.selectSummaries().stream()
-                .map(ProductDto::from)  // domain → dto
+    public List<PopularProductDto> findSummary() {
+        return popularProductRepository.selectSummaries().stream()
+                .map(PopularProductDto::from)  // domain → dto
                 .collect(Collectors.toList());
     }
 }
