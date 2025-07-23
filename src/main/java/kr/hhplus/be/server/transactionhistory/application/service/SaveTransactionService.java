@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * [UseCase 구현체]
- * FindHistoryUseCase 인터페이스를 구현한 클래스.
+ * SaveTransactionUseCase 인터페이스를 구현한 클래스.
  *
  * 도메인 계층의 TransactionHistoryRepository 사용하여 거래 내역을 저장한다.
  *
