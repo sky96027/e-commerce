@@ -6,10 +6,9 @@ import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
 import kr.hhplus.be.server.product.application.dto.ProductSummaryDto;
 import kr.hhplus.be.server.product.application.usecase.FindDetailUseCase;
 import kr.hhplus.be.server.product.application.usecase.FindProductOptionsUseCase;
-import kr.hhplus.be.server.product.application.usecase.FindSummariesUseCase;
+import kr.hhplus.be.server.product.application.usecase.FindProductSummaryUseCase;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,16 +20,16 @@ import java.util.stream.Collectors;
 @Component
 public class ProductFacade {
 
-    private final FindSummariesUseCase findSummariesUseCase;
+    private final FindProductSummaryUseCase findProductSummaryUseCase;
     private final FindDetailUseCase findDetailUseCase;
     private final FindProductOptionsUseCase findProductOptionsUseCase;
 
     public ProductFacade(
-            FindSummariesUseCase findSummariesUseCase,
+            FindProductSummaryUseCase findProductSummaryUseCase,
             FindDetailUseCase findDetailUseCase,
             FindProductOptionsUseCase findProductOptionsUseCase
     ) {
-        this.findSummariesUseCase = findSummariesUseCase;
+        this.findProductSummaryUseCase = findProductSummaryUseCase;
         this.findDetailUseCase = findDetailUseCase;
         this.findProductOptionsUseCase = findProductOptionsUseCase;
     }
@@ -42,7 +41,7 @@ public class ProductFacade {
      * @return 상품 요약 정보 리스트 (상품명, 최저 옵션 가격 등 포함)
      */
     public List<ProductSummaryDto> getProductSummaries() {
-        return findSummariesUseCase.findSummaries(0L).stream()
+        return findProductSummaryUseCase.findSummary().stream()
                 .map(product -> {
                     List<ProductOptionDto> options = findProductOptionsUseCase.findByProductId(product.productId());
                     long minPrice = options.stream()

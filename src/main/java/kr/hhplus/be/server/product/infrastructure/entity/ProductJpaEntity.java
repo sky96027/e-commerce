@@ -16,8 +16,11 @@ public class ProductJpaEntity {
     public ProductJpaEntity() {}
 
     public ProductJpaEntity(
-            long productId, String productName, ProductStatus status,
-            LocalDateTime createdAt, LocalDateTime expiredAt
+            long productId,
+            String productName,
+            ProductStatus status,
+            LocalDateTime createdAt,
+            LocalDateTime expiredAt
     ) {
         this.productId = productId;
         this.productName = productName;
@@ -27,6 +30,7 @@ public class ProductJpaEntity {
     }
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private long productId;
 
