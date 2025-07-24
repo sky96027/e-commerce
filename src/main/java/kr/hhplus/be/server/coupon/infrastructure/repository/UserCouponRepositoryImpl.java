@@ -5,7 +5,10 @@ import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -42,7 +45,7 @@ public class UserCouponRepositoryImpl implements UserCouponRepository {
      * 유저의 쿠폰을 저장
      */
     @Override
-    public void save(UserCoupon userCoupon) {
+    public void insertOrUpdate(UserCoupon userCoupon) {
         throttle(200);
         long id = sequence.getAndIncrement();
 

@@ -1,7 +1,5 @@
 package kr.hhplus.be.server.order.domain.repository;
 
-import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
-import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderItem;
 
 import java.util.List;

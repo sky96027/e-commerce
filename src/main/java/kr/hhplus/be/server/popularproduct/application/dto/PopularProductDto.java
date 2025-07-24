@@ -1,8 +1,6 @@
 package kr.hhplus.be.server.popularproduct.application.dto;
 
 import kr.hhplus.be.server.popularproduct.domain.model.PopularProduct;
-import kr.hhplus.be.server.product.application.dto.ProductDto;
-import kr.hhplus.be.server.product.domain.model.Product;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

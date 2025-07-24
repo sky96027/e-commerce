@@ -1,9 +1,7 @@
 package kr.hhplus.be.server.order.infrastructure.repository;
 
-import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderItem;
 import kr.hhplus.be.server.order.domain.repository.OrderItemRepository;
-import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;

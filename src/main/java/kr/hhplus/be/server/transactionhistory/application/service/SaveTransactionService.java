@@ -1,8 +1,6 @@
 package kr.hhplus.be.server.transactionhistory.application.service;
 
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
-import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
-import kr.hhplus.be.server.transactionhistory.infrastructure.entity.TransactionHistoryJpaEntity;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 import org.springframework.stereotype.Service;

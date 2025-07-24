@@ -36,4 +36,15 @@ public class Order {
         this.status = status;
         this.orderAt = orderAt;
     }
+
+    public Order changeStatus(OrderStatus newStatus) {
+        return new Order(
+                this.orderId,
+                this.userId,
+                this.totalAmount,
+                this.totalDiscountAmount,
+                newStatus,
+                this.orderAt
+        );
+    }
 }

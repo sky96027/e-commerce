@@ -3,8 +3,6 @@ package kr.hhplus.be.server.coupon.application.service;
 import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
 import kr.hhplus.be.server.coupon.application.usecase.FindUserCouponSummaryUseCase;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
-import kr.hhplus.be.server.product.application.dto.ProductDto;
-import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +12,7 @@ import java.util.stream.Collectors;
  * [UseCase 구현체]
  * FindUserCouponSummaryUseCase 인터페이스를 구현한 클래스.
  *
- * 도메인 계층의 UserCouponRepository를 사용하여 상품 데이터를 조회하고,
+ * 도메인 계층의 UserCouponRepository를 사용하여 유저 쿠폰 데이터를 조회하고,
  * 그 결과를 UserCouponDto List로 변환하여 반환한다.
  *
  * 이 클래스는 오직 "유저의 쿠폰 목록 조회"라는 하나의 유스케이스만 책임지며,

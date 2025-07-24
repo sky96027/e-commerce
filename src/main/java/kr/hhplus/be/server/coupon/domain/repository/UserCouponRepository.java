@@ -14,5 +14,5 @@ public interface UserCouponRepository {
 
     Optional<UserCoupon> selectByUserCouponId(long userCouponId);
 
-    void save(UserCoupon userCoupon);
+    void insertOrUpdate(UserCoupon userCoupon);
 }
