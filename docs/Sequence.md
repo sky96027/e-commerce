@@ -277,17 +277,16 @@ sequenceDiagram
     participant PaymentDB as 결제 DB
     participant DataPlatform as 데이터 플랫폼 (외부)
 
-    User ->> PaymentAPI: 결제 요청 (orderId, userId)
+    User ->> PaymentAPI: 결제 요청 (orderId)
     activate PaymentAPI
 
     %% 1. 주문 유효성 확인
     PaymentAPI ->> OrderDB: 주문서 정보 조회 요청 (orderId)
     activate OrderDB
-    OrderDB -->> PaymentAPI: 주문서 정보 반환 (주문ID, userId, {상품ID, 옵션ID, 수량, 쿠폰ID}, 총 금액, status)
+    OrderDB -->> PaymentAPI: 주문서 정보 반환 (주문ID, userId, {상품ID, 옵션ID, 수량, 쿠폰ID})
     deactivate OrderDB
     PaymentAPI ->> PaymentAPI: 주문서 유효성 검사 (상품 판매 종료, 옵션 삭제, 사용자와 주문서 불일치 등 유효하지 않은 주문)
     alt 주문 무효
-        PaymentAPI->> OrderDB: 주문서 상태 변경(userId, OrderId, status: FAILED)
         PaymentAPI -->> User: 결제 실패 (유효하지 않은 주문, 상품 판매 종료, 재고 없음 등)
     else 주문 유효
         %% 2. 결제 금액 확인
@@ -317,14 +316,14 @@ sequenceDiagram
             PaymentAPI ->> UserDB: 잔액 차감 (UPDATE)
 						
             %% 6. 결제 내역 저장
-            PaymentAPI ->> PaymentDB: 결제 내역 저장 (결제ID, orderId, userId, 총 금액, 쿠폰 id, 상태)
+            PaymentAPI ->> PaymentDB: 결제 내역 저장 (결제ID, orderId, userId, 총 금액, 총 할인 금액, 상태)
             
             %% 7. 주문 정보 저장
-            PaymentAPI ->> OrderDB: 주문 데이터 저장(orderID, status:SUCCEEDED)
+            PaymentAPI ->> OrderDB: 주문 데이터 저장(orderID, status:AFTER_PAYMENT)
 
             %% 8. 쿠폰 사용 처리
             loop 상품별
-                PaymentAPI ->> UserCouponDB: 쿠폰 사용 처리 UPDATE (UserCouponId, 사용 여부: Y)
+                PaymentAPI ->> UserCouponDB: 쿠폰 사용 처리 UPDATE (UserCouponId, status: USED)
             end
 
             %% 9. 데이터 플랫폼 전송
