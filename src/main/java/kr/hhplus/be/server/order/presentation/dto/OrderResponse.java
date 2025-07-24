@@ -34,7 +34,7 @@ public class OrderResponse {
 
     public record OrderItem(
             @Schema(description = "상품 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-            Long productId,
+            long productId,
 
             @Schema(description = "상품명", requiredMode = Schema.RequiredMode.REQUIRED)
             String productName,
@@ -43,7 +43,7 @@ public class OrderResponse {
             long productPrice,
 
             @Schema(description = "옵션 ID", requiredMode = Schema.RequiredMode.REQUIRED)
-            Long optionId,
+            long optionId,
 
             @Schema(description = "수량", requiredMode = Schema.RequiredMode.REQUIRED)
             int quantity,
@@ -52,6 +52,6 @@ public class OrderResponse {
             long discountAmount,
 
             @Schema(description = "쿠폰 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            Long couponId
+            long userCouponId
     ) {}
 }

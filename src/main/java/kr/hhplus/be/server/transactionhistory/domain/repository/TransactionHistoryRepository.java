@@ -2,7 +2,6 @@ package kr.hhplus.be.server.transactionhistory.domain.repository;
 
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
-import kr.hhplus.be.server.transactionhistory.infrastructure.entity.TransactionHistoryJpaEntity;
 
 import java.util.List;
 
@@ -12,5 +11,5 @@ import java.util.List;
  */
 public interface TransactionHistoryRepository {
     List<TransactionHistory> selectByUserId(long userId);
-    TransactionHistory save(long userId, TransactionType type, long amount);
+    void save(long userId, TransactionType type, long amount);
 }
