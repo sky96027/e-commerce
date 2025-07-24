@@ -54,4 +54,23 @@ public class CouponIssue {
         this.typeSnapshot = typeSnapshot;
     }
 
+    public CouponIssue decreaseRemaining() {
+        if (this.remaining <= 0) {
+            throw new IllegalStateException("쿠폰 잔량이 소진되었습니다.");
+        }
+        return new CouponIssue(
+                this.couponIssueId,
+                this.policyId,
+                this.totalIssued,
+                this.remaining - 1,
+                this.issueStartDate,
+                this.status,
+                this.discountRateSnapshot,
+                this.discountAmountSnapshot,
+                this.minimumOrderAmountSnapshot,
+                this.usagePeriodSnapshot,
+                this.typeSnapshot
+        );
+    }
+
 }
