@@ -5,6 +5,9 @@ import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * [UseCase 구현체]
  * ChargeUserBalanceUseCase 인터페이스를 구현한 클래스.
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DeductStockService implements DeductStockUseCase {
     private final ProductOptionRepository repository;
+    private final ConcurrentHashMap<Long, ReentrantLock> lockMap = new ConcurrentHashMap<>();
 
     public DeductStockService(ProductOptionRepository repository) { this.repository = repository; }
 
@@ -28,8 +32,14 @@ public class DeductStockService implements DeductStockUseCase {
      */
     @Override
     public void deductStock(long optionId, int quantity) {
-        ProductOption option = repository.findByOptionId(optionId);
-        ProductOption updated = option.deduct(quantity);
-        repository.insertOrUpdate(updated);
+        ReentrantLock lock = lockMap.computeIfAbsent(optionId, k -> new ReentrantLock());
+        lock.lock();
+        try {
+            ProductOption option = repository.findByOptionId(optionId);
+            ProductOption updated = option.deduct(quantity);
+            repository.insertOrUpdate(updated);
+        } finally {
+            lock.unlock();
+        }
     }
 }
