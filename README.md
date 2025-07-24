@@ -1,5 +1,6 @@
 ### 프로젝트 트리
 
+```text
 kr.hhplus.be.server
 ├── config
 ├── coupon                           # 쿠폰 도메인
@@ -44,13 +45,14 @@ kr.hhplus.be.server
 ├── product                         # 상품 도메인
 ├── transactionhistory              # 거래내역 도메인
 └── user                            # 유저 도메인
-
+```
 ### 아키텍처 설명
 
 레이어드 + 인터페이스 아키텍처에서 시작해 클린 아키텍처, DDD, MSA 원칙을 반영하기를 지향한 아키텍처.
 
 ### 의존성 흐름
 
+```text
 [ Presentation ]
 ↓        (유스케이스 호출)
 [ Application ]
@@ -58,4 +60,5 @@ kr.hhplus.be.server
 [ Domain ]
 ↑        (리포지토리 구현 주입)
 [ Infrastructure ]
+```
  
