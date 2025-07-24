@@ -8,6 +8,9 @@ import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * [UseCase 구현체]
  * SaveUserCouponUseCase 인터페이스를 구현한 클래스.
@@ -20,7 +23,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SaveUserCouponService implements SaveUserCouponUseCase {
     private final UserCouponRepository userCouponRepository;
-    private final CouponIssueRepository couponIssueRepository; // 추가 필요
+    private final CouponIssueRepository couponIssueRepository;
+    private final ConcurrentHashMap<Long, ReentrantLock> lockMap = new ConcurrentHashMap<>();// 추가 필요
 
     public SaveUserCouponService(
             UserCouponRepository userCouponRepository,
@@ -32,27 +36,34 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
 
     @Override
     public void save(SaveUserCouponCommand command) {
-        // 1. 발급 정보 조회
-        CouponIssue couponIssue = couponIssueRepository.selectById(command.couponId());
+        ReentrantLock lock = lockMap.computeIfAbsent(command.couponId(), k -> new ReentrantLock());
+        lock.lock();
+        try {
+            // 1. 발급 정보 조회
+            CouponIssue couponIssue = couponIssueRepository.selectById(command.couponId());
 
-        // 2. 남은 수량 감소 (0 이하일 경우 예외 발생)
-        CouponIssue updatedIssue = couponIssue.decreaseRemaining();
+            // 2. 남은 수량 감소 (0 이하일 경우 예외 발생)
+            CouponIssue updatedIssue = couponIssue.decreaseRemaining();
 
-        // 3. 유저 쿠폰 발급 객체 생성
-        UserCoupon userCoupon = UserCoupon.issueNew(
-                command.userId(),
-                command.couponId(),
-                command.policyId(),
-                command.typeSnapshot(),
-                command.discountRateSnapshot(),
-                command.discountAmountSnapshot(),
-                command.minimumOrderAmountSnapshot(),
-                command.usagePeriodSnapshot(),
-                command.expiredAt()
-        );
+            // 3. 유저 쿠폰 발급 객체 생성
+            UserCoupon userCoupon = UserCoupon.issueNew(
+                    command.userId(),
+                    command.couponId(),
+                    command.policyId(),
+                    command.typeSnapshot(),
+                    command.discountRateSnapshot(),
+                    command.discountAmountSnapshot(),
+                    command.minimumOrderAmountSnapshot(),
+                    command.usagePeriodSnapshot(),
+                    command.expiredAt()
+            );
 
-        // 4. 저장
-        couponIssueRepository.update(updatedIssue);        // 남은 수량 반영
-        userCouponRepository.insertOrUpdate(userCoupon);   // 유저 쿠폰 저장
+            // 4. 저장
+            couponIssueRepository.update(updatedIssue);
+            userCouponRepository.insertOrUpdate(userCoupon);
+
+        } finally {
+            lock.unlock();
+        }
     }
 }
