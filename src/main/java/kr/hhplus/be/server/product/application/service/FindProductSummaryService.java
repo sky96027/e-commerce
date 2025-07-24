@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 /**
  * [UseCase 구현체]
- * FindSummariesUseCase 인터페이스를 구현한 클래스.
+ * FindSummaryUseCase 인터페이스를 구현한 클래스.
  *
  * 도메인 계층의 ProductRepository를 사용하여 상품 데이터를 조회하고,
  * 그 결과를 ProductDto List로 변환하여 반환한다.
