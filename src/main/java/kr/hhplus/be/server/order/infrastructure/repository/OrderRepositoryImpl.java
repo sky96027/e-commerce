@@ -1,7 +1,7 @@
-package kr.hhplus.be.server.user.infrastructure.repository;
+package kr.hhplus.be.server.order.infrastructure.repository;
 
-import kr.hhplus.be.server.user.domain.model.User;
-import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.order.domain.model.Order;
+import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -10,26 +10,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * In-memory UserRepository 구현체
+ * In-memory OrderRepository 구현체
  */
 @Repository
-public class UserRepositoryImpl implements UserRepository {
-    private final Map<Long, User> table = new HashMap<>();
+public class OrderRepositoryImpl implements OrderRepository {
+    private final Map<Long, Order> table = new HashMap<>();
     private final AtomicLong idGenerator = new AtomicLong(1);
 
     @Override
-    public User selectById(long userId) {
+    public Order selectByOrderId (long orderId) {
         throttle(200);
-        return table.get(userId);
+        return table.get(orderId);
     }
 
     @Override
-    public User insertOrUpdate(long userId, long amount) {
+    public void save(Order order) {
         throttle(200);
         long newId = idGenerator.getAndIncrement();
-        User user = new User(userId, amount);
-        table.put(newId, user);
-        return user;
+        table.put(newId, order);
     }
 
     private void throttle(long millis) {
@@ -39,5 +37,4 @@ public class UserRepositoryImpl implements UserRepository {
 
         }
     }
-
 }

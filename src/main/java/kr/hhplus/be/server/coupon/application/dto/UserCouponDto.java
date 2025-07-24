@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.coupon.application.dto;
 
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
+import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public record UserCouponDto(
         long userId,
         long policyId,
         UserCouponStatus status,
-        String typeSnapshot,
+        CouponPolicyType typeSnapshot,
         Float discountRateSnapshot,
         Long discountAmountSnapshot,
         Long minimumOrderAmountSnapshot,

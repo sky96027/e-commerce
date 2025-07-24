@@ -47,10 +47,11 @@ erDiagram
         long order_item_id PK
         long order_id FK
         long product_id FK
+        long option_id FK
         string product_name FK
         long product_price FK
         long discount_amount
-        long coupon_id FK
+        long user_coupon_id FK
         int quantity
     }
 

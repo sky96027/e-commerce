@@ -27,8 +27,8 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
     @Override
     public void save(SaveUserCouponCommand command) {
         UserCoupon userCoupon = UserCoupon.issueNew(
-                command.couponId(),
                 command.userId(),
+                command.couponId(),
                 command.policyId(),
                 command.typeSnapshot(),
                 command.discountRateSnapshot(),
