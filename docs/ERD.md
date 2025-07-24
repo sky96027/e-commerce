@@ -74,8 +74,8 @@ erDiagram
         string status
     }
 
-    COUPON_BATCH {
-        long coupon_id PK
+    COUPON_ISSUE {
+        long coupon_issue_id PK
         long policy_id FK
         int total_issued
         int remaining
@@ -94,6 +94,10 @@ erDiagram
         long user_id FK
         long policy_id FK
         string status
+        string type_snapshot
+        float discount_rate_snapshot
+        long discount_amount_snapshot
+        long minimum_order_amount_snapshot
         int usage_period_snapshot
         datetime expired_at
     }

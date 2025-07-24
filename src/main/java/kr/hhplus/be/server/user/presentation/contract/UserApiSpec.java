@@ -14,12 +14,12 @@ import java.util.List;
 public interface UserApiSpec {
 
     @Operation(summary = "유저 잔액 조회")
-    ResponseEntity<UserResponse.findById> findById(@PathVariable("id") long userId);
+    ResponseEntity<UserResponse.FindById> findById(@PathVariable("id") long userId);
 
     @Operation(summary = "유저 잔액 충전")
     ResponseEntity<Void> chargeBalance(@RequestParam UserRequest.ChargeBalance request);
 
     @Operation(summary = "유저 거래 내역 조회")
-    ResponseEntity<List<UserResponse.getUserTransactionHistories>> getUserTransactionHistories(@PathVariable("id") long userId);
+    ResponseEntity<List<UserResponse.GetUserTransactionHistories>> getUserTransactionHistories(@PathVariable("id") long userId);
 
 }
