@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.transactionhistory.application.service;
 
-import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;

@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.transactionhistory.application.dto;
 
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
-import kr.hhplus.be.server.transactionhistory.infrastructure.entity.TransactionHistoryJpaEntity;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 
 import java.time.LocalDateTime;

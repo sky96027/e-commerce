@@ -3,7 +3,6 @@ package kr.hhplus.be.server.popularproduct.application.service;
 import kr.hhplus.be.server.popularproduct.application.dto.PopularProductDto;
 import kr.hhplus.be.server.popularproduct.application.usecase.FindPopularProductSummaryUseCase;
 import kr.hhplus.be.server.popularproduct.domain.repository.PopularProductRepository;
-import kr.hhplus.be.server.product.application.dto.ProductDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

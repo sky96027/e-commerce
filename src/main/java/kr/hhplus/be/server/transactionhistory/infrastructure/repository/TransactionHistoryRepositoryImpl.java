@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.transactionhistory.infrastructure.repository;
 
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
-import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
+import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;

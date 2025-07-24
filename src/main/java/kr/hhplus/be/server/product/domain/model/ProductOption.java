@@ -42,4 +42,22 @@ public class ProductOption {
         this.createdAt = createdAt;
         this.expiredAt = expiredAt;
     }
+
+    public ProductOption deduct(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("차감량은 음수일 수 없습니다.");
+        }
+        if (this.stock < amount) {
+            throw new IllegalStateException("재고가 부족합니다.");
+        }
+        return new ProductOption(
+                this.optionId,
+                this.productId,
+                this.content,
+                this.status,
+                this.price,
+                this.stock - amount,
+                this.createdAt,
+                this.expiredAt);
+    }
 }

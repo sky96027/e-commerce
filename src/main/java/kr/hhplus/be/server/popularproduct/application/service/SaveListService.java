@@ -2,7 +2,6 @@ package kr.hhplus.be.server.popularproduct.application.service;
 
 import kr.hhplus.be.server.popularproduct.application.usecase.SaveListUseCase;
 import kr.hhplus.be.server.popularproduct.domain.repository.PopularProductRepository;
-import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
 import org.springframework.stereotype.Service;
 
 /**
