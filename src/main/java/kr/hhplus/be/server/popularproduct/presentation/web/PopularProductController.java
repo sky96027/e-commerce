@@ -1,12 +1,14 @@
 package kr.hhplus.be.server.popularproduct.presentation.web;
 
-import kr.hhplus.be.server.popularproduct.application.dto.PopularProductDto;
 import kr.hhplus.be.server.popularproduct.application.usecase.FindPopularProductSummaryUseCase;
 import kr.hhplus.be.server.popularproduct.application.usecase.SaveListUseCase;
 import kr.hhplus.be.server.popularproduct.presentation.contract.PopularProductApiSpec;
 import kr.hhplus.be.server.popularproduct.presentation.dto.PopularProductResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.stream.Collectors;

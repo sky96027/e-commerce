@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.popularproduct.application.usecase;
 
 import kr.hhplus.be.server.popularproduct.application.dto.PopularProductDto;
-import kr.hhplus.be.server.popularproduct.domain.model.PopularProduct;
 
 import java.util.List;
 

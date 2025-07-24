@@ -10,4 +10,8 @@ import java.util.List;
  */
 public interface ProductOptionRepository {
     List<ProductOption> findByProductId(long productId);
+
+    ProductOption findByOptionId(long optionId);
+
+    void insertOrUpdate(ProductOption productOption);
 }

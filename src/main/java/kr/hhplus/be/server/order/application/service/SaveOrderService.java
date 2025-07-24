@@ -3,7 +3,6 @@ package kr.hhplus.be.server.order.application.service;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.order.application.dto.SaveOrderCommand;
-import kr.hhplus.be.server.order.application.dto.SaveOrderItemCommand;
 import kr.hhplus.be.server.order.application.usecase.SaveOrderUseCase;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderItem;

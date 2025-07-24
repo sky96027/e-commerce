@@ -76,5 +76,19 @@ public class UserCoupon {
                 expiredAt
         );
     }
-
+    public UserCoupon changeStatus(UserCouponStatus newStatus) {
+        return new UserCoupon(
+                this.userCouponId,
+                this.couponId,
+                this.userId,
+                this.policyId,
+                newStatus,
+                this.typeSnapshot,
+                this.discountRateSnapshot,
+                this.discountAmountSnapshot,
+                this.minimumOrderAmountSnapshot,
+                this.usagePeriodSnapshot,
+                this.expiredAt
+        );
+    }
 }

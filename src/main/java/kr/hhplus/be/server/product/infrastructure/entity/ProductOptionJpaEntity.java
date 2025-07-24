@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.product.infrastructure.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
-import kr.hhplus.be.server.product.domain.type.ProductStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

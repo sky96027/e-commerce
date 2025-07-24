@@ -3,14 +3,13 @@ package kr.hhplus.be.server.user.application;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
-import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
+import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.facade.UserFacade;
 import kr.hhplus.be.server.user.application.service.FindUserService;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
 import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
 import kr.hhplus.be.server.user.domain.model.User;
-import kr.hhplus.be.server.user.infrastructure.entity.UserJpaEntity;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Application layer unit test - UserService")

@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.user.domain.repository;
 
 import kr.hhplus.be.server.user.domain.model.User;
-import kr.hhplus.be.server.user.infrastructure.entity.UserJpaEntity;
 
 /**
  * 유저 정보를 조회, 저장하기 위한 도메인 저장소 인터페이스

@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.user.domain.model;
 
-import kr.hhplus.be.server.user.infrastructure.entity.UserJpaEntity;
 import lombok.Getter;
 
 /**
@@ -25,6 +24,19 @@ public class User {
     public static User empty(long userId) { return new User(userId, 0L); }
 
     public User charge(long amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("충전 금액은 음수일 수 없습니다.");
+        }
         return new User(this.userId, this.balance + amount);
+    }
+
+    public User deduct(long amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("차감 금액은 음수일 수 없습니다.");
+        }
+        if (this.balance < amount) {
+            throw new IllegalStateException("잔액이 부족합니다.");
+        }
+        return new User(this.userId, this.balance - amount);
     }
 }

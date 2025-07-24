@@ -9,18 +9,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * In-memory ProductOptionRepository 구현체
  */
 @Repository
 public class ProductOptionRepositoryImpl implements ProductOptionRepository {
-    private final Map<Long, List<ProductOption>> table = new HashMap<>();
+    private final Map<Long, ProductOption> table = new HashMap<>();
+    private final Map<Long, List<ProductOption>> optionListTable = new HashMap<>();
+    private final AtomicLong idGenerator = new AtomicLong(1);
 
     @Override
     public List<ProductOption> findByProductId(long productId) {
         throttle(200);
-        return table.getOrDefault(productId, Collections.emptyList());
+        return optionListTable.getOrDefault(productId, Collections.emptyList());
+    }
+
+    @Override
+    public ProductOption findByOptionId(long optionId) {
+        throttle(200);
+        return table.get(optionId);
+    }
+
+    @Override
+    public void insertOrUpdate(ProductOption productOption) {
+        throttle(200);
+        long newId = idGenerator.getAndIncrement();
+        table.put(newId, productOption);
     }
 
     private void throttle(long millis) {
