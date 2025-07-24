@@ -27,9 +27,9 @@ public class UserController implements UserApiSpec {
     // 유저 정보 조회
     @GetMapping("/{id}")
     @Override
-    public ResponseEntity<UserResponse.GetUserCoupon> findById(@PathVariable("id") long userId) {
+    public ResponseEntity<UserResponse.FindById> findById(@PathVariable("id") long userId) {
         UserDto user = findUserUseCase.findById(userId);
-        UserResponse.findById response = new UserResponse.findById(
+        UserResponse.FindById response = new UserResponse.FindById(
                 user.userId(),
                 user.balance()
         );
@@ -47,11 +47,11 @@ public class UserController implements UserApiSpec {
     // 유저 거래 내역 조회
     @GetMapping("/{id}/transactions")
     @Override
-    public ResponseEntity<List<UserResponse.getUserTransactionHistories>> getUserTransactionHistories(@PathVariable("id") long userId) {
+    public ResponseEntity<List<UserResponse.GetUserTransactionHistories>> getUserTransactionHistories(@PathVariable("id") long userId) {
         List<TransactionHistoryDto> histories = userFacade.findUserHistories(userId);
 
-        List<UserResponse.getUserTransactionHistories> response = histories.stream()
-                .map(dto -> new UserResponse.getUserTransactionHistories(
+        List<UserResponse.GetUserTransactionHistories> response = histories.stream()
+                .map(dto -> new UserResponse.GetUserTransactionHistories(
                         dto.transactionId(),
                         dto.userId(),
                         dto.type().name(),
