@@ -17,8 +17,14 @@ public class ProductOptionJpaEntity {
     public ProductOptionJpaEntity() {}
 
     public ProductOptionJpaEntity(
-            long optionId, long productId, String content, ProductOptionStatus status,
-            long price, int stock, LocalDateTime createdAt, LocalDateTime expiredAt
+            long optionId,
+            long productId,
+            String content,
+            ProductOptionStatus status,
+            long price,
+            int stock,
+            LocalDateTime createdAt,
+            LocalDateTime expiredAt
     ) {}
 
     @Id
