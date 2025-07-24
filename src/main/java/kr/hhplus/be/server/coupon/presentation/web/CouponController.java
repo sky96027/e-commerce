@@ -35,7 +35,7 @@ public class CouponController implements CouponApiSpec {
                         dto.couponId(),
                         dto.userId(),
                         dto.policyId(),
-                        dto.status().name(),
+                        dto.status(),
                         dto.typeSnapshot(),
                         dto.discountRateSnapshot(),
                         dto.discountAmountSnapshot(),

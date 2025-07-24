@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.coupon.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +19,7 @@ public class CouponRequest {
             Long policyId,
 
             @Schema(description = "할인 타입 (정액: FIXED / 비율: RATE)", requiredMode = Schema.RequiredMode.REQUIRED)
-            String typeSnapshot,
+            CouponPolicyType typeSnapshot,
 
             @Schema(description = "할인율 (%)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             Float discountRateSnapshot,
