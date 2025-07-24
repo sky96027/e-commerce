@@ -1,9 +1,7 @@
 package kr.hhplus.be.server.user.infrastructure.repository;
 
 import kr.hhplus.be.server.user.domain.model.User;
-import kr.hhplus.be.server.user.infrastructure.entity.UserJpaEntity;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
-import kr.hhplus.be.server.user.infrastructure.mapper.UserMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -16,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, Long> table = new HashMap<>();
-    private final UserMapper userMapper = new UserMapper();
 
     @Override
     public User selectById(long userId) {

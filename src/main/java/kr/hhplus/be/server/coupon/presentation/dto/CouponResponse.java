@@ -27,15 +27,18 @@ public class CouponResponse {
             String type,
 
             @Schema(description = "할인율 (%)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            Float discountRate,
+            Float discountRateSnapshot,
 
             @Schema(description = "할인 금액", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            Long discountAmount,
+            Long discountAmountSnapshot,
 
             @Schema(description = "최소 주문 금액", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            Long minimumOrderAmount,
+            Long minimumOrderAmountSnapshot,
 
-            @Schema(description = "만료일", requiredMode = Schema.RequiredMode.REQUIRED)
+            @Schema(description = "사용 기간", requiredMode = Schema.RequiredMode.REQUIRED)
+            int usagePeriodSnapshot,
+
+            @Schema(description = "만료일")
             LocalDateTime expiredAt
     ) {}
 }

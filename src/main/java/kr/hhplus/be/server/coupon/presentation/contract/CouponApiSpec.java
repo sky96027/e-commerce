@@ -14,8 +14,8 @@ import java.util.List;
 public interface CouponApiSpec {
 
     @Operation(summary = "쿠폰 조회")
-    ResponseEntity<List<CouponResponse.GetUserCoupon>> getCouponsByUserId(@PathVariable Long userId);
+    ResponseEntity<List<CouponResponse.GetUserCoupon>> getCouponsByUserId(@PathVariable long userId);
 
     @Operation(summary = "쿠폰 발급")
-    ResponseEntity<Void> issueCouponToUser(@RequestParam CouponRequest.IssueCouponRequest requst);
+    ResponseEntity<Void> issueCouponToUser(@RequestParam CouponRequest.IssueCouponRequest request);
 }

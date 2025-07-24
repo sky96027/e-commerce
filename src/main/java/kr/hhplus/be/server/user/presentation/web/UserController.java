@@ -27,7 +27,7 @@ public class UserController implements UserApiSpec {
     // 유저 정보 조회
     @GetMapping("/{id}")
     @Override
-    public ResponseEntity<UserResponse.findById> findById(@PathVariable("id") long userId) {
+    public ResponseEntity<UserResponse.GetUserCoupon> findById(@PathVariable("id") long userId) {
         UserDto user = findUserUseCase.findById(userId);
         UserResponse.findById response = new UserResponse.findById(
                 user.userId(),
