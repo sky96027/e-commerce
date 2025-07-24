@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.coupon.domain.model;
 
+import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
 import lombok.Getter;
 
@@ -17,7 +18,7 @@ public class UserCoupon {
     private final long policyId;
     private final UserCouponStatus status;
 
-    private final String typeSnapshot;
+    private final CouponPolicyType typeSnapshot;
     private final Float discountRateSnapshot;
     private final Long discountAmountSnapshot;
     private final Long minimumOrderAmountSnapshot;
@@ -30,7 +31,7 @@ public class UserCoupon {
             long userId,
             long policyId,
             UserCouponStatus status,
-            String typeSnapshot,
+            CouponPolicyType typeSnapshot,
             Float discountRateSnapshot,
             Long discountAmountSnapshot,
             Long minimumOrderAmountSnapshot,
@@ -51,10 +52,10 @@ public class UserCoupon {
     }
 
     public static UserCoupon issueNew(
-            long couponId,
             long userId,
+            long couponId,
             long policyId,
-            String typeSnapshot,
+            CouponPolicyType typeSnapshot,
             Float discountRateSnapshot,
             Long discountAmountSnapshot,
             Long minimumOrderAmountSnapshot,
@@ -75,4 +76,5 @@ public class UserCoupon {
                 expiredAt
         );
     }
+
 }

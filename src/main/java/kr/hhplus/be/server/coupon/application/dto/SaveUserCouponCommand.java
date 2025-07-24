@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.coupon.application.dto;
 
+import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
+
 import java.time.LocalDateTime;
 
 /**
@@ -9,7 +11,7 @@ public record SaveUserCouponCommand(
         long userId,
         long couponId,
         long policyId,
-        String typeSnapshot,
+        CouponPolicyType typeSnapshot,
         Float discountRateSnapshot,
         Long discountAmountSnapshot,
         Long minimumOrderAmountSnapshot,
