@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.product.domain.repository;
 
 import kr.hhplus.be.server.product.domain.model.Product;
-import kr.hhplus.be.server.product.infrastructure.entity.ProductJpaEntity;
 
 import java.util.List;
 
