@@ -128,7 +128,7 @@ erDiagram
 
     ORDER_ITEM ||--o| COUPON_BATCH : uses
 
-    COUPON_POLICY ||--o{ COUPON_BATCH : defines
+    COUPON_POLICY ||--o{ COUPON_ISSUE : defines
     COUPON_BATCH ||--o{ USER_COUPON : issues
     COUPON_POLICY ||--o{ USER_COUPON : ref
 ```
