@@ -42,7 +42,7 @@ public class PopularProductJpaEntity {
     @Column(name = "total_sold_quantity", nullable = false)
     private Integer totalSoldQuantity;
 
-    @Column(name = "rank", nullable = false)
+    @Column(name = "`rank`", nullable = false)
     private Integer rank;
 
     @Column(name = "reference_date", nullable = false)

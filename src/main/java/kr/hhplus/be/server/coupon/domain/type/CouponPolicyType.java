@@ -5,5 +5,5 @@ package kr.hhplus.be.server.coupon.domain.type;
  */
 public enum CouponPolicyType {
     RATE,   // 비율 할인 (예: 15%)
-    FIXED  // 정액 할인 (예: 2,000원)
+    FIXED  // 정액 할인 (예: 2,000원), 미사용 (차후 확장을 위해 남겨둠)
 }
