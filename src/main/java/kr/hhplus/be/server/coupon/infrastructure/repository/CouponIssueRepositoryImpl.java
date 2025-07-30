@@ -4,6 +4,7 @@ import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
 import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
+import kr.hhplus.be.server.coupon.infrastructure.mapper.CouponIssueMapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -18,41 +19,24 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class CouponIssueRepositoryImpl implements CouponIssueRepository {
 
-    private final Map<Long, CouponIssue> table = new HashMap<>();
+    private final CouponIssueJpaRepository jpaRepository;
+    private final CouponIssueMapper mapper;
 
-    /**
-     * 쿠폰 발급 정보 ID로 조회
-     */
-    @Override
-    public CouponIssue selectById(long couponIssueId) {
-        throttle(200);
-        CouponIssue issue = table.get(couponIssueId);
-        if (issue == null) {
-            throw new IllegalArgumentException("해당 쿠폰 발급 정보가 존재하지 않습니다. id=" + couponIssueId);
-        }
-        return issue;
+    public CouponIssueRepositoryImpl(CouponIssueJpaRepository jpaRepository, CouponIssueMapper mapper) {
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
     }
 
-    /**
-     * 쿠폰 발급 정보를 업데이트 (예: remaining 감소)
-     */
+    @Override
+    public CouponIssue findById(long couponIssueId) {
+        return jpaRepository.findById(couponIssueId)
+                .map(mapper::toDomain)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("해당 쿠폰 발급 정보가 존재하지 않습니다. id=" + couponIssueId));
+    }
+
     @Override
     public void update(CouponIssue couponIssue) {
-        throttle(200);
-        table.put(couponIssue.getCouponIssueId(), couponIssue);
-    }
-
-    /**
-     * 테스트용 초기 데이터 삽입
-     */
-    public void insertMockIssue(CouponIssue issue) {
-        table.put(issue.getCouponIssueId(), issue);
-    }
-
-    private void throttle(long millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep((long) (Math.random() * millis));
-        } catch (InterruptedException ignored) {
-        }
+        jpaRepository.save(mapper.toEntity(couponIssue));
     }
 }

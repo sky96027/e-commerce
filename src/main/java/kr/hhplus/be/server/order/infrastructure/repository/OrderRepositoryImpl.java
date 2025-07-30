@@ -2,6 +2,8 @@ package kr.hhplus.be.server.order.infrastructure.repository;
 
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
+import kr.hhplus.be.server.order.infrastructure.entity.OrderJpaEntity;
+import kr.hhplus.be.server.order.infrastructure.mapper.OrderMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -13,25 +15,25 @@ import java.util.concurrent.TimeUnit;
  */
 @Repository
 public class OrderRepositoryImpl implements OrderRepository {
-    private final Map<Long, Order> table = new HashMap<>();
+
+    private final OrderJpaRepository jpaRepository;
+    private final OrderMapper mapper;
+
+    public OrderRepositoryImpl(OrderJpaRepository jpaRepository, OrderMapper mapper) {
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
 
     @Override
-    public Order selectByOrderId (long orderId) {
-        throttle(200);
-        return table.get(orderId);
+    public Order findById(long orderId) {
+        return jpaRepository.findById(orderId)
+                .map(mapper::toDomain)
+                .orElse(null);
     }
 
     @Override
     public void save(Order order) {
-        throttle(200);
-        table.put(order.getOrderId(), order);
-    }
-
-    private void throttle(long millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep((long) (Math.random() * millis));
-        } catch (InterruptedException ignored) {
-
-        }
+        OrderJpaEntity entity = mapper.toEntity(order);
+        jpaRepository.save(entity);
     }
 }

@@ -9,9 +9,9 @@ import java.util.List;
  * 구현체는 인프라 계층에 위치함
  */
 public interface ProductOptionRepository {
-    List<ProductOption> findByProductId(long productId);
+    List<ProductOption> findOptionsByProductId(long productId);
 
-    ProductOption findByOptionId(long optionId);
+    ProductOption findOptionByOptionId(long optionId);
 
     void insertOrUpdate(ProductOption productOption);
 }

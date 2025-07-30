@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Entity
-@Table(name = "product")
+@Table(name = "PRODUCT")
 public class ProductJpaEntity {
     public ProductJpaEntity() {}
 

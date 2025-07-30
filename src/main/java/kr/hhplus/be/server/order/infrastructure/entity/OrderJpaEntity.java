@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.order.infrastructure.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.order.domain.type.OrderStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class OrderJpaEntity {
             Long userId,
             Long totalAmount,
             Long totalDiscountAmount,
-            String status,
+            OrderStatus status,
             LocalDateTime orderedAt
     ) {
         this.orderId = orderId;
@@ -28,7 +29,7 @@ public class OrderJpaEntity {
         this.totalAmount = totalAmount;
         this.totalDiscountAmount = totalDiscountAmount;
         this.status = status;
-        this.orderedAt = orderedAt;
+        this.orderAt = orderedAt;
     }
 
     @Id
@@ -46,8 +47,8 @@ public class OrderJpaEntity {
     private Long totalDiscountAmount;
 
     @Column(name = "status", nullable = false, length = 50)
-    private String status;
+    private OrderStatus status;
 
     @Column(name = "ordered_at", nullable = false)
-    private LocalDateTime orderedAt;
+    private LocalDateTime orderAt;
 }

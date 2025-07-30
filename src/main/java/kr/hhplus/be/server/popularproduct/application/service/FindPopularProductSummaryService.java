@@ -33,7 +33,7 @@ public class FindPopularProductSummaryService implements FindPopularProductSumma
      */
     @Override
     public List<PopularProductDto> findSummary() {
-        return popularProductRepository.selectSummaries().stream()
+        return popularProductRepository.findAllSummaries().stream()
                 .map(PopularProductDto::from)  // domain → dto
                 .collect(Collectors.toList());
     }

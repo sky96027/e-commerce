@@ -43,7 +43,7 @@ class ChangeUserCouponStatusServiceTest {
         );
         UserCoupon updated = original.changeStatus(newStatus);
 
-        when(userCouponRepository.selectByUserCouponId(userCouponId)).thenReturn(Optional.of(original));
+        when(userCouponRepository.findByUserCouponId(userCouponId)).thenReturn(Optional.of(original));
         doNothing().when(userCouponRepository).insertOrUpdate(any(UserCoupon.class));
 
         // when
@@ -51,7 +51,7 @@ class ChangeUserCouponStatusServiceTest {
 
         // then
         assertThat(result.getStatus()).isEqualTo(newStatus);
-        verify(userCouponRepository, times(1)).selectByUserCouponId(userCouponId);
+        verify(userCouponRepository, times(1)).findByUserCouponId(userCouponId);
         verify(userCouponRepository, times(1)).insertOrUpdate(any(UserCoupon.class));
     }
 
@@ -61,13 +61,13 @@ class ChangeUserCouponStatusServiceTest {
         // given
         long userCouponId = 1L;
         UserCouponStatus newStatus = UserCouponStatus.USED;
-        when(userCouponRepository.selectByUserCouponId(userCouponId)).thenReturn(Optional.empty());
+        when(userCouponRepository.findByUserCouponId(userCouponId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> changeUserCouponStatusService.changeStatus(userCouponId, newStatus))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("해당 ID의 쿠폰이 존재하지 않습니다");
-        verify(userCouponRepository, times(1)).selectByUserCouponId(userCouponId);
+        verify(userCouponRepository, times(1)).findByUserCouponId(userCouponId);
         verify(userCouponRepository, never()).insertOrUpdate(any(UserCoupon.class));
     }
 } 

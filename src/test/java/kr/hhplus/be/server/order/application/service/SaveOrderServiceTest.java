@@ -68,7 +68,7 @@ class SaveOrderServiceTest {
         SaveOrderItemCommand item = new SaveOrderItemCommand(1L, 2L, "상품B", 20000L, couponId, 1);
         SaveOrderCommand command = new SaveOrderCommand(20L, List.of(item));
         UserCoupon coupon = new UserCoupon(10L, 0L, 20L, 0L, UserCouponStatus.ISSUED, CouponPolicyType.FIXED, null, 3000L, 10000L, 30, LocalDateTime.now().plusDays(30));
-        when(userCouponRepository.selectByUserCouponId(couponId)).thenReturn(Optional.of(coupon));
+        when(userCouponRepository.findByUserCouponId(couponId)).thenReturn(Optional.of(coupon));
         doNothing().when(orderRepository).save(any(Order.class));
         doNothing().when(orderItemRepository).saveAll(any());
 
@@ -77,7 +77,7 @@ class SaveOrderServiceTest {
 
         // then
         assertThat(orderId).isGreaterThan(0L);
-        verify(userCouponRepository, times(1)).selectByUserCouponId(couponId);
+        verify(userCouponRepository, times(1)).findByUserCouponId(couponId);
     }
 
     @Test
@@ -88,7 +88,7 @@ class SaveOrderServiceTest {
         SaveOrderItemCommand item = new SaveOrderItemCommand(1L, 2L, "상품C", 30000L, couponId, 1);
         SaveOrderCommand command = new SaveOrderCommand(30L, List.of(item));
         UserCoupon coupon = new UserCoupon(11L, 0L, 30L, 0L, UserCouponStatus.ISSUED, CouponPolicyType.RATE, 10.0f, null, 10000L, 30, LocalDateTime.now().plusDays(30));
-        when(userCouponRepository.selectByUserCouponId(couponId)).thenReturn(Optional.of(coupon));
+        when(userCouponRepository.findByUserCouponId(couponId)).thenReturn(Optional.of(coupon));
         doNothing().when(orderRepository).save(any(Order.class));
         doNothing().when(orderItemRepository).saveAll(any());
 
@@ -97,7 +97,7 @@ class SaveOrderServiceTest {
 
         // then
         assertThat(orderId).isGreaterThan(0L);
-        verify(userCouponRepository, times(1)).selectByUserCouponId(couponId);
+        verify(userCouponRepository, times(1)).findByUserCouponId(couponId);
     }
 
     @Test
@@ -108,7 +108,7 @@ class SaveOrderServiceTest {
         SaveOrderItemCommand item = new SaveOrderItemCommand(1L, 2L, "상품D", 5000L, couponId, 1);
         SaveOrderCommand command = new SaveOrderCommand(40L, List.of(item));
         UserCoupon coupon = new UserCoupon(12L, 0L, 40L, 0L, UserCouponStatus.ISSUED, CouponPolicyType.FIXED, null, 3000L, 10000L, 30, LocalDateTime.now().plusDays(30));
-        when(userCouponRepository.selectByUserCouponId(couponId)).thenReturn(Optional.of(coupon));
+        when(userCouponRepository.findByUserCouponId(couponId)).thenReturn(Optional.of(coupon));
         doNothing().when(orderRepository).save(any(Order.class));
         doNothing().when(orderItemRepository).saveAll(any());
 
@@ -117,6 +117,6 @@ class SaveOrderServiceTest {
 
         // then
         assertThat(orderId).isGreaterThan(0L);
-        verify(userCouponRepository, times(1)).selectByUserCouponId(couponId);
+        verify(userCouponRepository, times(1)).findByUserCouponId(couponId);
     }
 } 

@@ -10,6 +10,6 @@ import java.util.List;
  * 구현체는 인프라 계층에 위치함
  */
 public interface TransactionHistoryRepository {
-    List<TransactionHistory> selectByUserId(long userId);
+    List<TransactionHistory> findAllByUserId(long userId);
     void save(long userId, TransactionType type, long amount);
 }

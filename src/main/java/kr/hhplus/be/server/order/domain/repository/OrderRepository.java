@@ -7,6 +7,6 @@ import kr.hhplus.be.server.order.domain.model.Order;
  * 구현체는 인프라 계층에 위치함
  */
 public interface OrderRepository {
-    Order selectByOrderId (long orderId);
+    Order findById (long orderId);
     void save(Order order);
 }

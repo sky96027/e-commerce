@@ -28,7 +28,7 @@ public class FindOrderItemByOrderIdService implements FindOrderItemByOrderIdUseC
 
     @Override
     public List<OrderItemDto> findByOrderId(long orderId) {
-        List<OrderItem> items = orderItemRepository.selectByOrderId(orderId);
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
         return items.stream()
                 .map(OrderItemDto::from)
                 .toList();

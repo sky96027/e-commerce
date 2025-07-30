@@ -35,7 +35,7 @@ public class DeductUserBalanceService implements DeductUserBalanceUseCase {
     public UserDto deductBalance(long userId, long amount) {
         User user = userRepository.selectById(userId);
         User updated = user.deduct(amount);
-        User saved = userRepository.insertOrUpdate(userId, updated.getBalance());
+        User saved = userRepository.update(userId, updated.getBalance());
 
         return UserDto.from(saved);
     }

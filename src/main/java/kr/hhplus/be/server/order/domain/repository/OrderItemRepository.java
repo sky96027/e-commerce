@@ -9,6 +9,6 @@ import java.util.List;
  * 구현체는 인프라 계층에 위치함
  */
 public interface OrderItemRepository {
-    List<OrderItem> selectByOrderId(long orderId);
+    List<OrderItem> findAllByOrderId(long orderId);
     void saveAll(List<OrderItem> items);
 }

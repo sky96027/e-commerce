@@ -10,9 +10,9 @@ import java.util.Optional;
  * 구현체는 인프라 계층에 위치함
  */
 public interface UserCouponRepository {
-    List<UserCoupon> selectCouponsByUserId(long userId);
+    List<UserCoupon> findByUserId(long userId);
 
-    Optional<UserCoupon> selectByUserCouponId(long userCouponId);
+    Optional<UserCoupon> findByUserCouponId(long userCouponId);
 
     void insertOrUpdate(UserCoupon userCoupon);
 }

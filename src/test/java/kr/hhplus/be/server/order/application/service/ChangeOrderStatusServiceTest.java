@@ -44,8 +44,8 @@ class ChangeOrderStatusServiceTest {
         List<OrderItem> items = List.of(
                 new OrderItem(10L, orderId, 100L, 200L, "상품A", 10000L, 0L, null, 1)
         );
-        when(orderRepository.selectByOrderId(orderId)).thenReturn(order);
-        when(orderItemRepository.selectByOrderId(orderId)).thenReturn(items);
+        when(orderRepository.findById(orderId)).thenReturn(order);
+        when(orderItemRepository.findAllByOrderId(orderId)).thenReturn(items);
         doNothing().when(orderRepository).save(any(Order.class));
 
         // when
@@ -54,9 +54,9 @@ class ChangeOrderStatusServiceTest {
         // then
         assertThat(result.orderId()).isEqualTo(orderId);
         assertThat(result.status()).isEqualTo(OrderStatus.AFTER_PAYMENT.name());
-        verify(orderRepository, times(1)).selectByOrderId(orderId);
+        verify(orderRepository, times(1)).findById(orderId);
         verify(orderRepository, times(1)).save(any(Order.class));
-        verify(orderItemRepository, times(1)).selectByOrderId(orderId);
+        verify(orderItemRepository, times(1)).findAllByOrderId(orderId);
     }
 
     @Test
@@ -64,14 +64,14 @@ class ChangeOrderStatusServiceTest {
     void changeStatus_notFound_throwsException() {
         // given
         long orderId = 2L;
-        when(orderRepository.selectByOrderId(orderId)).thenReturn(null);
+        when(orderRepository.findById(orderId)).thenReturn(null);
 
         // when & then
         assertThatThrownBy(() -> changeOrderStatusService.changeStatus(orderId, OrderStatus.AFTER_PAYMENT))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("해당 주문이 존재하지 않습니다");
-        verify(orderRepository, times(1)).selectByOrderId(orderId);
+        verify(orderRepository, times(1)).findById(orderId);
         verify(orderRepository, never()).save(any(Order.class));
-        verify(orderItemRepository, never()).selectByOrderId(anyLong());
+        verify(orderItemRepository, never()).findAllByOrderId(anyLong());
     }
 } 

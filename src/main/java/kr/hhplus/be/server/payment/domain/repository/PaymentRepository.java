@@ -8,5 +8,5 @@ import kr.hhplus.be.server.payment.domain.model.Payment;
  */
 public interface PaymentRepository {
     void save(Payment payment);
-    Payment findByOrderId(long orderId);
+    Payment findById(long orderId);
 }

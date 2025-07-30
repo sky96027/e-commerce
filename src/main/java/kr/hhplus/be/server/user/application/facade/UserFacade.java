@@ -61,6 +61,6 @@ public class UserFacade {
     public List<TransactionHistoryDto> findUserHistories(long userId) {
         findUserUseCase.findById(userId);
 
-        return findHistoryUseCase.findByUserId(userId);
+        return findHistoryUseCase.findAllByUserId(userId);
     }
 }

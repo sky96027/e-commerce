@@ -19,8 +19,6 @@ public class CouponIssue {
     private final LocalDateTime issueStartDate;
     private final CouponIssueStatus status;
     private final float discountRateSnapshot;
-    private final long discountAmountSnapshot;
-    private final long minimumOrderAmountSnapshot;
     private final int usagePeriodSnapshot;
     private final CouponPolicyType typeSnapshot;
 
@@ -36,8 +34,6 @@ public class CouponIssue {
             LocalDateTime issueStartDate,
             CouponIssueStatus status,
             float discountRateSnapshot,
-            long discountAmountSnapshot,
-            long minimumOrderAmountSnapshot,
             int usagePeriodSnapshot,
             CouponPolicyType typeSnapshot
     ) {
@@ -48,8 +44,6 @@ public class CouponIssue {
         this.issueStartDate = issueStartDate;
         this.status = status;
         this.discountRateSnapshot = discountRateSnapshot;
-        this.discountAmountSnapshot = discountAmountSnapshot;
-        this.minimumOrderAmountSnapshot = minimumOrderAmountSnapshot;
         this.usagePeriodSnapshot = usagePeriodSnapshot;
         this.typeSnapshot = typeSnapshot;
     }
@@ -66,8 +60,6 @@ public class CouponIssue {
                 this.issueStartDate,
                 this.status,
                 this.discountRateSnapshot,
-                this.discountAmountSnapshot,
-                this.minimumOrderAmountSnapshot,
                 this.usagePeriodSnapshot,
                 this.typeSnapshot
         );

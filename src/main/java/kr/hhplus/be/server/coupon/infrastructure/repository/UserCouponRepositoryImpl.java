@@ -3,6 +3,8 @@ package kr.hhplus.be.server.coupon.infrastructure.repository;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
+import kr.hhplus.be.server.coupon.infrastructure.entity.UserCouponJpaEntity;
+import kr.hhplus.be.server.coupon.infrastructure.mapper.UserCouponMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * In-memory UserCouponRepository 구현체
@@ -18,27 +21,31 @@ import java.util.concurrent.atomic.AtomicLong;
 @Repository
 public class UserCouponRepositoryImpl implements UserCouponRepository {
 
-    private final Map<Long, UserCoupon> table = new HashMap<>();
-    private final AtomicLong sequence = new AtomicLong(1); // ID 시퀀스
+    private final UserCouponJpaRepository jpaRepository;
+    private final UserCouponMapper mapper;
+
+    public UserCouponRepositoryImpl(UserCouponJpaRepository jpaRepository, UserCouponMapper mapper) {
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
 
     /**
      * 특정 유저의 보유 쿠폰 목록 조회
      */
     @Override
-    public List<UserCoupon> selectCouponsByUserId(long userId) {
-        throttle(200);
-        return table.values().stream()
-                .filter(coupon -> coupon.getUserId() == userId)
-                .toList();
+    public List<UserCoupon> findByUserId(long userId) {
+        return jpaRepository.findAllByUserId(userId).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     /**
      * userCouponId로 단일 쿠폰 조회
      */
     @Override
-    public Optional<UserCoupon> selectByUserCouponId(long userCouponId) {
-        throttle(200);
-        return Optional.ofNullable(table.get(userCouponId));
+    public Optional<UserCoupon> findByUserCouponId(long userCouponId) {
+        return jpaRepository.findById(userCouponId)
+                .map(mapper::toDomain);
     }
 
     /**
@@ -46,30 +53,7 @@ public class UserCouponRepositoryImpl implements UserCouponRepository {
      */
     @Override
     public void insertOrUpdate(UserCoupon userCoupon) {
-        throttle(200);
-        long id = sequence.getAndIncrement();
-
-        UserCoupon withId = new UserCoupon(
-                id,
-                userCoupon.getCouponId(),
-                userCoupon.getUserId(),
-                userCoupon.getPolicyId(),
-                UserCouponStatus.ISSUED,
-                userCoupon.getTypeSnapshot(),
-                userCoupon.getDiscountRateSnapshot(),
-                userCoupon.getDiscountAmountSnapshot(),
-                userCoupon.getMinimumOrderAmountSnapshot(),
-                userCoupon.getUsagePeriodSnapshot(),
-                userCoupon.getExpiredAt()
-        );
-
-        table.put(id, withId);
-    }
-
-    private void throttle(long millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep((long) (Math.random() * millis));
-        } catch (InterruptedException ignored) {
-        }
+        UserCouponJpaEntity entity = mapper.toEntity(userCoupon);
+        jpaRepository.save(entity);
     }
 }

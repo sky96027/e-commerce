@@ -8,5 +8,6 @@ import kr.hhplus.be.server.user.domain.model.User;
  */
 public interface UserRepository {
     User selectById(long userId);
-    User insertOrUpdate(long userId, long Balance);
+    User insert(long balance);
+    User update(long userId, long balance);
 }

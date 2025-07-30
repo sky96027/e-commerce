@@ -20,6 +20,7 @@ public class TransactionHistory {
     /**
      * 전체 필드를 초기화하는 생성자
      */
+
     public TransactionHistory(
             long transactionId,
             long userId,
@@ -32,6 +33,11 @@ public class TransactionHistory {
         this.type = type;
         this.transactionTime = transactionTime;
         this.amount = amount;
+    }
+
+    // insert
+    public TransactionHistory(long userId, TransactionType type, long amount) {
+        this(0L, userId, type, LocalDateTime.now(), amount);
     }
 
 }
