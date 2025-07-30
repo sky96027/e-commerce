@@ -13,8 +13,6 @@ public record SaveUserCouponCommand(
         long policyId,
         CouponPolicyType typeSnapshot,
         Float discountRateSnapshot,
-        Long discountAmountSnapshot,
-        Long minimumOrderAmountSnapshot,
         int usagePeriodSnapshot,
         LocalDateTime expiredAt
 ) {}

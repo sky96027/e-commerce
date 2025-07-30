@@ -38,7 +38,7 @@ class FindUserCouponSummaryServiceTest {
         long userId = 1L;
         UserCoupon userCoupon = new UserCoupon(
                 10L, 20L, userId, 30L, UserCouponStatus.ISSUED,
-                CouponPolicyType.FIXED, 10.0f, 1000L, 5000L, 30, LocalDateTime.now().plusDays(30)
+                CouponPolicyType.FIXED, 10.0f, 30, LocalDateTime.now().plusDays(30)
         );
         when(userCouponRepository.findByUserId(userId)).thenReturn(List.of(userCoupon));
 
@@ -55,8 +55,6 @@ class FindUserCouponSummaryServiceTest {
         assertThat(dto.status()).isEqualTo(UserCouponStatus.ISSUED);
         assertThat(dto.typeSnapshot()).isEqualTo(CouponPolicyType.FIXED);
         assertThat(dto.discountRateSnapshot()).isEqualTo(10.0f);
-        assertThat(dto.discountAmountSnapshot()).isEqualTo(1000L);
-        assertThat(dto.minimumOrderAmountSnapshot()).isEqualTo(5000L);
         assertThat(dto.usagePeriodSnapshot()).isEqualTo(30);
     }
 

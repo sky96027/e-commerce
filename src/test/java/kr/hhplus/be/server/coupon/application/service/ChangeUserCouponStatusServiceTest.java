@@ -39,7 +39,7 @@ class ChangeUserCouponStatusServiceTest {
         UserCouponStatus newStatus = UserCouponStatus.USED;
         UserCoupon original = new UserCoupon(
                 userCouponId, 2L, 3L, 4L, UserCouponStatus.ISSUED,
-                CouponPolicyType.FIXED, 10.0f, 1000L, 5000L, 30, LocalDateTime.now().plusDays(30)
+                CouponPolicyType.FIXED, 10.0f, 30, LocalDateTime.now().plusDays(30)
         );
         UserCoupon updated = original.changeStatus(newStatus);
 

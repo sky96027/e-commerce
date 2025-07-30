@@ -34,7 +34,64 @@ public class SaveOrderService implements SaveOrderUseCase {
         this.orderItemRepository = orderItemRepository;
         this.userCouponRepository = userCouponRepository;
     }
+
     @Override
+    public long save(SaveOrderCommand command) {
+        long orderId = orderIdSequence.getAndIncrement();
+
+        long totalAmount = command.items().stream()
+                .mapToLong(item -> item.productPrice() * item.quantity())
+                .sum();
+
+        List<OrderItem> orderItems = command.items().stream()
+                .map(item -> {
+                    long orderItemId = orderItemIdSequence.getAndIncrement();
+                    long discountAmount = 0L;
+
+                    if (item.userCouponId() != null) {
+                        UserCoupon coupon = userCouponRepository.findByUserCouponId(item.userCouponId())
+                                .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다: id = " + item.userCouponId()));
+
+                        long totalItemPrice = item.productPrice() * item.quantity();
+
+                        discountAmount = Math.round(totalItemPrice * (coupon.getDiscountRateSnapshot() / 100.0));
+
+                    }
+
+                    return new OrderItem(
+                            orderItemId,
+                            orderId,
+                            item.productId(),
+                            item.optionId(),
+                            item.productName(),
+                            item.productPrice(),
+                            discountAmount,
+                            item.userCouponId(),
+                            item.quantity()
+                    );
+                })
+                .toList();
+
+        long totalDiscountAmount = orderItems.stream()
+                .mapToLong(OrderItem::getDiscountAmount)
+                .sum();
+
+        Order order = new Order(
+                orderId,
+                command.userId(),
+                totalAmount,
+                totalDiscountAmount,
+                OrderStatus.BEFORE_PAYMENT,
+                LocalDateTime.now()
+        );
+
+        orderRepository.save(order);
+        orderItemRepository.saveAll(orderItems);
+
+        return orderId;
+    }
+
+    /*@Override
     public long save (SaveOrderCommand command) {
         long orderId = orderIdSequence.getAndIncrement();
 
@@ -95,5 +152,5 @@ public class SaveOrderService implements SaveOrderUseCase {
         orderItemRepository.saveAll(orderItems);
 
         return orderId;
-    }
+    }*/
 }
