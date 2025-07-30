@@ -1,9 +1,6 @@
 package kr.hhplus.be.server.product.infrastructure.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
 import lombok.Getter;
 
@@ -30,6 +27,7 @@ public class ProductOptionJpaEntity {
     ) {}
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "option_id")
     private long optionId;
 
