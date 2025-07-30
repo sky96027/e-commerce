@@ -40,7 +40,7 @@ class SaveUserCouponServiceTest {
     void saveUserCoupon_success() {
         // given
         SaveUserCouponCommand command = new SaveUserCouponCommand(
-                1L, 2L, 3L, CouponPolicyType.FIXED, 10.0f, 1000L, 5000L, 30, LocalDateTime.now().plusDays(30)
+                1L, 2L, 3L, CouponPolicyType.FIXED, 10.0f, 30, LocalDateTime.now().plusDays(30)
         );
         CouponIssue couponIssue = new CouponIssue(2L, 3L, 100, 10, LocalDateTime.now(), CouponIssueStatus.ISSUABLE, 10.0f, 30, CouponPolicyType.FIXED);
         CouponIssue updatedIssue = new CouponIssue(2L, 3L, 100, 9, LocalDateTime.now(), CouponIssueStatus.ISSUABLE, 10.0f, 30, CouponPolicyType.FIXED);
@@ -57,7 +57,7 @@ class SaveUserCouponServiceTest {
         saveUserCouponService.save(command);
 
         // then
-        verify(couponIssueRepository, times(1)).selectById(2L);
+        verify(couponIssueRepository, times(1)).findById(2L);
         verify(couponIssueRepository, times(1)).update(any(CouponIssue.class));
         verify(userCouponRepository, times(1)).insertOrUpdate(any(UserCoupon.class));
     }
@@ -67,7 +67,7 @@ class SaveUserCouponServiceTest {
     void saveUserCoupon_noRemaining_throwsException() {
         // given
         SaveUserCouponCommand command = new SaveUserCouponCommand(
-                1L, 2L, 3L, CouponPolicyType.FIXED, 10.0f, 1000L, 5000L, 30, LocalDateTime.now().plusDays(30)
+                1L, 2L, 3L, CouponPolicyType.FIXED, 10.0f, 30, LocalDateTime.now().plusDays(30)
         );
         CouponIssue couponIssue = new CouponIssue(2L, 3L, 100, 0, LocalDateTime.now(), CouponIssueStatus.ISSUABLE, 10.0f, 30, CouponPolicyType.FIXED);
         when(couponIssueRepository.findById(2L)).thenReturn(couponIssue);

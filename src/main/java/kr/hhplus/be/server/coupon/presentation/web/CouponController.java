@@ -38,8 +38,6 @@ public class CouponController implements CouponApiSpec {
                         dto.status(),
                         dto.typeSnapshot(),
                         dto.discountRateSnapshot(),
-                        dto.discountAmountSnapshot(),
-                        dto.minimumOrderAmountSnapshot(),
                         dto.usagePeriodSnapshot(),
                         dto.expiredAt()
                 ))
@@ -60,8 +58,6 @@ public class CouponController implements CouponApiSpec {
                 request.policyId(),
                 request.typeSnapshot(),
                 request.discountRateSnapshot(),
-                request.discountAmountSnapshot(),
-                request.minimumOrderAmountSnapshot(),
                 request.usagePeriodSnapshot(),
                 request.expiredAt()
         );

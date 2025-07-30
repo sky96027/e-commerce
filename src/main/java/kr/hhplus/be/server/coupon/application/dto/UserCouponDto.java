@@ -19,8 +19,6 @@ public record UserCouponDto(
         UserCouponStatus status,
         CouponPolicyType typeSnapshot,
         Float discountRateSnapshot,
-        Long discountAmountSnapshot,
-        Long minimumOrderAmountSnapshot,
         int usagePeriodSnapshot,
         LocalDateTime expiredAt
 ) {
@@ -38,8 +36,6 @@ public record UserCouponDto(
                 userCoupon.getStatus(),
                 userCoupon.getTypeSnapshot(),
                 userCoupon.getDiscountRateSnapshot(),
-                userCoupon.getDiscountAmountSnapshot(),
-                userCoupon.getMinimumOrderAmountSnapshot(),
                 userCoupon.getUsagePeriodSnapshot(),
                 userCoupon.getExpiredAt()
         );

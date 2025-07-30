@@ -36,7 +36,7 @@ class FindDetailServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Product product = new Product(productId, name, status, now, null);
-        when(productRepository.selectById(productId)).thenReturn(product);
+        when(productRepository.findById(productId)).thenReturn(product);
 
         // when
         ProductDto result = findDetailService.findById(productId);
@@ -47,7 +47,7 @@ class FindDetailServiceTest {
         assertThat(result.status()).isEqualTo(status);
         assertThat(result.createdAt()).isEqualTo(now);
         assertThat(result.expiredAt()).isNull();
-        verify(productRepository, times(1)).selectById(productId);
+        verify(productRepository, times(1)).findById(productId);
     }
 
     @Test
@@ -55,12 +55,12 @@ class FindDetailServiceTest {
     void findById_notFound_throwsException() {
         // given
         long productId = 999L;
-        when(productRepository.selectById(productId)).thenReturn(null);
+        when(productRepository.findById(productId)).thenReturn(null);
 
         // when & then
         assertThatThrownBy(() -> findDetailService.findById(productId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("상품을 찾을 수 없습니다");
-        verify(productRepository, times(1)).selectById(productId);
+        verify(productRepository, times(1)).findById(productId);
     }
 }

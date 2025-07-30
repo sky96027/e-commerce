@@ -32,7 +32,7 @@ public class FindDetailService implements FindDetailUseCase {
      */
     @Override
     public ProductDto findById(long productId) {
-        Product product = productRepository.selectById(productId);
+        Product product = productRepository.findById(productId);
         if (product == null) {
             throw new IllegalArgumentException("상품을 찾을 수 없습니다. ID: " + productId);
         }

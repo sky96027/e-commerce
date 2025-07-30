@@ -28,8 +28,9 @@ public class CouponPolicyRepositoryImpl implements CouponPolicyRepository {
     }
 
     @Override
-    public void update(CouponPolicy couponPolicy) {
+    public CouponPolicy update(CouponPolicy couponPolicy) {
         CouponPolicyJpaEntity entity = mapper.toEntity(couponPolicy);
-        jpaRepository.save(entity);
+        CouponPolicyJpaEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(saved);
     }
 }
