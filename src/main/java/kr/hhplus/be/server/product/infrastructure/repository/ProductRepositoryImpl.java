@@ -2,6 +2,7 @@ package kr.hhplus.be.server.product.infrastructure.repository;
 
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
+import kr.hhplus.be.server.product.infrastructure.mapper.ProductMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -9,33 +10,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * In-memory ProductRepository 구현체
  */
 @Repository
 public class ProductRepositoryImpl implements ProductRepository {
-    private final Map<Long, Product> table = new HashMap<>();
 
-    @Override
-    public Product selectById(long productId) {
-        throttle(200);
-        return table.get(productId);
+    private final ProductJpaRepository jpaRepository;
+    private final ProductMapper mapper;
+
+    public ProductRepositoryImpl(ProductJpaRepository jpaRepository, ProductMapper mapper) {
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
     }
 
     @Override
-    public List<Product> selectSummaries() {
-        throttle(200);
-        return new ArrayList<>(table.values());
+    public Product findById(long productId) {
+        return jpaRepository.findById(productId)
+                .map(mapper::toDomain)
+                .orElse(null);
     }
 
-    private void throttle(long millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep((long) (Math.random() * millis));
-        } catch (InterruptedException ignored) {
-        }
+    @Override
+    public List<Product> findAllSummaries() {
+        return jpaRepository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
-
-
-
 }

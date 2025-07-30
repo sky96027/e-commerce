@@ -27,8 +27,8 @@ public class FindHistoryService implements FindHistoryUseCase {
     }
 
     @Override
-    public List<TransactionHistoryDto> findByUserId(long userId) {
-        List<TransactionHistory> history = repository.selectByUserId(userId);
+    public List<TransactionHistoryDto> findAllByUserId(long userId) {
+        List<TransactionHistory> history = repository.findAllByUserId(userId);
         return TransactionHistoryDto.fromList(history);
     }
 }

@@ -35,14 +35,14 @@ class DeductStockServiceTest {
         long optionId = 1L;
         ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
         ProductOption updated = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 8, option.getCreatedAt(), null);
-        when(productOptionRepository.findByOptionId(optionId)).thenReturn(option);
+        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(option);
         doNothing().when(productOptionRepository).insertOrUpdate(any(ProductOption.class));
 
         // when
         deductStockService.deductStock(optionId, 2);
 
         // then
-        verify(productOptionRepository, times(1)).findByOptionId(optionId);
+        verify(productOptionRepository, times(1)).findOptionByOptionId(optionId);
         verify(productOptionRepository, times(1)).insertOrUpdate(any(ProductOption.class));
     }
 
@@ -52,13 +52,13 @@ class DeductStockServiceTest {
         // given
         long optionId = 2L;
         ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 1, LocalDateTime.now(), null);
-        when(productOptionRepository.findByOptionId(optionId)).thenReturn(option);
+        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(option);
 
         // when & then
         assertThatThrownBy(() -> deductStockService.deductStock(optionId, 2))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("재고가 부족합니다");
-        verify(productOptionRepository, times(1)).findByOptionId(optionId);
+        verify(productOptionRepository, times(1)).findOptionByOptionId(optionId);
         verify(productOptionRepository, never()).insertOrUpdate(any(ProductOption.class));
     }
 
@@ -68,13 +68,13 @@ class DeductStockServiceTest {
         // given
         long optionId = 3L;
         ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
-        when(productOptionRepository.findByOptionId(optionId)).thenReturn(option);
+        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(option);
 
         // when & then
         assertThatThrownBy(() -> deductStockService.deductStock(optionId, -1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("차감량은 음수일 수 없습니다");
-        verify(productOptionRepository, times(1)).findByOptionId(optionId);
+        verify(productOptionRepository, times(1)).findOptionByOptionId(optionId);
         verify(productOptionRepository, never()).insertOrUpdate(any(ProductOption.class));
     }
 } 

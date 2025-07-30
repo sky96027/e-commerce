@@ -16,11 +16,11 @@ public class TransactionHistoryJpaEntity {
 
     protected TransactionHistoryJpaEntity() {}
 
-    public TransactionHistoryJpaEntity(long userId, TransactionType type, long amount) {
+    public TransactionHistoryJpaEntity(long userId, TransactionType type, long amount, LocalDateTime transactionTime) {
         this.userId = userId;
         this.type = type;
         this.amount = amount;
-        this.transactionTime = LocalDateTime.now();
+        this.transactionTime = transactionTime;
     }
 
     @Id

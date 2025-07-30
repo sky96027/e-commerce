@@ -32,7 +32,7 @@ class FindByOrderIdServiceTest {
         // given
         long orderId = 1L;
         Payment payment = new Payment(10L, orderId, 2L, 10000L, 2000L, PaymentStatus.BEFORE_PAYMENT);
-        when(paymentRepository.findByOrderId(orderId)).thenReturn(payment);
+        when(paymentRepository.findById(orderId)).thenReturn(payment);
 
         // when
         PaymentDto result = findByOrderIdService.findByOrderId(orderId);
@@ -47,7 +47,7 @@ class FindByOrderIdServiceTest {
     void findByOrderId_notFound_npe() {
         // given
         long orderId = 2L;
-        when(paymentRepository.findByOrderId(orderId)).thenReturn(null);
+        when(paymentRepository.findById(orderId)).thenReturn(null);
 
         // when
         // PaymentDto.from(null)에서 NPE 발생 예상

@@ -33,6 +33,6 @@ public class FindByOrderIdService implements FindByOrderIdUseCase {
      */
     @Override
     public PaymentDto findByOrderId(long orderId) {
-        return PaymentDto.from(paymentRepository.findByOrderId(orderId));
+        return PaymentDto.from(paymentRepository.findById(orderId));
     }
 }

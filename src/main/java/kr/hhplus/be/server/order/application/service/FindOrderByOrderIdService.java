@@ -41,8 +41,8 @@ public class FindOrderByOrderIdService implements FindOrderByOrderIdUseCase {
      */
     @Override
     public OrderDto findById(long orderId) {
-        Order order = orderRepository.selectByOrderId(orderId);
-        List<OrderItem> items = orderItemRepository.selectByOrderId(orderId);
+        Order order = orderRepository.findById(orderId);
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
 
         return OrderDto.from(order, items);
     }

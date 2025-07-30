@@ -25,7 +25,7 @@ class UserCouponTest {
         LocalDateTime expiredAt = LocalDateTime.now().plusDays(30);
 
         // when
-        UserCoupon userCoupon = UserCoupon.issueNew(userId, couponId, policyId, type, discountRate, discountAmount, minOrderAmount, usagePeriod, expiredAt);
+        UserCoupon userCoupon = UserCoupon.issueNew(userId, couponId, policyId, type, discountRate, usagePeriod, expiredAt);
 
         // then
         assertThat(userCoupon.getUserCouponId()).isEqualTo(0L);
@@ -34,8 +34,6 @@ class UserCouponTest {
         assertThat(userCoupon.getPolicyId()).isEqualTo(policyId);
         assertThat(userCoupon.getTypeSnapshot()).isEqualTo(type);
         assertThat(userCoupon.getDiscountRateSnapshot()).isEqualTo(discountRate);
-        assertThat(userCoupon.getDiscountAmountSnapshot()).isEqualTo(discountAmount);
-        assertThat(userCoupon.getMinimumOrderAmountSnapshot()).isEqualTo(minOrderAmount);
         assertThat(userCoupon.getUsagePeriodSnapshot()).isEqualTo(usagePeriod);
         assertThat(userCoupon.getExpiredAt()).isEqualTo(expiredAt);
         assertThat(userCoupon.getStatus()).isEqualTo(UserCouponStatus.ISSUED);
@@ -47,7 +45,7 @@ class UserCouponTest {
         // given
         UserCoupon original = new UserCoupon(
                 10L, 2L, 1L, 3L, UserCouponStatus.ISSUED,
-                CouponPolicyType.FIXED, 10.0f, 1000L, 5000L, 30, LocalDateTime.now().plusDays(30)
+                CouponPolicyType.FIXED, 10.0f, 30, LocalDateTime.now().plusDays(30)
         );
         // when
         UserCoupon updated = original.changeStatus(UserCouponStatus.USED);

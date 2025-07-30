@@ -20,8 +20,6 @@ public class UserCoupon {
 
     private final CouponPolicyType typeSnapshot;
     private final Float discountRateSnapshot;
-    private final Long discountAmountSnapshot;
-    private final Long minimumOrderAmountSnapshot;
     private final int usagePeriodSnapshot;
     private final LocalDateTime expiredAt;
 
@@ -33,8 +31,6 @@ public class UserCoupon {
             UserCouponStatus status,
             CouponPolicyType typeSnapshot,
             Float discountRateSnapshot,
-            Long discountAmountSnapshot,
-            Long minimumOrderAmountSnapshot,
             int usagePeriodSnapshot,
             LocalDateTime expiredAt
     ) {
@@ -45,8 +41,6 @@ public class UserCoupon {
         this.status = status;
         this.typeSnapshot = typeSnapshot;
         this.discountRateSnapshot = discountRateSnapshot;
-        this.discountAmountSnapshot = discountAmountSnapshot;
-        this.minimumOrderAmountSnapshot = minimumOrderAmountSnapshot;
         this.usagePeriodSnapshot = usagePeriodSnapshot;
         this.expiredAt = expiredAt;
     }
@@ -57,8 +51,6 @@ public class UserCoupon {
             long policyId,
             CouponPolicyType typeSnapshot,
             Float discountRateSnapshot,
-            Long discountAmountSnapshot,
-            Long minimumOrderAmountSnapshot,
             int usagePeriodSnapshot,
             LocalDateTime expiredAt
     ) {
@@ -70,8 +62,6 @@ public class UserCoupon {
                 UserCouponStatus.ISSUED,
                 typeSnapshot,
                 discountRateSnapshot,
-                discountAmountSnapshot,
-                minimumOrderAmountSnapshot,
                 usagePeriodSnapshot,
                 expiredAt
         );
@@ -85,8 +75,6 @@ public class UserCoupon {
                 newStatus,
                 this.typeSnapshot,
                 this.discountRateSnapshot,
-                this.discountAmountSnapshot,
-                this.minimumOrderAmountSnapshot,
                 this.usagePeriodSnapshot,
                 this.expiredAt
         );

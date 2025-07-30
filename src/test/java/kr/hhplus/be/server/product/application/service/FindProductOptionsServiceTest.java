@@ -35,7 +35,7 @@ class FindProductOptionsServiceTest {
         ProductOption option1 = new ProductOption(1L, productId, "옵션1", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
         ProductOption option2 = new ProductOption(2L, productId, "옵션2", ProductOptionStatus.ON_SALE, 15000L, 5, LocalDateTime.now(), null);
 
-        when(productOptionRepository.findByProductId(productId)).thenReturn(List.of(option1, option2));
+        when(productOptionRepository.findOptionsByProductId(productId)).thenReturn(List.of(option1, option2));
 
         // when
         List<ProductOptionDto> result = findProductOptionsService.findByProductId(productId);
@@ -43,7 +43,7 @@ class FindProductOptionsServiceTest {
         // then
         assertThat(result).hasSize(2);
         assertThat(result).extracting("optionId").containsExactly(1L, 2L);
-        verify(productOptionRepository, times(1)).findByProductId(productId);
+        verify(productOptionRepository, times(1)).findOptionsByProductId(productId);
     }
 
     @Test
@@ -51,13 +51,13 @@ class FindProductOptionsServiceTest {
     void findByProductId_empty() {
         // given
         long productId = 99L;
-        when(productOptionRepository.findByProductId(productId)).thenReturn(List.of());
+        when(productOptionRepository.findOptionsByProductId(productId)).thenReturn(List.of());
 
         // when
         List<ProductOptionDto> result = findProductOptionsService.findByProductId(productId);
 
         // then
         assertThat(result).isEmpty();
-        verify(productOptionRepository, times(1)).findByProductId(productId);
+        verify(productOptionRepository, times(1)).findOptionsByProductId(productId);
     }
 }

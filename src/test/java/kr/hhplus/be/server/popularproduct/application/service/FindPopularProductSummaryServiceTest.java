@@ -35,7 +35,7 @@ class FindPopularProductSummaryServiceTest {
     void findSummary_success() {
         // given
         PopularProduct product = new PopularProduct(1L, 10L, 100, 1, LocalDate.now(), LocalDateTime.now());
-        when(popularProductRepository.selectSummaries()).thenReturn(List.of(product));
+        when(popularProductRepository.findAllSummaries()).thenReturn(List.of(product));
 
         // when
         List<PopularProductDto> result = findPopularProductSummaryService.findSummary();
@@ -50,7 +50,7 @@ class FindPopularProductSummaryServiceTest {
     @DisplayName("인기 상품이 없을 때 빈 목록 반환")
     void findSummary_empty() {
         // given
-        when(popularProductRepository.selectSummaries()).thenReturn(Collections.emptyList());
+        when(popularProductRepository.findAllSummaries()).thenReturn(Collections.emptyList());
 
         // when
         List<PopularProductDto> result = findPopularProductSummaryService.findSummary();

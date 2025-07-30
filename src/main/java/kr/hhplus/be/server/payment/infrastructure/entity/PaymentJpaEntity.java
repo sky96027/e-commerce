@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.payment.infrastructure.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.payment.domain.type.PaymentStatus;
 import lombok.Getter;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 @Entity
-@Table(name = "payment")
+@Table(name = "PAYMENT")
 public class PaymentJpaEntity {
     public PaymentJpaEntity() {}
 
@@ -18,7 +19,7 @@ public class PaymentJpaEntity {
             Long userId,
             Long totalAmountSnapshot,
             Long totalDiscountAmountSnapshot,
-            String status
+            PaymentStatus status
     ) {
         this.paymentId = paymentId;
         this.orderId = orderId;
@@ -46,5 +47,5 @@ public class PaymentJpaEntity {
     private Long totalDiscountAmountSnapshot;
 
     @Column(name = "status", nullable = false, length = 50)
-    private String status;
+    private PaymentStatus status;
 }

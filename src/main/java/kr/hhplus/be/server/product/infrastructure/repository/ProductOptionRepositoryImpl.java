@@ -2,6 +2,8 @@ package kr.hhplus.be.server.product.infrastructure.repository;
 
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
+import kr.hhplus.be.server.product.infrastructure.entity.ProductOptionJpaEntity;
+import kr.hhplus.be.server.product.infrastructure.mapper.ProductOptionMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
@@ -10,55 +12,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * In-memory ProductOptionRepository 구현체
  */
 @Repository
 public class ProductOptionRepositoryImpl implements ProductOptionRepository {
-    private final Map<Long, ProductOption> table = new HashMap<>();
-    private final Map<Long, List<ProductOption>> optionListTable = new HashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
 
-    @Override
-    public List<ProductOption> findByProductId(long productId) {
-        throttle(200);
-        return optionListTable.getOrDefault(productId, Collections.emptyList());
-    }
+    private final ProductOptionJpaRepository jpaRepository;
+    private final ProductOptionMapper mapper;
 
-    @Override
-    public ProductOption findByOptionId(long optionId) {
-        throttle(200);
-        return table.get(optionId);
-    }
-
-    @Override
-    public void insertOrUpdate(ProductOption productOption) {
-        throttle(200);
-        long newId = idGenerator.getAndIncrement();
-        table.put(newId, productOption);
-    }
-
-    private void throttle(long millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep((long) (Math.random() * millis));
-        } catch (InterruptedException ignored) {
-        }
-    }
-
-    //db 도입시 아래 사용
-    /*private final ProductOptionJpaRepository jpaRepository;
-    private final ProductOptionEntityMapper mapper;
-
-    public ProductOptionRepositoryImpl(ProductOptionJpaRepository jpaRepository, ProductOptionEntityMapper mapper) {
+    public ProductOptionRepositoryImpl(ProductOptionJpaRepository jpaRepository, ProductOptionMapper mapper) {
         this.jpaRepository = jpaRepository;
         this.mapper = mapper;
     }
 
     @Override
-    public List<ProductOption> findByProductId(long productId) {
-        return jpaRepository.findByProductId(productId).stream()
+    public List<ProductOption> findOptionsByProductId(long productId) {
+        return jpaRepository.findOptionsByProductId(productId).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
-    }*/
+    }
+
+    @Override
+    public ProductOption findOptionByOptionId(long optionId) {
+        return jpaRepository.findById(optionId)
+                .map(mapper::toDomain)
+                .orElse(null);
+    }
+
+    @Override
+    public void insertOrUpdate(ProductOption productOption) {
+        ProductOptionJpaEntity entity = mapper.toEntity(productOption);
+        jpaRepository.save(entity); // insert or update
+    }
 }
