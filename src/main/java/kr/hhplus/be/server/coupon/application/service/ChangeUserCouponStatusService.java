@@ -28,7 +28,7 @@ public class ChangeUserCouponStatusService implements ChangeUserCouponStatusUseC
     @Transactional
     public UserCoupon changeStatus(long userCouponId, UserCouponStatus newStatus) {
         UserCoupon current = repository
-                .selectByUserCouponId(userCouponId)
+                .findByUserCouponId(userCouponId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 쿠폰이 존재하지 않습니다: " + userCouponId));
         UserCoupon updated = current.changeStatus(newStatus);
         repository.insertOrUpdate(updated);

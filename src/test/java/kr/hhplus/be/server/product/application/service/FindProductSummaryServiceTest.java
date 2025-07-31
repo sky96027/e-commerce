@@ -35,7 +35,7 @@ class FindProductSummaryServiceTest {
     void findSummary_success() {
         // given
         Product product = new Product(1L, "테스트상품", ProductStatus.ON_SALE, LocalDateTime.now(), null);
-        when(productRepository.selectSummaries()).thenReturn(List.of(product));
+        when(productRepository.findAllSummaries()).thenReturn(List.of(product));
 
         // when
         List<ProductDto> result = findProductSummaryService.findSummary();
@@ -50,7 +50,7 @@ class FindProductSummaryServiceTest {
     @DisplayName("상품이 없을 때 빈 목록 반환")
     void findSummary_empty() {
         // given
-        when(productRepository.selectSummaries()).thenReturn(Collections.emptyList());
+        when(productRepository.findAllSummaries()).thenReturn(Collections.emptyList());
 
         // when
         List<ProductDto> result = findProductSummaryService.findSummary();

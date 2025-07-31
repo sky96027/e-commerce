@@ -34,8 +34,8 @@ public class FindUserCouponSummaryService implements FindUserCouponSummaryUseCas
      */
     @Override
     public List<UserCouponDto> findSummary(long userId) {
-        return userCouponRepository.selectCouponsByUserId(userId).stream()
-                .map(UserCouponDto::from)  // domain → dto
+        return userCouponRepository.findByUserId(userId).stream()
+                .map(UserCouponDto::from)
                 .collect(Collectors.toList());
     }
 }

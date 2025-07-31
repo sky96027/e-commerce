@@ -8,7 +8,7 @@ erDiagram
 
     TRANSACTION_HISTORY {
         long transaction_id PK
-        long user_id FK
+        long user_id
         string type
         datetime transaction_time
         long amount
@@ -25,7 +25,7 @@ erDiagram
 
     PRODUCT_OPTION {
         long option_id PK
-        long product_id FK
+        long product_id
         string content
         string status
         long price
@@ -36,7 +36,7 @@ erDiagram
 
     ORDER {
         long order_id PK
-        long user_id FK
+        long user_id
         long total_amount
         long total_discount_amount
         string status
@@ -45,20 +45,20 @@ erDiagram
 
     ORDER_ITEM {
         long order_item_id PK
-        long order_id FK
-        long product_id FK
-        long option_id FK
-        string product_name FK
-        long product_price FK
+        long order_id
+        long product_id
+        long option_id
+        string product_name
+        long product_price
         long discount_amount
-        long user_coupon_id FK
+        long user_coupon_id
         int quantity
     }
 
     PAYMENT {
         long payment_id PK
-        long order_id FK
-        long user_id FK
+        long order_id
+        long user_id
         long total_amount_snapshot
         long total_discount_amount_snapshot
         string status
@@ -68,8 +68,6 @@ erDiagram
         %% nullable: discount_rate, discount_amount, minimum_order_amount
         long policy_id PK
         float discount_rate
-        long discount_amount
-        long minimum_order_amount
         int usage_period
         string type
         string status
@@ -77,35 +75,31 @@ erDiagram
 
     COUPON_ISSUE {
         long coupon_issue_id PK
-        long policy_id FK
+        long policy_id
         int total_issued
         int remaining
         datetime issue_start_date
         string status
         float discount_rate_snapshot
-        long discount_amount_snapshot
-        long minimum_order_amount_snapshot
         int usage_period_snapshot
         string type_snapshot
     }
 
     USER_COUPON {
         long user_coupon_id PK
-        long coupon_id FK
-        long user_id FK
-        long policy_id FK
+        long coupon_id
+        long user_id
+        long policy_id
         string status
         string type_snapshot
         float discount_rate_snapshot
-        long discount_amount_snapshot
-        long minimum_order_amount_snapshot
         int usage_period_snapshot
         datetime expired_at
     }
 
     POPULAR_PRODUCT {
         long id PK
-        long product_id FK
+        long product_id
         int total_sold_quantity
         int rank
         date reference_date

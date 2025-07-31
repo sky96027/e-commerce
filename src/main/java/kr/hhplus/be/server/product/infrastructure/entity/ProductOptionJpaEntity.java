@@ -1,9 +1,6 @@
 package kr.hhplus.be.server.product.infrastructure.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
 import lombok.Getter;
 
@@ -14,12 +11,12 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Entity
-@Table(name = "product")
+@Table(name = "PRODUCT_OPTION")
 public class ProductOptionJpaEntity {
     public ProductOptionJpaEntity() {}
 
     public ProductOptionJpaEntity(
-            long optionId,
+            Long optionId,
             long productId,
             String content,
             ProductOptionStatus status,
@@ -27,11 +24,21 @@ public class ProductOptionJpaEntity {
             int stock,
             LocalDateTime createdAt,
             LocalDateTime expiredAt
-    ) {}
+    ) {
+        this.optionId = optionId;
+        this.productId = productId;
+        this.content = content;
+        this.status = status;
+        this.price = price;
+        this.stock = stock;
+        this.createdAt = createdAt;
+        this.expiredAt = expiredAt;
+    }
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "option_id")
-    private long optionId;
+    private Long optionId;
 
     @Column(name = "product_id")
     private long productId;
@@ -53,5 +60,8 @@ public class ProductOptionJpaEntity {
 
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
+
+
+
 }
 

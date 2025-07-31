@@ -20,16 +20,13 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class SavePaymentService implements SavePaymentUseCase {
     private final PaymentRepository repository;
-    private final AtomicLong sequence = new AtomicLong(1);
 
     public SavePaymentService(PaymentRepository repository) { this.repository = repository; }
 
     @Override
     public long save(SavePaymentCommand command) {
-        long newId = sequence.getAndIncrement();
-
         Payment payment = new Payment(
-                newId,
+                0L,
                 command.orderId(),
                 command.userId(),
                 command.totalAmount(),
@@ -37,7 +34,7 @@ public class SavePaymentService implements SavePaymentUseCase {
                 command.status()
         );
 
-        repository.save(payment);
-        return newId;
+        Payment savedPayment = repository.save(payment);
+        return savedPayment.getPaymentId();
     }
 }

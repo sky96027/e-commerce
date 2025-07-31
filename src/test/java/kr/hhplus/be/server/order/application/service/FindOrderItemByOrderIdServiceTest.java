@@ -37,7 +37,7 @@ class FindOrderItemByOrderIdServiceTest {
                 new OrderItem(10L, orderId, 100L, 200L, "상품A", 10000L, 0L, null, 1),
                 new OrderItem(11L, orderId, 101L, 201L, "상품B", 20000L, 1000L, 1L, 2)
         );
-        when(orderItemRepository.selectByOrderId(orderId)).thenReturn(items);
+        when(orderItemRepository.findAllByOrderId(orderId)).thenReturn(items);
 
         // when
         List<OrderItemDto> result = findOrderItemByOrderIdService.findByOrderId(orderId);
@@ -46,7 +46,7 @@ class FindOrderItemByOrderIdServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).orderItemId()).isEqualTo(10L);
         assertThat(result.get(1).orderItemId()).isEqualTo(11L);
-        verify(orderItemRepository, times(1)).selectByOrderId(orderId);
+        verify(orderItemRepository, times(1)).findAllByOrderId(orderId);
     }
 
     @Test
@@ -54,13 +54,13 @@ class FindOrderItemByOrderIdServiceTest {
     void findByOrderId_empty() {
         // given
         long orderId = 2L;
-        when(orderItemRepository.selectByOrderId(orderId)).thenReturn(Collections.emptyList());
+        when(orderItemRepository.findAllByOrderId(orderId)).thenReturn(Collections.emptyList());
 
         // when
         List<OrderItemDto> result = findOrderItemByOrderIdService.findByOrderId(orderId);
 
         // then
         assertThat(result).isEmpty();
-        verify(orderItemRepository, times(1)).selectByOrderId(orderId);
+        verify(orderItemRepository, times(1)).findAllByOrderId(orderId);
     }
 } 

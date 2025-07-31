@@ -17,7 +17,7 @@ class CouponIssueTest {
         // given
         CouponIssue issue = new CouponIssue(
                 1L, 2L, 100, 5, LocalDateTime.now(), CouponIssueStatus.ISSUABLE,
-                10.0f, 1000L, 5000L, 30, CouponPolicyType.FIXED
+                10.0f, 30, CouponPolicyType.FIXED
         );
         // when
         CouponIssue updated = issue.decreaseRemaining();
@@ -31,7 +31,7 @@ class CouponIssueTest {
         // given
         CouponIssue issue = new CouponIssue(
                 1L, 2L, 100, 0, LocalDateTime.now(), CouponIssueStatus.ISSUABLE,
-                10.0f, 1000L, 5000L, 30, CouponPolicyType.FIXED
+                10.0f, 30, CouponPolicyType.FIXED
         );
         // when & then
         assertThatThrownBy(issue::decreaseRemaining)

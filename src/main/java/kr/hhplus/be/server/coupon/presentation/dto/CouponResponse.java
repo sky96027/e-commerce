@@ -31,12 +31,6 @@ public class CouponResponse {
             @Schema(description = "할인율 (%)", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
             Float discountRateSnapshot,
 
-            @Schema(description = "할인 금액", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            Long discountAmountSnapshot,
-
-            @Schema(description = "최소 주문 금액", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            Long minimumOrderAmountSnapshot,
-
             @Schema(description = "사용 기간", requiredMode = Schema.RequiredMode.REQUIRED)
             int usagePeriodSnapshot,
 

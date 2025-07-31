@@ -9,6 +9,7 @@ import kr.hhplus.be.server.order.domain.model.OrderItem;
  */
 public record OrderItemDto(
         long orderItemId,
+        long orderId,
         long productId,
         long optionId,
         String productName,
@@ -20,6 +21,7 @@ public record OrderItemDto(
     public static OrderItemDto from(OrderItem item) {
         return new OrderItemDto(
                 item.getOrderItemId(),
+                item.getOrderId(),
                 item.getProductId(),
                 item.getOptionId(),
                 item.getProductName(),

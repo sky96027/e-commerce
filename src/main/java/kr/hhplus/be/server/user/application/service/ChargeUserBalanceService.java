@@ -36,7 +36,7 @@ public class ChargeUserBalanceService implements ChargeUserBalanceUseCase {
     public UserDto charge(long userId, long amount) {
         User user = userRepository.selectById(userId);
         User updated = user.charge(amount);
-        User saved = userRepository.insertOrUpdate(userId, updated.getBalance());
+        User saved = userRepository.update(userId, updated.getBalance());
 
         return UserDto.from(saved);
     }

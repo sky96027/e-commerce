@@ -7,6 +7,7 @@ import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
  * 구현체는 인프라 계층에 위치함
  */
 public interface CouponIssueRepository {
-    CouponIssue selectById(long couponIssueId);
-    void update(CouponIssue couponIssue);
+    CouponIssue findById(long couponIssueId);
+    CouponIssue save(CouponIssue couponIssue);
+
 }
