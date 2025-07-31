@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 public class UserCoupon {
 
-    private final long userCouponId;
+    private final Long userCouponId;
     private final long couponId;
     private final long userId;
     private final long policyId;
@@ -20,21 +20,17 @@ public class UserCoupon {
 
     private final CouponPolicyType typeSnapshot;
     private final Float discountRateSnapshot;
-    private final Long discountAmountSnapshot;
-    private final Long minimumOrderAmountSnapshot;
     private final int usagePeriodSnapshot;
     private final LocalDateTime expiredAt;
 
     public UserCoupon(
-            long userCouponId,
+            Long userCouponId,
             long couponId,
             long userId,
             long policyId,
             UserCouponStatus status,
             CouponPolicyType typeSnapshot,
             Float discountRateSnapshot,
-            Long discountAmountSnapshot,
-            Long minimumOrderAmountSnapshot,
             int usagePeriodSnapshot,
             LocalDateTime expiredAt
     ) {
@@ -45,8 +41,6 @@ public class UserCoupon {
         this.status = status;
         this.typeSnapshot = typeSnapshot;
         this.discountRateSnapshot = discountRateSnapshot;
-        this.discountAmountSnapshot = discountAmountSnapshot;
-        this.minimumOrderAmountSnapshot = minimumOrderAmountSnapshot;
         this.usagePeriodSnapshot = usagePeriodSnapshot;
         this.expiredAt = expiredAt;
     }
@@ -57,21 +51,17 @@ public class UserCoupon {
             long policyId,
             CouponPolicyType typeSnapshot,
             Float discountRateSnapshot,
-            Long discountAmountSnapshot,
-            Long minimumOrderAmountSnapshot,
             int usagePeriodSnapshot,
             LocalDateTime expiredAt
     ) {
         return new UserCoupon(
-                0L,
+                null,  // ID를 null로 설정하여 자동 생성
                 couponId,
                 userId,
                 policyId,
                 UserCouponStatus.ISSUED,
                 typeSnapshot,
                 discountRateSnapshot,
-                discountAmountSnapshot,
-                minimumOrderAmountSnapshot,
                 usagePeriodSnapshot,
                 expiredAt
         );
@@ -85,8 +75,6 @@ public class UserCoupon {
                 newStatus,
                 this.typeSnapshot,
                 this.discountRateSnapshot,
-                this.discountAmountSnapshot,
-                this.minimumOrderAmountSnapshot,
                 this.usagePeriodSnapshot,
                 this.expiredAt
         );

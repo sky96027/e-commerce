@@ -16,17 +16,17 @@ public class TransactionHistoryJpaEntity {
 
     protected TransactionHistoryJpaEntity() {}
 
-    public TransactionHistoryJpaEntity(long userId, TransactionType type, long amount) {
+    public TransactionHistoryJpaEntity(Long userId, TransactionType type, long amount, LocalDateTime transactionTime) {
         this.userId = userId;
         this.type = type;
         this.amount = amount;
-        this.transactionTime = LocalDateTime.now();
+        this.transactionTime = transactionTime;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transaction_id")
-    private long transactionId;
+    private Long transactionId;
 
     @Column(name = "user_id", nullable = false)
     private long userId;

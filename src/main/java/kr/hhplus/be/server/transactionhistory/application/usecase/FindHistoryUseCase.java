@@ -20,5 +20,5 @@ public interface FindHistoryUseCase {
      * @param userId 사용자 ID
      * @return 거래 내역 리스트
      */
-    List<TransactionHistoryDto> findByUserId(long userId);
+    List<TransactionHistoryDto> findAllByUserId(long userId);
 }

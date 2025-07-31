@@ -54,7 +54,7 @@ public class UserController implements UserApiSpec {
                 .map(dto -> new UserResponse.GetUserTransactionHistories(
                         dto.transactionId(),
                         dto.userId(),
-                        dto.type().name(),
+                        dto.type(),
                         dto.transactionTime(),
                         dto.amount()
                 ))

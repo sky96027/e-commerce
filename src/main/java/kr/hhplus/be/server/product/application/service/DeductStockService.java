@@ -35,7 +35,7 @@ public class DeductStockService implements DeductStockUseCase {
         ReentrantLock lock = lockMap.computeIfAbsent(optionId, k -> new ReentrantLock());
         lock.lock();
         try {
-            ProductOption option = repository.findByOptionId(optionId);
+            ProductOption option = repository.findOptionByOptionId(optionId);
             ProductOption updated = option.deduct(quantity);
             repository.insertOrUpdate(updated);
         } finally {

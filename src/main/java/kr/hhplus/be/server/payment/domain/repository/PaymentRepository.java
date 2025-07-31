@@ -7,6 +7,6 @@ import kr.hhplus.be.server.payment.domain.model.Payment;
  * 구현체는 인프라 계층에 위치함
  */
 public interface PaymentRepository {
-    void save(Payment payment);
-    Payment findByOrderId(long orderId);
+    Payment save(Payment payment);
+    Payment findById(long orderId);
 }

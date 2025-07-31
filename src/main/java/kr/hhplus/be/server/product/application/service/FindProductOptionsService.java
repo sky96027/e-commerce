@@ -34,7 +34,7 @@ public class FindProductOptionsService implements FindProductOptionsUseCase {
      */
     @Override
     public List<ProductOptionDto> findByProductId(long productId) {
-        return productOptionRepository.findByProductId(productId).stream()
+        return productOptionRepository.findOptionsByProductId(productId).stream()
                 .map(ProductOptionDto::from)  // domain → dto
                 .collect(Collectors.toList());
     }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 public class Product {
 
-    private final long productId;
+    private final Long productId;
     private final String productName;
     private final ProductStatus status;
     private final LocalDateTime createdAt;
@@ -21,7 +21,7 @@ public class Product {
      * 전체 필드를 초기화하는 생성자
      */
     public Product(
-            long productId,
+            Long productId,
             String productName,
             ProductStatus status,
             LocalDateTime createdAt,

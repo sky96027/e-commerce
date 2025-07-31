@@ -2,6 +2,7 @@ package kr.hhplus.be.server.order.application.dto;
 
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderItem;
+import kr.hhplus.be.server.order.domain.type.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +17,7 @@ public record OrderDto(
         long userId,
         long totalAmount,
         long totalDiscountAmount,
-        String status,
+        OrderStatus status,
         LocalDateTime orderAt,
         List<OrderItemDto> items
 ) {
@@ -26,7 +27,7 @@ public record OrderDto(
                 order.getUserId(),
                 order.getTotalAmount(),
                 order.getTotalDiscountAmount(),
-                order.getStatus().name(),
+                order.getStatus(),
                 order.getOrderAt(),
                 items.stream().map(OrderItemDto::from).toList()
         );

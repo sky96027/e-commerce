@@ -95,7 +95,7 @@ class UserServiceTest {
         long transactionId = 1L;
         long userId = 1L;
         TransactionHistoryDto dto = new TransactionHistoryDto(transactionId, userId, TransactionType.CHARGE, 5000L, null);
-        when(findHistoryUseCase.findByUserId(userId)).thenReturn(List.of(dto));
+        when(findHistoryUseCase.findAllByUserId(userId)).thenReturn(List.of(dto));
 
         // when
         List<TransactionHistoryDto> result = userFacade.findUserHistories(userId);

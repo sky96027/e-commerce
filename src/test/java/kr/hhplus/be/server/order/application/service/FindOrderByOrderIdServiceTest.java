@@ -42,8 +42,8 @@ class FindOrderByOrderIdServiceTest {
         List<OrderItem> items = List.of(
                 new OrderItem(10L, orderId, 100L, 200L, "상품A", 10000L, 0L, null, 1)
         );
-        when(orderRepository.selectByOrderId(orderId)).thenReturn(order);
-        when(orderItemRepository.selectByOrderId(orderId)).thenReturn(items);
+        when(orderRepository.findById(orderId)).thenReturn(order);
+        when(orderItemRepository.findAllByOrderId(orderId)).thenReturn(items);
 
         // when
         OrderDto result = findOrderByOrderIdService.findById(orderId);
@@ -51,8 +51,8 @@ class FindOrderByOrderIdServiceTest {
         // then
         assertThat(result.orderId()).isEqualTo(orderId);
         assertThat(result.items()).hasSize(1);
-        verify(orderRepository, times(1)).selectByOrderId(orderId);
-        verify(orderItemRepository, times(1)).selectByOrderId(orderId);
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderItemRepository, times(1)).findAllByOrderId(orderId);
     }
 
 } 

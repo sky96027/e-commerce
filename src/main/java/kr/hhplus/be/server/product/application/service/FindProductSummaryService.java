@@ -33,7 +33,7 @@ public class FindProductSummaryService implements FindProductSummaryUseCase {
      */
     @Override
     public List<ProductDto> findSummary() {
-        return productRepository.selectSummaries().stream()
+        return productRepository.findAllSummaries().stream()
                 .map(ProductDto::from)  // domain → dto
                 .collect(Collectors.toList());
     }

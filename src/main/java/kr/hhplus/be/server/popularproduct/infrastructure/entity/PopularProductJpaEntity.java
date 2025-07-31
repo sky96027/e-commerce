@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Entity
-@Table(name = "popualr_product")
+@Table(name = "POPULAR_PRODUCT")
 public class PopularProductJpaEntity {
     public PopularProductJpaEntity() {}
 
     public PopularProductJpaEntity(
-            long id,
-            Long productId,
+            Long id,
+            long productId,
             Integer totalSoldQuantity,
             Integer rank,
             LocalDate referenceDate,
@@ -42,7 +42,7 @@ public class PopularProductJpaEntity {
     @Column(name = "total_sold_quantity", nullable = false)
     private Integer totalSoldQuantity;
 
-    @Column(name = "rank", nullable = false)
+    @Column(name = "`rank`", nullable = false)
     private Integer rank;
 
     @Column(name = "reference_date", nullable = false)

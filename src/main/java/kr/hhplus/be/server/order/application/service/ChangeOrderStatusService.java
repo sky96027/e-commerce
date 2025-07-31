@@ -36,7 +36,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     @Override
     @Transactional
     public OrderDto changeStatus(long orderId, OrderStatus newStatus) {
-        Order current = orderRepository.selectByOrderId(orderId);
+        Order current = orderRepository.findById(orderId);
         if (current == null) {
             throw new IllegalArgumentException("해당 주문이 존재하지 않습니다. orderId = " + orderId);
         }
@@ -44,7 +44,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         Order updated = current.changeStatus(newStatus);
         orderRepository.save(updated);
 
-        List<OrderItem> items = orderItemRepository.selectByOrderId(orderId);
+        List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
         return OrderDto.from(updated, items);
     }
 }

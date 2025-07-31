@@ -40,7 +40,7 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
         lock.lock();
         try {
             // 1. 발급 정보 조회
-            CouponIssue couponIssue = couponIssueRepository.selectById(command.couponId());
+            CouponIssue couponIssue = couponIssueRepository.findById(command.couponId());
 
             // 2. 남은 수량 감소 (0 이하일 경우 예외 발생)
             CouponIssue updatedIssue = couponIssue.decreaseRemaining();
@@ -52,14 +52,12 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
                     command.policyId(),
                     command.typeSnapshot(),
                     command.discountRateSnapshot(),
-                    command.discountAmountSnapshot(),
-                    command.minimumOrderAmountSnapshot(),
                     command.usagePeriodSnapshot(),
                     command.expiredAt()
             );
 
             // 4. 저장
-            couponIssueRepository.update(updatedIssue);
+            couponIssueRepository.save(updatedIssue);
             userCouponRepository.insertOrUpdate(userCoupon);
 
         } finally {

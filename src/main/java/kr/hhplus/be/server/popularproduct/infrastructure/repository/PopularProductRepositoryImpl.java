@@ -2,6 +2,7 @@ package kr.hhplus.be.server.popularproduct.infrastructure.repository;
 
 import kr.hhplus.be.server.popularproduct.domain.model.PopularProduct;
 import kr.hhplus.be.server.popularproduct.domain.repository.PopularProductRepository;
+import kr.hhplus.be.server.popularproduct.infrastructure.mapper.PopularProductMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -9,33 +10,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * In-memory 구현체
  */
 @Repository
 public class PopularProductRepositoryImpl implements PopularProductRepository {
-    private final Map<Long, PopularProduct> table = new HashMap<>();
+
+    private final PopularProductJpaRepository jpaRepository;
+    private final PopularProductMapper mapper;
+
+    public PopularProductRepositoryImpl(PopularProductJpaRepository jpaRepository,
+                                        PopularProductMapper mapper) {
+        this.jpaRepository = jpaRepository;
+        this.mapper = mapper;
+    }
 
     @Override
-    public List<PopularProduct> selectSummaries() {
-        throttle(200);
-        return new ArrayList<>(table.values());
+    public List<PopularProduct> findAllSummaries() {
+        return jpaRepository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void replaceAll() {
-        throttle(200);
-
-        // 전체 삭제, JPA 도입 시 변경
-        table.clear();
-
-    }
-
-    private void throttle(long millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep((long) (Math.random() * millis));
-        } catch (InterruptedException ignored) {
-        }
+        // 미구현
+        jpaRepository.deleteAll(); // 전체 삭제
     }
 }

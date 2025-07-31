@@ -2,6 +2,8 @@ package kr.hhplus.be.server.user.infrastructure.repository;
 
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.infrastructure.entity.UserJpaEntity;
+import kr.hhplus.be.server.user.infrastructure.mapper.UserMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -14,30 +16,33 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Repository
 public class UserRepositoryImpl implements UserRepository {
-    private final Map<Long, User> table = new HashMap<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+    private final UserJpaRepository jpaRepository;
+    private final UserMapper mapper;
+
+    public UserRepositoryImpl(UserJpaRepository userJpaRepository, UserMapper mapper) {
+        this.jpaRepository = userJpaRepository;
+        this.mapper = mapper;
+    }
 
     @Override
     public User selectById(long userId) {
-        throttle(200);
-        return table.get(userId);
+        return jpaRepository.findById(userId)
+                .map(mapper::toDomain)
+                .orElse(null);
     }
 
     @Override
-    public User insertOrUpdate(long userId, long amount) {
-        throttle(200);
-        long newId = idGenerator.getAndIncrement();
-        User user = new User(userId, amount);
-        table.put(newId, user);
-        return user;
+    public User insert(long balance) {
+        UserJpaEntity newEntity = new UserJpaEntity(balance);
+        UserJpaEntity saved = jpaRepository.save(newEntity);
+        return mapper.toDomain(saved);
     }
 
-    private void throttle(long millis) {
-        try {
-            TimeUnit.MILLISECONDS.sleep((long) (Math.random() * millis));
-        } catch (InterruptedException ignored) {
-
-        }
+    @Override
+    public User update(long userId, long balance) {
+        UserJpaEntity entity = jpaRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다: " + userId));
+        entity.setBalance(balance);
+        return mapper.toDomain(jpaRepository.save(entity));
     }
-
 }
