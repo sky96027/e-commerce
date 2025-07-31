@@ -20,7 +20,7 @@ public class Payment {
      */
 
     public Payment(
-            long paymentId,
+            Long paymentId,
             long orderId,
             long userId,
             long totalAmountSnapshot,

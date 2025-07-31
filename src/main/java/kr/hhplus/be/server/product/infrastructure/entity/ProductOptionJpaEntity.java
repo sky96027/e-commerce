@@ -16,7 +16,7 @@ public class ProductOptionJpaEntity {
     public ProductOptionJpaEntity() {}
 
     public ProductOptionJpaEntity(
-            long optionId,
+            Long optionId,
             long productId,
             String content,
             ProductOptionStatus status,
@@ -24,12 +24,21 @@ public class ProductOptionJpaEntity {
             int stock,
             LocalDateTime createdAt,
             LocalDateTime expiredAt
-    ) {}
+    ) {
+        this.optionId = optionId;
+        this.productId = productId;
+        this.content = content;
+        this.status = status;
+        this.price = price;
+        this.stock = stock;
+        this.createdAt = createdAt;
+        this.expiredAt = expiredAt;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "option_id")
-    private long optionId;
+    private Long optionId;
 
     @Column(name = "product_id")
     private long productId;
@@ -51,5 +60,8 @@ public class ProductOptionJpaEntity {
 
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
+
+
+
 }
 

@@ -22,9 +22,6 @@ public class SaveOrderService implements SaveOrderUseCase {
     private final OrderItemRepository orderItemRepository;
     private final UserCouponRepository userCouponRepository;
 
-    private final AtomicLong orderIdSequence = new AtomicLong(1);
-    private final AtomicLong orderItemIdSequence = new AtomicLong(1);
-
     public SaveOrderService(
             OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
@@ -37,15 +34,25 @@ public class SaveOrderService implements SaveOrderUseCase {
 
     @Override
     public long save(SaveOrderCommand command) {
-        long orderId = orderIdSequence.getAndIncrement();
-
         long totalAmount = command.items().stream()
                 .mapToLong(item -> item.productPrice() * item.quantity())
                 .sum();
 
+        // 주문 자체는 아직 OrderItem 없이 먼저 생성
+        Order order = new Order(
+                null,
+                command.userId(),
+                totalAmount,
+                0L,
+                OrderStatus.BEFORE_PAYMENT,
+                LocalDateTime.now()
+        );
+
+        Order savedOrder = orderRepository.save(order);
+        final long savedOrderId = savedOrder.getOrderId();
+
         List<OrderItem> orderItems = command.items().stream()
                 .map(item -> {
-                    long orderItemId = orderItemIdSequence.getAndIncrement();
                     long discountAmount = 0L;
 
                     if (item.userCouponId() != null) {
@@ -55,12 +62,11 @@ public class SaveOrderService implements SaveOrderUseCase {
                         long totalItemPrice = item.productPrice() * item.quantity();
 
                         discountAmount = Math.round(totalItemPrice * (coupon.getDiscountRateSnapshot() / 100.0));
-
                     }
 
                     return new OrderItem(
-                            orderItemId,
-                            orderId,
+                            null,
+                            savedOrderId,
                             item.productId(),
                             item.optionId(),
                             item.productName(),
@@ -76,81 +82,12 @@ public class SaveOrderService implements SaveOrderUseCase {
                 .mapToLong(OrderItem::getDiscountAmount)
                 .sum();
 
-        Order order = new Order(
-                orderId,
-                command.userId(),
-                totalAmount,
-                totalDiscountAmount,
-                OrderStatus.BEFORE_PAYMENT,
-                LocalDateTime.now()
-        );
+        // 할인금액을 반영한 주문 객체로 다시 업데이트
+        savedOrder = savedOrder.withTotalDiscountAmount(totalDiscountAmount);
+        orderRepository.save(savedOrder);  // update
 
-        orderRepository.save(order);
         orderItemRepository.saveAll(orderItems);
 
-        return orderId;
+        return savedOrder.getOrderId();
     }
-
-    /*@Override
-    public long save (SaveOrderCommand command) {
-        long orderId = orderIdSequence.getAndIncrement();
-
-        long totalAmount = command.items().stream()
-                .mapToLong(item -> item.productPrice() * item.quantity())
-                .sum();
-
-        List<OrderItem> orderItems = command.items().stream()
-                .map(item -> {
-                    long orderItemId = orderItemIdSequence.getAndIncrement();
-                    long discountAmount = 0L;
-
-                    if (item.userCouponId() != null) {
-                        UserCoupon coupon = userCouponRepository.findByUserCouponId(item.userCouponId())
-                                .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다: id = " + item.userCouponId()));
-
-                        if ("FIXED".equalsIgnoreCase(coupon.getTypeSnapshot().name())) {
-                            discountAmount = coupon.getDiscountAmountSnapshot();
-                        } else if ("RATE".equalsIgnoreCase(coupon.getTypeSnapshot().name())) {
-                            discountAmount = Math.round(item.productPrice() * (coupon.getDiscountRateSnapshot() / 100.0));
-                        }
-
-                        long totalItemPrice = item.productPrice() * item.quantity();
-                        if (coupon.getMinimumOrderAmountSnapshot() != null &&
-                                totalItemPrice < coupon.getMinimumOrderAmountSnapshot()) {
-                            discountAmount = 0L;
-                        }
-                    }
-
-                    return new OrderItem(
-                            orderItemId,
-                            orderId,
-                            item.productId(),
-                            item.optionId(),
-                            item.productName(),
-                            item.productPrice(),
-                            discountAmount,
-                            item.userCouponId(),
-                            item.quantity()
-                    );
-                })
-                .toList();
-
-        long totalDiscountAmount = orderItems.stream()
-                .mapToLong(OrderItem::getDiscountAmount)
-                .sum();
-
-        Order order = new Order(
-                orderId,
-                command.userId(),
-                totalAmount,
-                totalDiscountAmount,
-                OrderStatus.BEFORE_PAYMENT,
-                LocalDateTime.now()
-        );
-
-        orderRepository.save(order);
-        orderItemRepository.saveAll(orderItems);
-
-        return orderId;
-    }*/
 }

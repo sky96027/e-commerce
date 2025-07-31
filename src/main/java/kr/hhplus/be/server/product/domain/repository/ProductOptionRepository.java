@@ -13,5 +13,5 @@ public interface ProductOptionRepository {
 
     ProductOption findOptionByOptionId(long optionId);
 
-    void insertOrUpdate(ProductOption productOption);
+    ProductOption insertOrUpdate(ProductOption productOption);
 }

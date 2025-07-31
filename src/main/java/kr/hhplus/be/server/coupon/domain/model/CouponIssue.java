@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 public class CouponIssue {
 
-    private final long couponIssueId;
+    private final Long couponIssueId;
     private final long policyId;
     private final int totalIssued;
     private final int remaining;
@@ -27,7 +27,7 @@ public class CouponIssue {
      */
 
     public CouponIssue(
-            long couponIssueId,
+            Long couponIssueId,
             long policyId,
             int totalIssued,
             int remaining,

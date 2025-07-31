@@ -18,8 +18,8 @@ public class UserCouponMapper {
                 entity.getCouponId(),
                 entity.getUserId(),
                 entity.getPolicyId(),
-                UserCouponStatus.valueOf(entity.getStatus()),
-                CouponPolicyType.valueOf(entity.getTypeSnapshot()),
+                entity.getStatus(),
+                entity.getTypeSnapshot(),
                 entity.getDiscountRateSnapshot(),
                 entity.getUsagePeriodSnapshot(),
                 entity.getExpiredAt()
@@ -32,8 +32,8 @@ public class UserCouponMapper {
                 domain.getCouponId(),
                 domain.getUserId(),
                 domain.getPolicyId(),
-                domain.getStatus().name(),
-                domain.getTypeSnapshot().name(),
+                domain.getStatus(),
+                domain.getTypeSnapshot(),
                 domain.getDiscountRateSnapshot(),
                 domain.getUsagePeriodSnapshot(),
                 domain.getExpiredAt()

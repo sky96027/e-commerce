@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class OrderItem {
 
-    private final long orderItemId;
+    private final Long orderItemId;
     private final long orderId;
     private final long productId;
     private final long optionId;
@@ -22,7 +22,7 @@ public class OrderItem {
      * 전체 필드를 초기화하는 생성자
      */
     public OrderItem(
-            long orderItemId,
+            Long orderItemId,
             long orderId,
             long productId,
             long optionId,

@@ -8,5 +8,6 @@ import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
  */
 public interface CouponIssueRepository {
     CouponIssue findById(long couponIssueId);
-    void update(CouponIssue couponIssue);
+    CouponIssue save(CouponIssue couponIssue);
+
 }

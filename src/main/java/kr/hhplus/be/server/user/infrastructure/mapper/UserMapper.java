@@ -12,7 +12,7 @@ public class UserMapper {
     public User toDomain(UserJpaEntity entity) {
         return new User(
                 entity.getUserId(),
-                entity.getUserId()
+                entity.getBalance()
         );
     }
 

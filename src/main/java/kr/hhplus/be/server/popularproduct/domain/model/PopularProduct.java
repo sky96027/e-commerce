@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 public class PopularProduct {
-    private final long id;
+    private final Long id;
     private final long productId;
     private final int totalSoldQuantity;
     private final int rank;

@@ -36,7 +36,9 @@ public class CouponIssueRepositoryImpl implements CouponIssueRepository {
     }
 
     @Override
-    public void update(CouponIssue couponIssue) {
-        jpaRepository.save(mapper.toEntity(couponIssue));
+    public CouponIssue save(CouponIssue couponIssue) {
+        return mapper.toDomain(
+                jpaRepository.save(mapper.toEntity(couponIssue))
+        );
     }
 }

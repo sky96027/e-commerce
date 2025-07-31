@@ -57,7 +57,7 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
             );
 
             // 4. 저장
-            couponIssueRepository.update(updatedIssue);
+            couponIssueRepository.save(updatedIssue);
             userCouponRepository.insertOrUpdate(userCoupon);
 
         } finally {

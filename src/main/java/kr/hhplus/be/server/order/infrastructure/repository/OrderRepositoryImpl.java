@@ -6,10 +6,6 @@ import kr.hhplus.be.server.order.infrastructure.entity.OrderJpaEntity;
 import kr.hhplus.be.server.order.infrastructure.mapper.OrderMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 /**
  * In-memory OrderRepository 구현체
  */
@@ -32,8 +28,9 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public void save(Order order) {
+    public Order save(Order order) {
         OrderJpaEntity entity = mapper.toEntity(order);
-        jpaRepository.save(entity);
+        OrderJpaEntity saved = jpaRepository.save(entity);
+        return mapper.toDomain(saved);
     }
 }

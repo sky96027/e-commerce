@@ -8,20 +8,20 @@ import lombok.Getter;
 @Getter
 public class User {
 
-    private final long userId;
+    private final Long userId;
     private final long balance;
 
     /**
      * 전체 필드를 초기화하는 생성자
      */
     public User(
-            long userId,
+            Long userId,
             long balance
     ) {
         this.userId = userId;
         this.balance = balance;
     }
-    public static User empty(long userId) { return new User(userId, 0L); }
+    public static User empty(Long userId) { return new User(userId, 0L); }
 
     public User charge(long amount) {
         if (amount < 0) {

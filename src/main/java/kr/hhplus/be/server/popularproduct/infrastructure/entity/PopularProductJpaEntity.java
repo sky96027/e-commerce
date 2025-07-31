@@ -16,8 +16,8 @@ public class PopularProductJpaEntity {
     public PopularProductJpaEntity() {}
 
     public PopularProductJpaEntity(
-            long id,
-            Long productId,
+            Long id,
+            long productId,
             Integer totalSoldQuantity,
             Integer rank,
             LocalDate referenceDate,

@@ -23,7 +23,7 @@ public class PaymentMapper {
 
     public PaymentJpaEntity toEntity(Payment domain) {
         return new PaymentJpaEntity(
-                domain.getPaymentId(),
+                null,
                 domain.getOrderId(),
                 domain.getUserId(),
                 domain.getTotalAmountSnapshot(),

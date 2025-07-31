@@ -49,7 +49,7 @@ public class OrderItemJpaEntity {
     @Column(name = "option_id", nullable = false)
     private Long optionId;
 
-    @Column(name = "product_name", nullable = false, length = 100)
+    @Column(name = "product_name", nullable = false)
     private String productName;
 
     @Column(name = "product_price", nullable = false)
@@ -58,7 +58,7 @@ public class OrderItemJpaEntity {
     @Column(name = "discount_amount", nullable = false)
     private Long discountAmount;
 
-    @Column(name = "user_coupon_id", nullable = false)
+    @Column(name = "user_coupon_id")
     private Long userCouponId;
 
     @Column(name = "quantity", nullable = false)

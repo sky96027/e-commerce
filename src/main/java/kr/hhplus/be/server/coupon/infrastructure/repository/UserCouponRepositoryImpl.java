@@ -52,8 +52,11 @@ public class UserCouponRepositoryImpl implements UserCouponRepository {
      * 유저의 쿠폰을 저장
      */
     @Override
-    public void insertOrUpdate(UserCoupon userCoupon) {
+    public UserCoupon insertOrUpdate(UserCoupon userCoupon) {
         UserCouponJpaEntity entity = mapper.toEntity(userCoupon);
-        jpaRepository.save(entity);
+        UserCouponJpaEntity saved = jpaRepository.save(entity);
+        jpaRepository.flush();
+
+        return mapper.toDomain(saved);
     }
 }

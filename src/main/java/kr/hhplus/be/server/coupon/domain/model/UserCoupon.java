@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 public class UserCoupon {
 
-    private final long userCouponId;
+    private final Long userCouponId;
     private final long couponId;
     private final long userId;
     private final long policyId;
@@ -24,7 +24,7 @@ public class UserCoupon {
     private final LocalDateTime expiredAt;
 
     public UserCoupon(
-            long userCouponId,
+            Long userCouponId,
             long couponId,
             long userId,
             long policyId,
@@ -55,7 +55,7 @@ public class UserCoupon {
             LocalDateTime expiredAt
     ) {
         return new UserCoupon(
-                0L,
+                null,  // ID를 null로 설정하여 자동 생성
                 couponId,
                 userId,
                 policyId,

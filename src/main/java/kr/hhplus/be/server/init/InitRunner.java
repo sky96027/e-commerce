@@ -15,7 +15,7 @@ public class InitRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         for (int i = 0; i < 10; i++) {
-            User saved = userRepository.insert(10000L); // ID 없이 insert
+            User saved = userRepository.insert(11000L);
             System.out.println("유저 저장 완료: " + saved.getUserId() + ", 잔액: " + saved.getBalance());
         }
     }
