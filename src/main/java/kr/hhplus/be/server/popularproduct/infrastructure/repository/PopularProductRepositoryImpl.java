@@ -36,6 +36,7 @@ public class PopularProductRepositoryImpl implements PopularProductRepository {
 
     @Override
     public void replaceAll() {
+        // 미구현
         jpaRepository.deleteAll(); // 전체 삭제
     }
 }

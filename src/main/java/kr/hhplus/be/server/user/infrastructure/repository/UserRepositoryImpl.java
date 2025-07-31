@@ -33,7 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User insert(long balance) {
-        UserJpaEntity newEntity = new UserJpaEntity(balance);  // 생성자 수정 필요
+        UserJpaEntity newEntity = new UserJpaEntity(balance);
         UserJpaEntity saved = jpaRepository.save(newEntity);
         return mapper.toDomain(saved);
     }

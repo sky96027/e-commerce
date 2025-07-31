@@ -24,14 +24,15 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     @Override
-    public void save(Payment payment) {
+    public Payment save(Payment payment) {
         PaymentJpaEntity entity = mapper.toEntity(payment);
-        jpaRepository.save(entity);
+        PaymentJpaEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
     }
 
     @Override
     public Payment findById(long orderId) {
-        return jpaRepository.findById(orderId)
+        return jpaRepository.findByOrderId(orderId)
                 .map(mapper::toDomain)
                 .orElse(null);
     }

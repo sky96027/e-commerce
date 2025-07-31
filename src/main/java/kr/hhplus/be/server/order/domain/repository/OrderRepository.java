@@ -8,5 +8,5 @@ import kr.hhplus.be.server.order.domain.model.Order;
  */
 public interface OrderRepository {
     Order findById (long orderId);
-    void save(Order order);
+    Order save(Order order);
 }

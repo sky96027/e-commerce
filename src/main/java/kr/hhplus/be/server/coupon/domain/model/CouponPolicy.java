@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public class CouponPolicy {
 
-    private final long policyId;
+    private final Long policyId;
     private final Float discountRate;                   // nullable
     private final int usagePeriod;                      // 발급 후 사용 기간(3, 7, 30, 365...)
     private final CouponPolicyType type;                // 할인 유형(RATE, AMOUNT)

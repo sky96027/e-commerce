@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.product.infrastructure.repository;
 
+import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import kr.hhplus.be.server.product.infrastructure.entity.ProductOptionJpaEntity;
@@ -43,8 +44,8 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepository {
     }
 
     @Override
-    public void insertOrUpdate(ProductOption productOption) {
-        ProductOptionJpaEntity entity = mapper.toEntity(productOption);
-        jpaRepository.save(entity); // insert or update
+    public ProductOption insertOrUpdate(ProductOption productOption) {
+        ProductOptionJpaEntity saved = jpaRepository.save(mapper.toEntity(productOption));
+        return mapper.toDomain(saved);
     }
 }

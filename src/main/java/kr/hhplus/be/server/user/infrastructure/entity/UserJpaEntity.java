@@ -14,7 +14,7 @@ import lombok.Setter;
 public class UserJpaEntity {
     public UserJpaEntity() {}
 
-    public UserJpaEntity(long userId, long balance) {
+    public UserJpaEntity(Long userId, long balance) {
         this.userId = userId;
         this.balance = balance;
     }
@@ -25,7 +25,7 @@ public class UserJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long userId;
+    private Long userId;
 
     @Column(name = "balance", nullable = false)
     private long balance;

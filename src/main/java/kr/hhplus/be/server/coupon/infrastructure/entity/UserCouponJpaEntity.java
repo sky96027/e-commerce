@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.coupon.infrastructure.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
+import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -15,8 +17,8 @@ public class UserCouponJpaEntity {
 
     protected UserCouponJpaEntity() {}
 
-    public UserCouponJpaEntity(Long userCouponId, Long couponId, Long userId, Long policyId, String status,
-                               String typeSnapshot, Float discountRateSnapshot, Integer usagePeriodSnapshot,
+    public UserCouponJpaEntity(Long userCouponId, Long couponId, Long userId, Long policyId, UserCouponStatus status,
+                               CouponPolicyType typeSnapshot, Float discountRateSnapshot, Integer usagePeriodSnapshot,
                                LocalDateTime expiredAt) {
         this.userCouponId = userCouponId;
         this.couponId = couponId;
@@ -43,11 +45,13 @@ public class UserCouponJpaEntity {
     @Column(name = "policy_id", nullable = false)
     private Long policyId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
-    private String status;
+    private UserCouponStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_snapshot", nullable = false, length = 50)
-    private String typeSnapshot;
+    private CouponPolicyType typeSnapshot;
 
     @Column(name = "discount_rate_snapshot")
     private Float discountRateSnapshot;

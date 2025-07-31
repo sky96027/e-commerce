@@ -46,6 +46,7 @@ public class OrderJpaEntity {
     @Column(name = "total_discount_amount", nullable = false)
     private Long totalDiscountAmount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private OrderStatus status;
 

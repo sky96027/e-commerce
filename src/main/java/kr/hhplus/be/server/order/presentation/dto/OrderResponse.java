@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.order.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import kr.hhplus.be.server.order.domain.type.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +23,7 @@ public class OrderResponse {
             long totalDiscountAmount,
 
             @Schema(description = "주문 상태", requiredMode = Schema.RequiredMode.REQUIRED)
-            String status,
+            OrderStatus status,
 
             @Schema(description = "주문일시", requiredMode = Schema.RequiredMode.REQUIRED)
             LocalDateTime orderedAt,

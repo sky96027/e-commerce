@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 public class TransactionHistory {
 
-    private final long transactionId;
+    private final Long transactionId;
     private final long userId;
     private final TransactionType type;
     private final LocalDateTime transactionTime;
@@ -22,7 +22,7 @@ public class TransactionHistory {
      */
 
     public TransactionHistory(
-            long transactionId,
+            Long transactionId,
             long userId,
             TransactionType type,
             LocalDateTime transactionTime,

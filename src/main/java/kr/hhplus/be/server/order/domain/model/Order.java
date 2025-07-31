@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 public class Order {
-    private final long orderId;
+    private final Long orderId;
     private final long userId;
     private final long totalAmount;
     private final long totalDiscountAmount;
@@ -22,7 +22,7 @@ public class Order {
      */
 
     public Order(
-            long orderId,
+            Long orderId,
             long userId,
             long totalAmount,
             long totalDiscountAmount,
@@ -47,4 +47,16 @@ public class Order {
                 this.orderAt
         );
     }
+
+    public Order withTotalDiscountAmount(long totalDiscountAmount) {
+        return new Order(
+                this.orderId,
+                this.userId,
+                this.totalAmount,
+                totalDiscountAmount,
+                this.status,
+                this.orderAt
+        );
+    }
+
 }
