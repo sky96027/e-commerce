@@ -11,11 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class SavePaymentServiceTest {
     @Mock
@@ -33,8 +33,10 @@ class SavePaymentServiceTest {
     @DisplayName("결제 정보 정상 저장")
     void save_success() {
         // given
-        SavePaymentCommand command = new SavePaymentCommand(1L, 2L, 10000L, 2000L, PaymentStatus.BEFORE_PAYMENT);
-        doNothing().when(paymentRepository).save(any(Payment.class));
+        SavePaymentCommand command = new SavePaymentCommand(1L, 5L, 2000L, 500L, PaymentStatus.BEFORE_PAYMENT);
+        Payment payment = new Payment(1L, 2L, 5L, 2000L, 500L, PaymentStatus.BEFORE_PAYMENT);
+
+        when(paymentRepository.save(any(Payment.class))).thenReturn(payment);
 
         // when
         long paymentId = savePaymentService.save(command);
@@ -43,4 +45,4 @@ class SavePaymentServiceTest {
         assertThat(paymentId).isGreaterThan(0L);
         verify(paymentRepository, times(1)).save(any(Payment.class));
     }
-} 
+}

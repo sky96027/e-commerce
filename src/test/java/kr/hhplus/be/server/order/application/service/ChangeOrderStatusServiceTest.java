@@ -44,16 +44,17 @@ class ChangeOrderStatusServiceTest {
         List<OrderItem> items = List.of(
                 new OrderItem(10L, orderId, 100L, 200L, "상품A", 10000L, 0L, null, 1)
         );
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
         when(orderRepository.findById(orderId)).thenReturn(order);
         when(orderItemRepository.findAllByOrderId(orderId)).thenReturn(items);
-        doNothing().when(orderRepository).save(any(Order.class));
+
 
         // when
         OrderDto result = changeOrderStatusService.changeStatus(orderId, OrderStatus.AFTER_PAYMENT);
 
         // then
         assertThat(result.orderId()).isEqualTo(orderId);
-        assertThat(result.status()).isEqualTo(OrderStatus.AFTER_PAYMENT.name());
+        assertThat(result.status()).isEqualTo(OrderStatus.AFTER_PAYMENT);
         verify(orderRepository, times(1)).findById(orderId);
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(orderItemRepository, times(1)).findAllByOrderId(orderId);

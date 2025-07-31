@@ -28,7 +28,7 @@ class UserCouponTest {
         UserCoupon userCoupon = UserCoupon.issueNew(userId, couponId, policyId, type, discountRate, usagePeriod, expiredAt);
 
         // then
-        assertThat(userCoupon.getUserCouponId()).isEqualTo(0L);
+        assertThat(userCoupon.getUserCouponId()).isNull();  // null을 기대
         assertThat(userCoupon.getUserId()).isEqualTo(userId);
         assertThat(userCoupon.getCouponId()).isEqualTo(couponId);
         assertThat(userCoupon.getPolicyId()).isEqualTo(policyId);

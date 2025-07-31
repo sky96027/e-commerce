@@ -35,8 +35,9 @@ class DeductStockServiceTest {
         long optionId = 1L;
         ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
         ProductOption updated = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 8, option.getCreatedAt(), null);
+
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(option);
-        doNothing().when(productOptionRepository).insertOrUpdate(any(ProductOption.class));
+        when(productOptionRepository.insertOrUpdate(any(ProductOption.class))).thenReturn(updated);
 
         // when
         deductStockService.deductStock(optionId, 2);

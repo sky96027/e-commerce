@@ -4,6 +4,7 @@ import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
+import kr.hhplus.be.server.order.domain.model.Order;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class ChangeUserCouponStatusServiceTest {
         UserCoupon updated = original.changeStatus(newStatus);
 
         when(userCouponRepository.findByUserCouponId(userCouponId)).thenReturn(Optional.of(original));
-        doNothing().when(userCouponRepository).insertOrUpdate(any(UserCoupon.class));
+        when(userCouponRepository.insertOrUpdate(any(UserCoupon.class))).thenReturn(updated);
 
         // when
         UserCoupon result = changeUserCouponStatusService.changeStatus(userCouponId, newStatus);
