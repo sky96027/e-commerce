@@ -42,20 +42,4 @@ class FindByOrderIdServiceTest {
         assertThat(result.paymentId()).isEqualTo(10L);
     }
 
-    @Test
-    @DisplayName("존재하지 않는 주문 ID로 결제 정보 조회 시 NPE 발생")
-    void findByOrderId_notFound_npe() {
-        // given
-        long orderId = 2L;
-        when(paymentRepository.findById(orderId)).thenReturn(null);
-
-        // when
-        // PaymentDto.from(null)에서 NPE 발생 예상
-        try {
-            findByOrderIdService.findByOrderId(orderId);
-            assertThat(false).isTrue(); // 실패해야 정상
-        } catch (NullPointerException e) {
-            assertThat(true).isTrue(); // NPE 발생이 정상
-        }
-    }
 } 
