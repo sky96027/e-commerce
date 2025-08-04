@@ -5,6 +5,8 @@ import kr.hhplus.be.server.order.domain.type.OrderStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 주문 정보를 나타내는 JPA 엔티티 클래스
@@ -52,4 +54,7 @@ public class OrderJpaEntity {
 
     @Column(name = "ordered_at", nullable = false)
     private LocalDateTime orderAt;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
+    private List<OrderItemJpaEntity> items = new ArrayList<>();
 }
