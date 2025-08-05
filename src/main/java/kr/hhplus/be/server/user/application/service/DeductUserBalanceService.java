@@ -33,7 +33,7 @@ public class DeductUserBalanceService implements DeductUserBalanceUseCase {
      */
     @Override
     public UserDto deductBalance(long userId, long amount) {
-        User user = userRepository.selectById(userId);
+        User user = userRepository.selectByIdForUpdate(userId);
         User updated = user.deduct(amount);
         User saved = userRepository.update(userId, updated.getBalance());
 

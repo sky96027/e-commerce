@@ -10,4 +10,7 @@ public interface UserRepository {
     User selectById(long userId);
     User insert(long balance);
     User update(long userId, long balance);
+
+    // Lock
+    User selectByIdForUpdate(long userId);
 }
