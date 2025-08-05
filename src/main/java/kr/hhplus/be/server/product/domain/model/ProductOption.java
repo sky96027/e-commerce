@@ -60,4 +60,19 @@ public class ProductOption {
                 this.createdAt,
                 this.expiredAt);
     }
+
+    public ProductOption add(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("증가량은 음수일 수 없습니다.");
+        }
+        return new ProductOption(
+                this.optionId,
+                this.productId,
+                this.content,
+                this.status,
+                this.price,
+                this.stock + amount,
+                this.createdAt,
+                this.expiredAt);
+    }
 }
