@@ -34,7 +34,7 @@ public class ChargeUserBalanceService implements ChargeUserBalanceUseCase {
      */
     @Override
     public UserDto charge(long userId, long amount) {
-        User user = userRepository.selectById(userId);
+        User user = userRepository.selectByIdForUpdate(userId);
         User updated = user.charge(amount);
         User saved = userRepository.update(userId, updated.getBalance());
 
