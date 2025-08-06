@@ -8,6 +8,7 @@ import kr.hhplus.be.server.order.domain.repository.OrderItemRepository;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import kr.hhplus.be.server.order.domain.type.OrderStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -33,8 +34,8 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
         this.orderItemRepository = orderItemRepository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    @Transactional
     public OrderDto changeStatus(long orderId, OrderStatus newStatus) {
         Order current = orderRepository.findById(orderId);
         if (current == null) {

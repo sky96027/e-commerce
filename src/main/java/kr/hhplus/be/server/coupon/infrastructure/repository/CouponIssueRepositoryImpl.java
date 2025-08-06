@@ -5,7 +5,10 @@ import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.infrastructure.mapper.CouponIssueMapper;
+import kr.hhplus.be.server.user.domain.model.User;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -40,5 +43,12 @@ public class CouponIssueRepositoryImpl implements CouponIssueRepository {
         return mapper.toDomain(
                 jpaRepository.save(mapper.toEntity(couponIssue))
         );
+    }
+
+    @Override
+    public CouponIssue findByIdForUpdate(long CouponIssueId) {
+        return jpaRepository.findByIdForUpdate(CouponIssueId)
+                .map(mapper::toDomain)
+                .orElse(null);
     }
 }

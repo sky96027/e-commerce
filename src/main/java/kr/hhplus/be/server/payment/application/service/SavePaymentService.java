@@ -5,6 +5,8 @@ import kr.hhplus.be.server.payment.application.usecase.SavePaymentUseCase;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -23,6 +25,7 @@ public class SavePaymentService implements SavePaymentUseCase {
 
     public SavePaymentService(PaymentRepository repository) { this.repository = repository; }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public long save(SavePaymentCommand command) {
         Payment payment = new Payment(
