@@ -38,7 +38,6 @@ public class UserRepositoryImpl implements UserRepository {
                 .orElse(null);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public User insert(long balance) {
         UserJpaEntity newEntity = new UserJpaEntity(balance);
@@ -46,7 +45,6 @@ public class UserRepositoryImpl implements UserRepository {
         return mapper.toDomain(saved);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public User update(long userId, long balance) {
         UserJpaEntity entity = jpaRepository.findById(userId)

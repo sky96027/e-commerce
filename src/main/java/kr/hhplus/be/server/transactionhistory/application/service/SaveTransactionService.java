@@ -4,6 +4,8 @@ import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactio
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [UseCase 구현체]
@@ -23,6 +25,7 @@ public class SaveTransactionService implements SaveTransactionUseCase {
         this.repository = repository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void save(long userId, TransactionType type, long amount) {
         repository.save(userId, type, amount);

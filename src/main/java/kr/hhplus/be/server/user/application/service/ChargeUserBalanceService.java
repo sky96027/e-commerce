@@ -5,6 +5,8 @@ import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [UseCase 구현체]
@@ -32,6 +34,7 @@ public class ChargeUserBalanceService implements ChargeUserBalanceUseCase {
      * @param amount 충전 금액
      * @return 충전 후 사용자 정보를 담은 UserDto
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public UserDto charge(long userId, long amount) {
         User user = userRepository.selectByIdForUpdate(userId);
