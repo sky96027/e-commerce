@@ -4,6 +4,8 @@ import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -28,9 +30,10 @@ public class DeductStockService implements DeductStockUseCase {
      * @param optionId 차감할 옵션 ID
      * @param quantity 판매량
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void deductStock(long optionId, int quantity) {
-        ProductOption option = repository.findOptionByOptionId(optionId);
+        ProductOption option = repository.findOptionByOptionIdForUpdate(optionId);
         ProductOption updated = option.deduct(quantity);
         repository.insertOrUpdate(updated);
     }

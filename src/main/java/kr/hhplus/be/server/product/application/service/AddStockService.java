@@ -4,6 +4,8 @@ import kr.hhplus.be.server.product.application.usecase.AddStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [UseCase 구현체]
@@ -25,9 +27,10 @@ public class AddStockService implements AddStockUseCase {
      * @param optionId 차감할 옵션 ID
      * @param quantity 증가량
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addStock(long optionId, int quantity) {
-        ProductOption option = repository.findOptionByOptionId(optionId);
+        ProductOption option = repository.findOptionByOptionIdForUpdate(optionId);
         ProductOption updated = option.add(quantity);
         repository.insertOrUpdate(updated);
     }

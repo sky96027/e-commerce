@@ -7,8 +7,10 @@ import kr.hhplus.be.server.user.domain.model.User;
  * 구현체는 인프라 계층에 위치함
  */
 public interface UserRepository {
-    User selectById(long userId);
+    User selectById(long userId)
+            ;
     User insert(long balance);
+
     User update(long userId, long balance);
 
     // Lock
