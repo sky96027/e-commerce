@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Entity
-@Table(name = "TRANSACTION_HISTORY")
+@Table(name = "transaction_history")
 public class TransactionHistoryJpaEntity {
 
     protected TransactionHistoryJpaEntity() {}

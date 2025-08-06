@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Getter
 @Entity
-@Table(name = "`ORDER`")
+@Table(name = "`order`")
 public class OrderJpaEntity {
 
     protected OrderJpaEntity() {}

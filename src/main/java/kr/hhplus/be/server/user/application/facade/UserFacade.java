@@ -49,6 +49,7 @@ public class UserFacade {
     public UserDto chargeWithHistory(long userId, long amount) {
         UserDto updated = chargeUseCase.charge(userId, amount);
         saveTransactionUseCase.save(userId, TransactionType.CHARGE, amount);
+
         return updated;
     }
 
