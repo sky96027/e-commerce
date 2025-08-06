@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "PRODUCT")
+@Table(name = "product")
 public class ProductJpaEntity {
     public ProductJpaEntity() {}
 

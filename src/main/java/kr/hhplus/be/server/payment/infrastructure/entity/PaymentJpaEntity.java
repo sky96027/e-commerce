@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 @Entity
-@Table(name = "PAYMENT")
+@Table(name = "payment")
 public class PaymentJpaEntity {
     public PaymentJpaEntity() {}
 

@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 @Entity
-@Table(name = "ORDER_ITEM")
+@Table(name = "order_item")
 public class OrderItemJpaEntity {
 
     protected OrderItemJpaEntity() {}
