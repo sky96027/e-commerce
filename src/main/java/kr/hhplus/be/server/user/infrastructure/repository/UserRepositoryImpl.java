@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .orElse(null);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public User insert(long balance) {
         UserJpaEntity newEntity = new UserJpaEntity(balance);
@@ -43,6 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
         return mapper.toDomain(saved);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public User update(long userId, long balance) {
         UserJpaEntity entity = jpaRepository.findById(userId)

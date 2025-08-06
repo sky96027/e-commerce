@@ -48,4 +48,11 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepository {
         ProductOptionJpaEntity saved = jpaRepository.save(mapper.toEntity(productOption));
         return mapper.toDomain(saved);
     }
+
+    @Override
+    public ProductOption findOptionByOptionIdForUpdate(long optionId) {
+        return jpaRepository.findByIdForUpdate(optionId)
+                .map(mapper::toDomain)
+                .orElse(null);
+    }
 }
