@@ -5,6 +5,8 @@ import kr.hhplus.be.server.user.application.usecase.DeductUserBalanceUseCase;
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [UseCase 구현체]
@@ -31,9 +33,10 @@ public class DeductUserBalanceService implements DeductUserBalanceUseCase {
      * @param amount 차감 금액
      * @return 차감 후 사용자 정보를 담은 UserDto
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public UserDto deductBalance(long userId, long amount) {
-        User user = userRepository.selectById(userId);
+        User user = userRepository.selectByIdForUpdate(userId);
         User updated = user.deduct(amount);
         User saved = userRepository.update(userId, updated.getBalance());
 

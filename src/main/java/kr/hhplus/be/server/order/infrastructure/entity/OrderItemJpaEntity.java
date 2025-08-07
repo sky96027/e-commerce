@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.order.infrastructure.entity;
 
 import jakarta.persistence.*;
+import kr.hhplus.be.server.product.infrastructure.entity.ProductJpaEntity;
 import lombok.Getter;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 @Entity
-@Table(name = "ORDER_ITEM")
+@Table(name = "order_item")
 public class OrderItemJpaEntity {
 
     protected OrderItemJpaEntity() {}
@@ -63,4 +64,8 @@ public class OrderItemJpaEntity {
 
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", insertable = false, updatable = false)
+    private OrderJpaEntity order;
 }

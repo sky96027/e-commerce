@@ -3,6 +3,8 @@ package kr.hhplus.be.server.popularproduct.application.service;
 import kr.hhplus.be.server.popularproduct.application.usecase.SaveListUseCase;
 import kr.hhplus.be.server.popularproduct.domain.repository.PopularProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [UseCase 구현체]
@@ -22,6 +24,7 @@ public class SaveListService implements SaveListUseCase {
     }
 
     // 현재 미구현
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void replaceAll() {
         repository.replaceAll();

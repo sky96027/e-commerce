@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Entity
-@Table(name = "USER_COUPON")
+@Table(name = "user_coupon")
 public class UserCouponJpaEntity {
 
     protected UserCouponJpaEntity() {}

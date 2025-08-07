@@ -2,6 +2,7 @@ package kr.hhplus.be.server.product.infrastructure.repository;
 
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
+import kr.hhplus.be.server.product.infrastructure.entity.ProductJpaEntity;
 import kr.hhplus.be.server.product.infrastructure.mapper.ProductMapper;
 import org.springframework.stereotype.Repository;
 
@@ -38,5 +39,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         return jpaRepository.findAll().stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Product insertOrUpdate(Product product) {
+        ProductJpaEntity entity = mapper.toEntity(product);
+        ProductJpaEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
     }
 }

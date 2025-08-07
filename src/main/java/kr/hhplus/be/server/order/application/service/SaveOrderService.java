@@ -10,6 +10,8 @@ import kr.hhplus.be.server.order.domain.repository.OrderItemRepository;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import kr.hhplus.be.server.order.domain.type.OrderStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +34,7 @@ public class SaveOrderService implements SaveOrderUseCase {
         this.userCouponRepository = userCouponRepository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public long save(SaveOrderCommand command) {
         long totalAmount = command.items().stream()

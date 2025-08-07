@@ -3,6 +3,7 @@ package kr.hhplus.be.server.product.infrastructure.entity;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -10,8 +11,9 @@ import java.time.LocalDateTime;
  * 상품 옵션 정보를 나타내는 JPA 엔티티 클래스
  */
 @Getter
+@Setter
 @Entity
-@Table(name = "PRODUCT_OPTION")
+@Table(name = "product_option")
 public class ProductOptionJpaEntity {
     public ProductOptionJpaEntity() {}
 
@@ -60,6 +62,10 @@ public class ProductOptionJpaEntity {
 
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private ProductJpaEntity product;
 
 
 

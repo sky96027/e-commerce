@@ -3,15 +3,19 @@ package kr.hhplus.be.server.product.infrastructure.entity;
 import jakarta.persistence.*;
 import kr.hhplus.be.server.product.domain.type.ProductStatus;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 상품 정보를 나타내는 JPA 엔티티 클래스
  */
 @Getter
+@Setter
 @Entity
-@Table(name = "PRODUCT")
+@Table(name = "product")
 public class ProductJpaEntity {
     public ProductJpaEntity() {}
 
@@ -46,5 +50,8 @@ public class ProductJpaEntity {
 
     @Column(name = "expired_at")
     private LocalDateTime expiredAt;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<ProductOptionJpaEntity> options = new ArrayList<>();
 }
 
