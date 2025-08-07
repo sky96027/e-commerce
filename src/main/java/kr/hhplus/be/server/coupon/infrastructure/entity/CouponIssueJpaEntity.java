@@ -57,4 +57,12 @@ public class CouponIssueJpaEntity {
 
     @Column(name = "type_snapshot", nullable = false, length = 50)
     private String typeSnapshot;
+
+
+    public void decreaseRemaining() {
+        if (this.remaining <= 0) {
+            throw new IllegalStateException("쿠폰 잔량이 소진되었습니다.");
+        }
+        this.remaining -= 1;
+    }
 }
