@@ -52,12 +52,4 @@ public class CouponIssueRepositoryImpl implements CouponIssueRepository {
                 .map(mapper::toDomain)
                 .orElse(null);
     }
-
-    @Override
-    public void updateRemaining(long couponIssueId) {
-        CouponIssueJpaEntity entity = jpaRepository.findByIdForUpdate(couponIssueId)
-                .orElseThrow(() -> new IllegalArgumentException("쿠폰이 존재하지 않습니다. id=" + couponIssueId));
-
-        entity.decreaseRemaining();
-    }
 }

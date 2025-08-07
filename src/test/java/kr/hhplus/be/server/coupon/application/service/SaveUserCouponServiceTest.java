@@ -57,6 +57,7 @@ class SaveUserCouponServiceTest {
         // then
         verify(couponIssueRepository, times(1)).findByIdForUpdate(2L);
         verify(couponIssueRepository, times(1)).save(any(CouponIssue.class));
+        //verify(couponIssueRepository, times(1)).updateRemaining(2L);
         verify(userCouponRepository, times(1)).insertOrUpdate(any(UserCoupon.class));
     }
 
