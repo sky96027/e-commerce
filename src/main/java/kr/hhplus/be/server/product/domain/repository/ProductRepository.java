@@ -11,4 +11,5 @@ import java.util.List;
 public interface ProductRepository {
     List<Product> findAllSummaries();
     Product findById(long productId);
+    Product insertOrUpdate(Product product);
 }

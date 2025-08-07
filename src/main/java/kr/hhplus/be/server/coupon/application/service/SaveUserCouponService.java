@@ -7,6 +7,8 @@ import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SaveUserCouponService implements SaveUserCouponUseCase {
     private final UserCouponRepository userCouponRepository;
     private final CouponIssueRepository couponIssueRepository;
-    private final ConcurrentHashMap<Long, ReentrantLock> lockMap = new ConcurrentHashMap<>();// 추가 필요
 
     public SaveUserCouponService(
             UserCouponRepository userCouponRepository,
@@ -34,34 +35,25 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
         this.couponIssueRepository = couponIssueRepository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void save(SaveUserCouponCommand command) {
-        ReentrantLock lock = lockMap.computeIfAbsent(command.couponId(), k -> new ReentrantLock());
-        lock.lock();
-        try {
-            // 1. 발급 정보 조회
-            CouponIssue couponIssue = couponIssueRepository.findById(command.couponId());
+        CouponIssue couponIssue = couponIssueRepository.findByIdForUpdate(command.couponId());
 
-            // 2. 남은 수량 감소 (0 이하일 경우 예외 발생)
-            CouponIssue updatedIssue = couponIssue.decreaseRemaining();
+        CouponIssue updatedIssue = couponIssue.decreaseRemaining();
 
-            // 3. 유저 쿠폰 발급 객체 생성
-            UserCoupon userCoupon = UserCoupon.issueNew(
-                    command.userId(),
-                    command.couponId(),
-                    command.policyId(),
-                    command.typeSnapshot(),
-                    command.discountRateSnapshot(),
-                    command.usagePeriodSnapshot(),
-                    command.expiredAt()
-            );
+        couponIssueRepository.save(updatedIssue);
 
-            // 4. 저장
-            couponIssueRepository.save(updatedIssue);
-            userCouponRepository.insertOrUpdate(userCoupon);
+        UserCoupon userCoupon = UserCoupon.issueNew(
+                command.userId(),
+                command.couponId(),
+                command.policyId(),
+                command.typeSnapshot(),
+                command.discountRateSnapshot(),
+                command.usagePeriodSnapshot(),
+                command.expiredAt()
+        );
 
-        } finally {
-            lock.unlock();
-        }
+        userCouponRepository.insertOrUpdate(userCoupon);
     }
 }

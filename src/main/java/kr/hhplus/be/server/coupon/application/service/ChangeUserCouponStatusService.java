@@ -1,11 +1,12 @@
 package kr.hhplus.be.server.coupon.application.service;
 
-import jakarta.transaction.Transactional;
 import kr.hhplus.be.server.coupon.application.usecase.ChangeUserCouponStatusUseCase;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * [UseCase 구현체]
@@ -25,7 +26,7 @@ public class ChangeUserCouponStatusService implements ChangeUserCouponStatusUseC
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     public UserCoupon changeStatus(long userCouponId, UserCouponStatus newStatus) {
         UserCoupon current = repository
                 .findByUserCouponId(userCouponId)

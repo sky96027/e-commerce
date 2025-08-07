@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @Entity
-@Table(name = "COUPON_POLICY")
+@Table(name = "coupon_policy")
 public class CouponPolicyJpaEntity {
 
     protected CouponPolicyJpaEntity() {}

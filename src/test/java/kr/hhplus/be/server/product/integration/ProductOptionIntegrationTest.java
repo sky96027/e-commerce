@@ -1,9 +1,12 @@
 package kr.hhplus.be.server.product.integration;
 
 import kr.hhplus.be.server.product.application.service.DeductStockService;
+import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
+import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
+import kr.hhplus.be.server.product.domain.type.ProductStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +30,25 @@ public class ProductOptionIntegrationTest {
     @Autowired
     private ProductOptionRepository productOptionRepository;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @Test
     @DisplayName("재고를 정상적으로 차감한다")
     void deductStock_success() {
         // given
-        ProductOption option = new ProductOption(null, 1L, "옵션1", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
+        Product product = new Product(null, "테스트 상품", ProductStatus.ON_SALE, LocalDateTime.now(), null);
+        Product savedProduct = productRepository.insertOrUpdate(product);
+        
+        ProductOption option = new ProductOption(null, savedProduct.getProductId(), "옵션1", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
         productOptionRepository.insertOrUpdate(option);
 
-        List<ProductOption> options = productOptionRepository.findOptionsByProductId(1L);
+        List<ProductOption> options = productOptionRepository.findOptionsByProductId(savedProduct.getProductId());
         assertThat(options).isNotEmpty();
         long actualOptionId = options.get(0).getOptionId();
 
         // 저장 확인
-        ProductOption savedOption = productOptionRepository.findOptionByOptionId(actualOptionId);
+        ProductOption savedOption = productOptionRepository.findOptionByOptionIdForUpdate(actualOptionId);
         assertThat(savedOption).isNotNull();
         assertThat(savedOption.getStock()).isEqualTo(10);
 
@@ -47,7 +56,7 @@ public class ProductOptionIntegrationTest {
         deductStockService.deductStock(actualOptionId, 2);
 
         // then
-        ProductOption updatedOption = productOptionRepository.findOptionByOptionId(actualOptionId);
+        ProductOption updatedOption = productOptionRepository.findOptionByOptionIdForUpdate(actualOptionId);
         assertThat(updatedOption).isNotNull();
         assertThat(updatedOption.getStock()).isEqualTo(8);
     }
@@ -56,7 +65,10 @@ public class ProductOptionIntegrationTest {
     @DisplayName("재고 부족 시 예외 발생")
     void deductStock_insufficientStock_throwsException() {
         // given
-        ProductOption option = new ProductOption(null, 1L, "옵션2", ProductOptionStatus.ON_SALE, 10000L, 1, LocalDateTime.now(), null);
+        Product product = new Product(null, "테스트 상품2", ProductStatus.ON_SALE, LocalDateTime.now(), null);
+        Product savedProduct = productRepository.insertOrUpdate(product);
+        
+        ProductOption option = new ProductOption(null, savedProduct.getProductId(), "옵션2", ProductOptionStatus.ON_SALE, 10000L, 1, LocalDateTime.now(), null);
         ProductOption savedOption = productOptionRepository.insertOrUpdate(option); // ← 저장된 객체 받기
 
         // when & then
@@ -69,7 +81,10 @@ public class ProductOptionIntegrationTest {
     @DisplayName("음수 차감 시 예외 발생")
     void deductStock_negativeAmount_throwsException() {
         // given
-        ProductOption option = new ProductOption(null, 1L, "옵션3", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
+        Product product = new Product(null, "테스트 상품3", ProductStatus.ON_SALE, LocalDateTime.now(), null);
+        Product savedProduct = productRepository.insertOrUpdate(product);
+        
+        ProductOption option = new ProductOption(null, savedProduct.getProductId(), "옵션3", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
         ProductOption savedOption = productOptionRepository.insertOrUpdate(option); // ← 저장된 객체 받기
 
         // when & then

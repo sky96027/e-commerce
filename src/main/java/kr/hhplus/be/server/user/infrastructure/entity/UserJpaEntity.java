@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "USER")
+@Table(name = "user")
 public class UserJpaEntity {
     public UserJpaEntity() {}
 
