@@ -13,4 +13,6 @@ public interface CouponIssueRepository {
 
     // Lock
     CouponIssue findByIdForUpdate(long couponIssueId);
+
+    void updateRemaining(long couponIssueId);
 }

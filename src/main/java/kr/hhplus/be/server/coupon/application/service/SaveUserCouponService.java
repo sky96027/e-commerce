@@ -38,13 +38,8 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void save(SaveUserCouponCommand command) {
-        // 1. 발급 정보 조회
-        CouponIssue couponIssue = couponIssueRepository.findByIdForUpdate(command.couponId());
+        couponIssueRepository.updateRemaining(command.couponId());
 
-        // 2. 남은 수량 감소 (0 이하일 경우 예외 발생)
-        CouponIssue updatedIssue = couponIssue.decreaseRemaining();
-
-        // 3. 유저 쿠폰 발급 객체 생성
         UserCoupon userCoupon = UserCoupon.issueNew(
                 command.userId(),
                 command.couponId(),
@@ -55,8 +50,6 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
                 command.expiredAt()
         );
 
-        // 4. 저장
-        couponIssueRepository.save(updatedIssue);
         userCouponRepository.insertOrUpdate(userCoupon);
     }
 }
