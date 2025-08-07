@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.product.concurrency;
 
 import kr.hhplus.be.server.product.application.service.DeductStockService;
+import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProductOptionConcurrencyTest {
 
     @Autowired
-    private DeductStockService deductStockService;
+    private DeductStockUseCase deductStockUseCase;
 
     @Autowired
     private ProductOptionRepository productOptionRepository;
@@ -57,7 +58,7 @@ public class ProductOptionConcurrencyTest {
             executorService.execute(() -> {
                 try {
                     System.out.println("Thread " + threadIndex + " 시작");
-                    deductStockService.deductStock(optionId, deductQuantity);
+                    deductStockUseCase.deductStock(optionId, deductQuantity);
                     System.out.println("Thread " + threadIndex + " 성공");
                 } catch (Exception e) {
                     System.err.println("Thread " + threadIndex + " 실패: " + e.getClass().getSimpleName() + " - " + e.getMessage());
