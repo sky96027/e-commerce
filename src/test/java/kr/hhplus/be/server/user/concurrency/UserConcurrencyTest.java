@@ -66,7 +66,7 @@ public class UserConcurrencyTest {
         latch.await();
 
         // then - 잔액 검증
-        User updatedUser = userRepository.selectById(userId);
+        User updatedUser = userRepository.findById(userId);
         assertThat(updatedUser.getBalance()).isEqualTo(initialBalance + chargeAmount * threadCount);
 
         // 거래 내역 검증
