@@ -32,7 +32,7 @@ public class FindUserService implements FindUserUseCase {
      */
     @Override
     public UserDto findById(long userId) {
-        User user = userRepository.selectById(userId);
+        User user = userRepository.findById(userId);
 
         return UserDto.from(user);
     }

@@ -100,7 +100,7 @@ public class PaymentFacade {
             stockDeducted = true;
 
             // 4. 잔액 차감
-            deductUserBalanceUseCase.deductBalance(order.userId(), totalAmount);
+            deductUserBalanceUseCase.deduct(order.userId(), totalAmount);
             balanceDeducted = true;
 
             // 5. 거래내역 저장
