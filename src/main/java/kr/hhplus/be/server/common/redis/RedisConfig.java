@@ -19,21 +19,22 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 @Configuration
 @EnableCaching
 public class RedisConfig {
-    @Value("${spring.data.redis.host}")
+    /*@Value("${spring.data.redis.host}")
     private String host;
 
     @Value("${spring.data.redis.port}")
-    private String port;
+    private String port;*/
 
     /**
      * Lettuce 기반 Redis 커넥션 팩토리 빈 등록.
      * - Lettuce는 Netty 기반 비동기/논블로킹 클라이언트로, 높은 동시성에 유리합니다.
      * - 이 빈을 통해 스프링 데이터 Redis 및 캐시 매니저가 Redis 서버와 통신합니다.
+     * 자동 구성된 ConnectionFactory 사용으로 비활성화
      */
-    @Bean
+    /*@Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(host, Integer.parseInt(port));
-    }
+    }*/
 
     /** 간단 문자열 기반 연산용 템플릿 (SET NX PX 등) */
     @Bean
@@ -46,7 +47,7 @@ public class RedisConfig {
      * (1) 현재 키의 값이 전달받은 토큰과 같으면 DEL
      * (2) 아니면 아무 것도 하지 않음
      */
-    @Bean
+    /*@Bean
     public DefaultRedisScript<Long> unlockScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setResultType(Long.class);
@@ -56,6 +57,23 @@ public class RedisConfig {
                         "else " +
                         "  return 0 " +
                         "end"
+        );
+        return script;
+    }*/
+
+    /** Pub/Sub 해제용: DEL + PUBLISH 원자화 스크립트 */
+    @Bean
+    public DefaultRedisScript<Long> unlockAndPublishScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setResultType(Long.class);
+        script.setScriptText(
+                // KEYS[1]=lockKey, KEYS[2]=channel, ARGV[1]=token
+                "local v = redis.call('GET', KEYS[1]); " +
+                        "if v == ARGV[1] then " +
+                        "  redis.call('DEL', KEYS[1]); " +
+                        "  redis.call('PUBLISH', KEYS[2], ARGV[1]); " +
+                        "  return 1; " +
+                        "else return 0; end"
         );
         return script;
     }

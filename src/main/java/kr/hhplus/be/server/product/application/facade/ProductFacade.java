@@ -77,8 +77,8 @@ public class ProductFacade {
 
         String token = lockManager.lockBlockingPubSub(
                 key,
-                Duration.ofSeconds(3),  // TTL: p99 크리티컬 섹션 시간 이상 또는 워치독 사용
-                Duration.ofSeconds(5)   // 전체 대기 한도
+                Duration.ofSeconds(10),  // TTL: p99 크리티컬 섹션 시간 이상 또는 워치독 사용
+                Duration.ofSeconds(30)   // 전체 대기 한도
         );
         if (token == null) {
             throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
