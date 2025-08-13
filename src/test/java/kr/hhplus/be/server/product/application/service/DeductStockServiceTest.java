@@ -1,81 +1,71 @@
 package kr.hhplus.be.server.product.application.service;
 
-import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
-import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class DeductStockServiceTest {
-    @Mock
-    private ProductOptionRepository productOptionRepository;
-    @InjectMocks
-    private DeductStockService deductStockService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        deductStockService = new DeductStockService(productOptionRepository);
-    }
+    @Mock
+    ProductOptionRepository productOptionRepository;
+
+    @InjectMocks
+    DeductStockService sut;
 
     @Test
-    @DisplayName("정상 재고 차감")
+    @DisplayName("정상 재고 차감 시 레포지토리의 원자적 UPDATE가 1회 호출된다")
     void deductStock_success() {
         // given
         long optionId = 1L;
-        ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
-        ProductOption updated = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 8, option.getCreatedAt(), null);
+        int qty = 2;
 
-        when(productOptionRepository.findOptionByOptionIdForUpdate(optionId)).thenReturn(option);
-        when(productOptionRepository.insertOrUpdate(any(ProductOption.class))).thenReturn(updated);
+        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(true);
 
-        // when
-        deductStockService.deductStock(optionId, 2);
+        // when & then
+        assertThatCode(() -> sut.deductStock(optionId, qty))
+                .doesNotThrowAnyException();
 
-        // then
-        verify(productOptionRepository, times(1)).findOptionByOptionIdForUpdate(optionId);
-        verify(productOptionRepository, times(1)).insertOrUpdate(any(ProductOption.class));
+        verify(productOptionRepository).decrementStock(optionId, qty);
+        verifyNoMoreInteractions(productOptionRepository);
     }
 
     @Test
-    @DisplayName("재고 부족 시 예외 발생")
-    void deductStock_insufficientStock_throwsException() {
+    @DisplayName("재고 부족 시 예외를 그대로 전달한다")
+    void deductStock_insufficient() {
         // given
         long optionId = 2L;
-        ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 1, LocalDateTime.now(), null);
-        when(productOptionRepository.findOptionByOptionIdForUpdate(optionId)).thenReturn(option);
+        int qty = 100;
+
+        doThrow(new IllegalStateException("재고 부족"))
+                .when(productOptionRepository).decrementStock(optionId, qty);
 
         // when & then
-        assertThatThrownBy(() -> deductStockService.deductStock(optionId, 2))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("재고가 부족합니다");
-        verify(productOptionRepository, times(1)).findOptionByOptionIdForUpdate(optionId);
-        verify(productOptionRepository, never()).insertOrUpdate(any(ProductOption.class));
+        assertThatThrownBy(() -> sut.deductStock(optionId, qty))
+                .isInstanceOf(IllegalStateException.class);
+
+        verify(productOptionRepository).decrementStock(optionId, qty);
+        verifyNoMoreInteractions(productOptionRepository);
     }
 
     @Test
-    @DisplayName("음수 차감 시 예외 발생")
-    void deductStock_negativeAmount_throwsException() {
+    @DisplayName("음수 차감 시 유효성 예외를 그대로 전달한다")
+    void deductStock_negative() {
         // given
         long optionId = 3L;
-        ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
-        when(productOptionRepository.findOptionByOptionIdForUpdate(optionId)).thenReturn(option);
+        int qty = -1;
 
         // when & then
-        assertThatThrownBy(() -> deductStockService.deductStock(optionId, -1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("차감량은 음수일 수 없습니다");
-        verify(productOptionRepository, times(1)).findOptionByOptionIdForUpdate(optionId);
-        verify(productOptionRepository, never()).insertOrUpdate(any(ProductOption.class));
+        assertThatThrownBy(() -> sut.deductStock(optionId, qty))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verifyNoMoreInteractions(productOptionRepository);
     }
-} 
+}

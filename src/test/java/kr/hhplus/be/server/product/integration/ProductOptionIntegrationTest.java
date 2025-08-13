@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.integration;
 
-import kr.hhplus.be.server.product.application.service.DeductStockService;
+import kr.hhplus.be.server.product.application.service.DeductStockService; // 서비스명 유지 시 그대로 사용
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
@@ -16,12 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@DisplayName("통합 테스트 - 상품 재고 차감")
+@DisplayName("통합 테스트 - 상품 재고 차감 (원자적 UPDATE 기반)")
 public class ProductOptionIntegrationTest {
 
     @Autowired
@@ -39,26 +38,30 @@ public class ProductOptionIntegrationTest {
         // given
         Product product = new Product(null, "테스트 상품", ProductStatus.ON_SALE, LocalDateTime.now(), null);
         Product savedProduct = productRepository.insertOrUpdate(product);
-        
-        ProductOption option = new ProductOption(null, savedProduct.getProductId(), "옵션1", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
+
+        ProductOption option = new ProductOption(
+                null, savedProduct.getProductId(), "옵션1",
+                ProductOptionStatus.ON_SALE, 10000L, 10,
+                LocalDateTime.now(), null
+        );
         productOptionRepository.insertOrUpdate(option);
 
         List<ProductOption> options = productOptionRepository.findOptionsByProductId(savedProduct.getProductId());
         assertThat(options).isNotEmpty();
-        long actualOptionId = options.get(0).getOptionId();
+        long optionId = options.get(0).getOptionId();
 
         // 저장 확인
-        ProductOption savedOption = productOptionRepository.findOptionByOptionIdForUpdate(actualOptionId);
-        assertThat(savedOption).isNotNull();
-        assertThat(savedOption.getStock()).isEqualTo(10);
+        ProductOption before = productOptionRepository.findOptionByOptionId(optionId);
+        assertThat(before).isNotNull();
+        assertThat(before.getStock()).isEqualTo(10);
 
         // when
-        deductStockService.deductStock(actualOptionId, 2);
+        deductStockService.deductStock(optionId, 2);
 
         // then
-        ProductOption updatedOption = productOptionRepository.findOptionByOptionIdForUpdate(actualOptionId);
-        assertThat(updatedOption).isNotNull();
-        assertThat(updatedOption.getStock()).isEqualTo(8);
+        ProductOption after = productOptionRepository.findOptionByOptionId(optionId);
+        assertThat(after).isNotNull();
+        assertThat(after.getStock()).isEqualTo(8);
     }
 
     @Test
@@ -67,14 +70,17 @@ public class ProductOptionIntegrationTest {
         // given
         Product product = new Product(null, "테스트 상품2", ProductStatus.ON_SALE, LocalDateTime.now(), null);
         Product savedProduct = productRepository.insertOrUpdate(product);
-        
-        ProductOption option = new ProductOption(null, savedProduct.getProductId(), "옵션2", ProductOptionStatus.ON_SALE, 10000L, 1, LocalDateTime.now(), null);
-        ProductOption savedOption = productOptionRepository.insertOrUpdate(option); // ← 저장된 객체 받기
+
+        ProductOption option = new ProductOption(
+                null, savedProduct.getProductId(), "옵션2",
+                ProductOptionStatus.ON_SALE, 10000L, 1,
+                LocalDateTime.now(), null
+        );
+        ProductOption savedOption = productOptionRepository.insertOrUpdate(option);
 
         // when & then
-        assertThatThrownBy(() -> deductStockService.deductStock(savedOption.getOptionId(), 2)) // ← 저장된 ID 사용
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("재고가 부족합니다");
+        assertThatThrownBy(() -> deductStockService.deductStock(savedOption.getOptionId(), 2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -83,13 +89,16 @@ public class ProductOptionIntegrationTest {
         // given
         Product product = new Product(null, "테스트 상품3", ProductStatus.ON_SALE, LocalDateTime.now(), null);
         Product savedProduct = productRepository.insertOrUpdate(product);
-        
-        ProductOption option = new ProductOption(null, savedProduct.getProductId(), "옵션3", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
-        ProductOption savedOption = productOptionRepository.insertOrUpdate(option); // ← 저장된 객체 받기
+
+        ProductOption option = new ProductOption(
+                null, savedProduct.getProductId(), "옵션3",
+                ProductOptionStatus.ON_SALE, 10000L, 10,
+                LocalDateTime.now(), null
+        );
+        ProductOption savedOption = productOptionRepository.insertOrUpdate(option);
 
         // when & then
-        assertThatThrownBy(() -> deductStockService.deductStock(savedOption.getOptionId(), -1)) // ← 저장된 ID 사용
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("차감량은 음수일 수 없습니다");
+        assertThatThrownBy(() -> deductStockService.deductStock(savedOption.getOptionId(), -1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
-} 
+}

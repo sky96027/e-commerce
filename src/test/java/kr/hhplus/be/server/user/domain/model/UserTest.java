@@ -46,7 +46,8 @@ class UserTest {
         assertThat(updated.getBalance()).isEqualTo(1500L);
     }
 
-    @Test
+    // db update 로 책임 이동
+    /*@Test
     @DisplayName("음수 금액 충전 시 예외 발생")
     void charge_negativeAmount_throwsException() {
         User user = new User(1L, 1000L);
@@ -54,7 +55,7 @@ class UserTest {
         assertThatThrownBy(() -> user.charge(-100L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("충전 금액은 음수일 수 없습니다.");
-    }
+    }*/
 
     @Test
     @DisplayName("정상 금액 차감 성공")
@@ -69,7 +70,8 @@ class UserTest {
         assertThat(updated.getBalance()).isEqualTo(500L);
     }
 
-    @Test
+    // db update 로 책임 이동
+    /*@Test
     @DisplayName("음수 금액 차감 시 예외 발생")
     void deduct_negativeAmount_throwsException() {
         User user = new User(1L, 1000L);
@@ -77,7 +79,7 @@ class UserTest {
         assertThatThrownBy(() -> user.deduct(-300L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("차감 금액은 음수일 수 없습니다.");
-    }
+    }*/
 
     @Test
     @DisplayName("잔액 부족 시 차감 예외 발생")
