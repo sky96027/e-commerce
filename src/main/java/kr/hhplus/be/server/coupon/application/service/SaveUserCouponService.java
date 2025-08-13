@@ -38,7 +38,7 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void save(SaveUserCouponCommand command) {
-        CouponIssue couponIssue = couponIssueRepository.findByIdForUpdate(command.couponId());
+        CouponIssue couponIssue = couponIssueRepository.findById(command.couponId());
 
         CouponIssue updatedIssue = couponIssue.decreaseRemaining();
 

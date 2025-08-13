@@ -2,6 +2,7 @@ package kr.hhplus.be.server.coupon.presentation.web;
 
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
+import kr.hhplus.be.server.coupon.application.facade.CouponFacade;
 import kr.hhplus.be.server.coupon.application.usecase.FindUserCouponSummaryUseCase;
 import kr.hhplus.be.server.coupon.application.usecase.SaveUserCouponUseCase;
 import kr.hhplus.be.server.coupon.presentation.contract.CouponApiSpec;
@@ -20,6 +21,7 @@ public class CouponController implements CouponApiSpec {
 
     private final FindUserCouponSummaryUseCase findUserCouponSummaryUseCase;
     private final SaveUserCouponUseCase saveUserCouponUseCase;
+    private final CouponFacade couponFacade;
 
     /**
      * 유저의 쿠폰 목록 조회
@@ -61,7 +63,7 @@ public class CouponController implements CouponApiSpec {
                 request.usagePeriodSnapshot(),
                 request.expiredAt()
         );
-        saveUserCouponUseCase.save(command);
+        couponFacade.issueToUser(command);
         return ResponseEntity.ok().build();
     }
 }

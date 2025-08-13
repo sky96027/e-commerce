@@ -13,7 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface CouponIssueJpaRepository extends JpaRepository<CouponIssueJpaEntity, Long> {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    // 비관적 락 (Legacy)
+    /*@Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM CouponIssueJpaEntity c WHERE c.couponIssueId = :id")
-    Optional<CouponIssueJpaEntity> findByIdForUpdate(@Param("id") Long id);
+    Optional<CouponIssueJpaEntity> findByIdForUpdate(@Param("id") Long id);*/
 }
