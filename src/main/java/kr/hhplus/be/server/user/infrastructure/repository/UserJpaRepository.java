@@ -20,16 +20,20 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     Optional<UserJpaEntity> findByIdForUpdate(@Param("id") Long id);*/
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE UserJpaEntity u " +
-            "   SET u.balance = u.balance + :amount " +
-            "WHERE u.userId = :id")
+    @Query("""
+        UPDATE UserJpaEntity u
+           SET u.balance = u.balance + :amount
+        WHERE u.userId = :id
+        """)
     int incrementBalance(@Param("id") Long id, @Param("amount") Long amount);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE UserJpaEntity u " +
-            "   SET u.balance = u.balance - :amount " +
-            "WHERE u.userId = :id " +
-            "   AND (u.balance - :amount) >= 0")
+    @Query("""
+        UPDATE UserJpaEntity u 
+           SET u.balance = u.balance - :amount
+        WHERE u.userId = :id
+           AND (u.balance - :amount) >= 0
+        """)
     int decrementBalanceIfEnough(@Param("id") Long id, @Param("amount") Long amount);
 
 }
