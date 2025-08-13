@@ -27,8 +27,8 @@ Spin Lock으로만 동시성을 제어할 경우 트래픽이 클 것으로 예�
 
 - 실패 시 구독하고 수면. 해제 시점에 서버가 푸시로 깨움.
 - 총 Redis 호출 수 :
-    - 해제 시 **`PUBLISH`** 1회 + 대기자별 재시도 **`SETNX`**1회 수준(미스 시그널 가드 포함해도 상수 회수).
-    - 폴링 명령이 없어져 `QPS`가 경합 시간 **`L`** 에 비례하지 않음.
+  - 해제 시 **`PUBLISH`** 1회 + 대기자별 재시도 **`SETNX`**1회 수준(미스 시그널 가드 포함해도 상수 회수).
+  - 폴링 명령이 없어져 `QPS`가 경합 시간 **`L`** 에 비례하지 않음.
 - 해제 후 추가 지연: `≈ 네트워크 + 리스너 디스패치`(수 ms 수준). `b`에 의존하지 않음.
 - 대기 중 스레드는 슬립 상태 → CPU/컨텍스트 스위치 감소.
 
@@ -39,7 +39,7 @@ Spin Lock으로만 동시성을 제어할 경우 트래픽이 클 것으로 예�
 
 ### 구현
 
-RedisConfig에 구독 컨테이너 추가
+RedisConfig에 구독 컨테이너 추가, 스크립트 추가
 
 ```java
 @Bean
@@ -48,6 +48,79 @@ RedisConfig에 구독 컨테이너 추가
         container.setConnectionFactory(cf);
         return container;
     }
+    
+    @Bean
+    public DefaultRedisScript<Long> unlockAndPublishScript() {
+        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+        script.setResultType(Long.class);
+        script.setScriptText(
+                // KEYS[1]=lockKey, KEYS[2]=channel, ARGV[1]=token
+                "local v = redis.call('GET', KEYS[1]); " +
+                        "if v == ARGV[1] then " +
+                        "  redis.call('DEL', KEYS[1]); " +
+                        "  redis.call('PUBLISH', KEYS[2], ARGV[1]); " +
+                        "  return 1; " +
+                        "else return 0; end"
+        );
+        return script;
+    }
+```
+
+대기 레지스트리 신규 작성
+
+```java
+package kr.hhplus.be.server.common.redis;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+@Component
+@RequiredArgsConstructor
+public class RedisPubSubWaitRegistry implements InitializingBean {
+
+    private final RedisMessageListenerContainer container;
+
+    // 채널별 대기자 리스트
+    private final ConcurrentMap<String, CopyOnWriteArrayList<CompletableFuture<String>>> waiters = new ConcurrentHashMap<>();
+
+    @Override
+    public void afterPropertiesSet() {
+        container.addMessageListener((message, pattern) -> {
+            String channel = new String(message.getChannel(), java.nio.charset.StandardCharsets.UTF_8);
+            String payload = new String(message.getBody(), java.nio.charset.StandardCharsets.UTF_8);
+
+            var list = waiters.remove(channel); // 채널에 걸린 모든 대기자 깨우기
+            if (list != null) list.forEach(f -> f.complete(payload));
+        }, new org.springframework.data.redis.listener.PatternTopic("lock:*:ch")); // 항상-켜진 pSub
+    }
+
+    /** 특정 채널 알림을 기다림 */
+    public CompletableFuture<String> await(String channel) {
+        var f = new CompletableFuture<String>();
+        waiters.compute(channel, (ch, cur) -> {
+            if (cur == null) cur = new CopyOnWriteArrayList<>();
+            cur.add(f);
+            return cur;
+        });
+        return f;
+    }
+
+    /** 타임아웃/취소 시 대기자 제거 */
+    public void cancel(String channel, CompletableFuture<String> f) {
+        var list = waiters.get(channel);
+        if (list != null) {
+            list.remove(f);
+            if (list.isEmpty()) waiters.remove(channel, list);
+        }
+    }
+}
 ```
 
 Lock Manager에 Pub/Sub 방식의 Lock 추가
@@ -58,43 +131,36 @@ public class RedisDistributedLockManager {
 	private final RedisMessageListenerContainer listenerContainer;
 	
 	public String lockBlockingPubSub(String key, Duration ttl, Duration wait) {
-        long deadlineMillis = System.currentTimeMillis() + wait.toMillis();
-        final String channel = ch(key);
+        long deadline = System.nanoTime() + wait.toNanos();
 
-        while (System.currentTimeMillis() < deadlineMillis) {
-            // 1) 즉시 획득 시도
+        while (true) {
             String token = tryLock(key, ttl);
             if (token != null) return token;
 
-            // 2) 채널 구독 준비
-            CountDownLatch latch = new CountDownLatch(1);
-            MessageListener listener = (message, pattern) -> latch.countDown();
-            ChannelTopic topic = new ChannelTopic(channel);
+            long remainMs = TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime());
+            if (remainMs <= 0) return null;
 
-            // 3) 구독 등록
-            listenerContainer.addMessageListener(listener, topic);
-            try {
-                // 3-1) 미스 시그널 가드: 구독 직후 락이 이미 사라졌으면 즉시 재시도
-                Boolean exists = redis.hasKey(k(key));
-                if (Boolean.FALSE.equals(exists)) {
-                    // 잠깐 양보(쓰레드 스케줄링) 후 루프 재진입
-                    Thread.yield();
-                } else {
-                    // 4) 남은 시간 내에서 알림 대기 (최대 1초 단위로 끊어서 대기)
-                    long remaining = Math.max(0, deadlineMillis - System.currentTimeMillis());
-                    long waitOnce = Math.min(remaining, 1000L);
-                    if (waitOnce > 0) latch.await(waitOnce, TimeUnit.MILLISECONDS);
-                }
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            } finally {
-                // 5) 구독 해제
-                listenerContainer.removeMessageListener(listener, topic);
+            String channel = ch(key);
+            CompletableFuture<String> f = waitRegistry.await(channel);
+
+            // 미스 시그널 가드: 등록 직후 즉시 한 번 더 시도
+            token = tryLock(key, ttl);
+            if (token != null) {
+                waitRegistry.cancel(channel, f);
+                return token;
             }
-            // 루프 재시도
+
+            try {
+                // 알림(PUBLISH) 대기
+                f.get(remainMs, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException te) {
+                return null; // 전체 대기 초과 → 호출부에서 "잠시 후…" 예외
+            } catch (Exception ignore) {
+                // 인터럽트 등 → 루프 계속
+            } finally {
+                waitRegistry.cancel(channel, f);
+            }
         }
-        return null;
-    }
 }
 ```
 
@@ -102,22 +168,22 @@ public class RedisDistributedLockManager {
 
 ```java
 public void issueToUser(SaveUserCouponCommand command) {
-        String key = "coupon:issue:" + command.couponId();
+  String key = "coupon:issue:" + command.couponId();
 
-        // [PUB/SUB LOCK] 해제 알림 기반 블로킹 획득
-        String token = lockManager.lockBlockingPubSub(
-                key,
-                Duration.ofSeconds(3),  // TTL (p99 처리시간보다 짧지 않게)
-                Duration.ofSeconds(5)   // 전체 대기 한도
-        );
-        if (token == null) throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
+  // [PUB/SUB LOCK] 해제 알림 기반 블로킹 획득
+  String token = lockManager.lockBlockingPubSub(
+          key,
+          Duration.ofSeconds(3),  // TTL (p99 처리시간보다 짧지 않게)
+          Duration.ofSeconds(5)   // 전체 대기 한도
+  );
+  if (token == null) throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
 
-        try {
-            saveUserCouponUseCase.save(command);
-        } finally {
-            lockManager.unlock(key, token);
-        }
-    }
+  try {
+    saveUserCouponUseCase.save(command);
+  } finally {
+    lockManager.unlock(key, token);
+  }
+}
 ```
 
 ### 추가 사항
@@ -129,8 +195,8 @@ public void issueToUser(SaveUserCouponCommand command) {
 ```java
 Map<Long, Integer> qtyByOption = new HashMap<>();
 for (OrderItemDto item : orderItems) {
-    qtyByOption.merge(item.optionId(), item.quantity(), Integer::sum); // 중복 옵션 합치기
-}
+        qtyByOption.merge(item.optionId(), item.quantity(), Integer::sum); // 중복 옵션 합치기
+        }
 
 // 순서: optionId 오름차순
 List<Map.Entry<Long, Integer>> sorted = new ArrayList<>(qtyByOption.entrySet());

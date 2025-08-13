@@ -10,11 +10,14 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 @Component
@@ -24,16 +27,16 @@ public class RedisDistributedLockManager {
     private final StringRedisTemplate redis;
     /** unlock 시 DEL + PUBLISH 를 원자적으로 수행하는 스크립트 */
     private final DefaultRedisScript<Long> unlockAndPublishScript;
-    /** Pub/Sub 구독 관리 컨테이너 */
-    private final RedisMessageListenerContainer listenerContainer;
 
-    private static final String LOCK_PREFIX   = "lock:";
-    private static final String NOTIFY_PREFIX = "lock:notify:";
+    private final RedisPubSubWaitRegistry waitRegistry;
+
+    private static final String LOCK_PREFIX = "lock:";
+    private static final String CH_SUFFIX   = ":ch";
 
     /** 락 키 */
     private String k(String key) { return LOCK_PREFIX + key; }
     /** 해제 알림 채널 */
-    private String ch(String key) { return NOTIFY_PREFIX + key; }
+    private String ch(String key) { return LOCK_PREFIX + key + CH_SUFFIX; }
 
     /**
      * 락 시도 (논블로킹): 성공 시 토큰 반환, 실패 시 null
@@ -53,8 +56,8 @@ public class RedisDistributedLockManager {
         if (token == null) return false;
         Long res = redis.execute(
                 unlockAndPublishScript,
-                java.util.Arrays.asList(k(key), ch(key)),
-                token
+                Arrays.asList(k(key), ch(key)), // ← KEYS[1], KEYS[2]
+                token                           // ← ARGV[1]
         );
         return Objects.equals(res, 1L);
     }
@@ -80,41 +83,35 @@ public class RedisDistributedLockManager {
      * - 미스 시그널 방지: "구독 직후 락 존재 여부 재확인" 포함
      */
     public String lockBlockingPubSub(String key, Duration ttl, Duration wait) {
-        long deadlineMillis = System.currentTimeMillis() + wait.toMillis();
-        final String channel = ch(key);
+        long deadline = System.nanoTime() + wait.toNanos();
 
-        while (System.currentTimeMillis() < deadlineMillis) {
-            // 1) 즉시 획득 시도
+        while (true) {
             String token = tryLock(key, ttl);
             if (token != null) return token;
 
-            // 2) 채널 구독 준비
-            CountDownLatch latch = new CountDownLatch(1);
-            MessageListener listener = (message, pattern) -> latch.countDown();
-            ChannelTopic topic = new ChannelTopic(channel);
+            long remainMs = TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime());
+            if (remainMs <= 0) return null;
 
-            // 3) 구독 등록
-            listenerContainer.addMessageListener(listener, topic);
-            try {
-                // 3-1) 미스 시그널 가드: 구독 직후 락이 이미 사라졌으면 즉시 재시도
-                Boolean exists = redis.hasKey(k(key));
-                if (Boolean.FALSE.equals(exists)) {
-                    // 잠깐 양보(쓰레드 스케줄링) 후 루프 재진입
-                    Thread.yield();
-                } else {
-                    // 4) 남은 시간 내에서 알림 대기 (최대 1초 단위로 끊어서 대기)
-                    long remaining = Math.max(0, deadlineMillis - System.currentTimeMillis());
-                    long waitOnce = Math.min(remaining, 1000L);
-                    if (waitOnce > 0) latch.await(waitOnce, TimeUnit.MILLISECONDS);
-                }
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-            } finally {
-                // 5) 구독 해제
-                listenerContainer.removeMessageListener(listener, topic);
+            String channel = ch(key);
+            CompletableFuture<String> f = waitRegistry.await(channel);
+
+            // 미스 시그널 가드: 등록 직후 즉시 한 번 더 시도
+            token = tryLock(key, ttl);
+            if (token != null) {
+                waitRegistry.cancel(channel, f);
+                return token;
             }
-            // 루프 재시도
+
+            try {
+                // 알림(PUBLISH) 대기
+                f.get(remainMs, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException te) {
+                return null; // 전체 대기 초과 → 호출부에서 "잠시 후…" 예외
+            } catch (Exception ignore) {
+                // 인터럽트 등 → 루프 계속
+            } finally {
+                waitRegistry.cancel(channel, f);
+            }
         }
-        return null;
     }
 }
