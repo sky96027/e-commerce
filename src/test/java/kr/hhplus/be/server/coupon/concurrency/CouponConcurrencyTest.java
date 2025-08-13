@@ -63,7 +63,7 @@ public class CouponConcurrencyTest {
                             CouponPolicyType.RATE, 10.0f, 30,
                             LocalDateTime.now().plusDays(30)
                     );
-                    couponFacade.issueToUser(cmd); // ⬅️ Facade 통해 호출(락 경유)
+                    couponFacade.issueToUser(cmd);
                 } catch (Exception ignored) {
                 } finally {
                     done.countDown();
