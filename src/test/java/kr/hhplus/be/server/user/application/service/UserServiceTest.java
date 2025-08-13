@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.user.application.service;
 
+import kr.hhplus.be.server.common.redis.RedisDistributedLockManager;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
@@ -7,6 +8,7 @@ import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.facade.UserFacade;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
+import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceWithHistoryUseCase;
 import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
@@ -30,6 +32,8 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private ChargeUserBalanceWithHistoryUseCase chargeUserBalanceWithHistoryUseCase;
+    @Mock
     private ChargeUserBalanceUseCase chargeUseCase;
     @Mock
     private SaveTransactionUseCase saveTransactionUseCase;
@@ -38,6 +42,8 @@ class UserServiceTest {
     @Mock
     private FindUserUseCase findUserUseCase;
 
+    private RedisDistributedLockManager lockManager;
+
 
     private FindUserService findUserService;
     private UserFacade userFacade;
@@ -45,10 +51,12 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         userFacade = new UserFacade(
+                chargeUserBalanceWithHistoryUseCase,
                 chargeUseCase,
                 saveTransactionUseCase,
                 findUserUseCase,
-                findHistoryUseCase
+                findHistoryUseCase,
+                lockManager
         );
 
         findUserService = new FindUserService(userRepository);
@@ -60,7 +68,7 @@ class UserServiceTest {
         // given
         long userId = 1L;
         User user = new User(userId, 5000L);
-        when(userRepository.selectById(userId)).thenReturn(user);
+        when(userRepository.findById(userId)).thenReturn(user);
 
         // when
         UserDto result = findUserService.findById(userId);
@@ -70,7 +78,8 @@ class UserServiceTest {
         assertThat(result.balance()).isEqualTo(5000L);
     }
 
-    @Test
+    // (legacy) Facade 단위 테스트, Tx서비스 단위테스트로 분리
+    /*@Test
     @DisplayName("유저 잔고 충전 시 거래 내역이 저장된다")
     void 잔고_충전_및_거래내역_저장_성공() {
         // given
@@ -86,7 +95,7 @@ class UserServiceTest {
         // then
         assertThat(result.balance()).isEqualTo(5000L);
         verify(saveTransactionUseCase).save(userId, TransactionType.CHARGE, chargeAmount);
-    }
+    }*/
 
     @Test
     @DisplayName("유저의 거래 내역을 조회할 수 있다")
