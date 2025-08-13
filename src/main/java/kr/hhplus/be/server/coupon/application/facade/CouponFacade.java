@@ -17,7 +17,12 @@ public class CouponFacade {
     public void issueToUser(SaveUserCouponCommand command) {
         String key = "coupon:issue:" + command.couponId();
 
-        String token = lockManager.lockBlocking(key, Duration.ofSeconds(3), Duration.ofSeconds(5), Duration.ofMillis(50));
+        // [PUB/SUB LOCK] 해제 알림 기반 블로킹 획득
+        String token = lockManager.lockBlockingPubSub(
+                key,
+                Duration.ofSeconds(10),  // TTL (p99 처리시간보다 짧지 않게)
+                Duration.ofSeconds(30)   // 전체 대기 한도
+        );
         if (token == null) throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
 
         try {

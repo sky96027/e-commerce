@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 
 /**
  * Redis 연결 팩토리를 등록하고 스프링 캐시를 활성화하는 설정 클래스.
@@ -57,5 +58,13 @@ public class RedisConfig {
                         "end"
         );
         return script;
+    }
+
+    /** Pub/Sub 구독 컨테이너 */
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory cf) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(cf);
+        return container;
     }
 }
