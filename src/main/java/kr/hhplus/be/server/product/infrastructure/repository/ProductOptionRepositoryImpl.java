@@ -45,14 +45,26 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepository {
 
     @Override
     public ProductOption insertOrUpdate(ProductOption productOption) {
-        ProductOptionJpaEntity saved = jpaRepository.save(mapper.toEntity(productOption));
+        ProductOptionJpaEntity entity = mapper.toEntity(productOption);
+        ProductOptionJpaEntity saved = jpaRepository.saveAndFlush(entity); // ← flush 보장
         return mapper.toDomain(saved);
     }
 
     @Override
+    public boolean decrementStock(long optionId, int quantity) {
+        return jpaRepository.decrementStockIfEnough(optionId, quantity) == 1;
+    }
+
+    @Override
+    public boolean  incrementStock(long optionId, int quantity) {
+        return jpaRepository.incrementStock(optionId, quantity) == 1;
+    }
+
+    // 비관적 Lock (Legacy)
+    /*@Override
     public ProductOption findOptionByOptionIdForUpdate(long optionId) {
         return jpaRepository.findByIdForUpdate(optionId)
                 .map(mapper::toDomain)
                 .orElse(null);
-    }
+    }*/
 }

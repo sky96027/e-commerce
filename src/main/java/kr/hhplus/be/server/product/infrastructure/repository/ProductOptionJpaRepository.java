@@ -23,9 +23,19 @@ public interface ProductOptionJpaRepository extends JpaRepository<ProductOptionJ
     Optional<ProductOptionJpaEntity> findByIdForUpdate(@Param("id")Long id);*/
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE ProductOptionJpaEntity o " +
-            "   SET o.stock = o.stock - :quantity " +
-            "WHERE o.optionId = :id" +
-            "   AND (o.stock - :quantity) >= 0")
+    @Query("""
+        UPDATE ProductOptionJpaEntity o
+           SET o.stock = o.stock - :quantity
+         WHERE o.optionId = :id
+           AND o.stock >= :quantity
+        """)
     int decrementStockIfEnough(@Param("id") Long id, @Param("quantity") int quantity);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        UPDATE ProductOptionJpaEntity o
+           SET o.stock = o.stock + :quantity
+         WHERE o.optionId = :id
+        """)
+    int incrementStock(@Param("id") Long id, @Param("quantity") int quantity);
 }

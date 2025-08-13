@@ -30,8 +30,8 @@ public class AddStockService implements AddStockUseCase {
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void addStock(long optionId, int quantity) {
-        ProductOption option = repository.findOptionByOptionIdForUpdate(optionId);
-        ProductOption updated = option.add(quantity);
-        repository.insertOrUpdate(updated);
+        ProductOption.requirePositive(quantity);
+        boolean ok = repository.incrementStock(optionId, quantity);
+        if (!ok) throw new IllegalStateException("증가량이 음수 또는 옵션 없음: optionId=" + optionId + ", qty=" + quantity);
     }
 }
