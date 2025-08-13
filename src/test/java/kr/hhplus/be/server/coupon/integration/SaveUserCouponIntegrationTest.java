@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.coupon.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.service.SaveUserCouponService;
 import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
@@ -21,10 +22,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - SaveUserCouponService")
-class SaveUserCouponIntegrationTest {
+class SaveUserCouponIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private SaveUserCouponService saveUserCouponService;

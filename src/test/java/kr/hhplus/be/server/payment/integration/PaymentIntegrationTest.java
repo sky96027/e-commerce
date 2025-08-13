@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.payment.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.payment.application.dto.PaymentDto;
 import kr.hhplus.be.server.payment.application.dto.SavePaymentCommand;
 import kr.hhplus.be.server.payment.application.service.FindByOrderIdService;
@@ -21,10 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 결제")
-public class PaymentIntegrationTest {
+public class PaymentIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private SavePaymentUseCase savePaymentUseCase;

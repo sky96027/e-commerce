@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.user.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.service.FindUserService;
 import kr.hhplus.be.server.user.domain.model.User;
@@ -12,10 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@Transactional
 @DisplayName("통합 테스트 - 사용자 조회")
-public class UserFindIntegrationTest {
+public class UserFindIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private FindUserService findUserService;

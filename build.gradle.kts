@@ -27,6 +27,7 @@ repositories {
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
+		mavenBom("org.testcontainers:testcontainers-bom:1.20.4")
 	}
 }
 
@@ -49,13 +50,12 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 	// lombok
-	implementation("org.projectlombok:lombok")
+	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 
 	// Redis
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation ("org.springframework.boot:spring-boot-starter-cache")
-	testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 
 dockerCompose {
@@ -68,7 +68,7 @@ tasks.bootRun {
 	finalizedBy("composeDown")
 }
 
-
+tasks.test { useJUnitPlatform() }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
