@@ -45,11 +45,11 @@ public class CouponIssueRepositoryImpl implements CouponIssueRepository {
                 jpaRepository.save(mapper.toEntity(couponIssue))
         );
     }
-
-    @Override
+    // 비관적 락 (Legacy)
+    /*@Override
     public CouponIssue findByIdForUpdate(long CouponIssueId) {
         return jpaRepository.findByIdForUpdate(CouponIssueId)
                 .map(mapper::toDomain)
                 .orElse(null);
-    }
+    }*/
 }

@@ -41,6 +41,7 @@ public class UserFacade {
      */
     public UserDto chargeWithHistory(long userId, long amount) {
         String key = "lock:user:charge:" + userId;
+
         String token = lockManager.lockBlocking(
                 key, Duration.ofSeconds(3), Duration.ofSeconds(2), Duration.ofMillis(50));
         if (token == null) throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
