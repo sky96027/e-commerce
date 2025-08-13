@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.coupon.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.coupon.application.service.ChangeUserCouponStatusService;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
@@ -16,10 +17,9 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 유저 쿠폰 상태 변경")
-public class ChangeUserCouponStatusIntegrationTest {
+public class ChangeUserCouponStatusIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private ChangeUserCouponStatusService changeUserCouponStatusService;

@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.payment.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.coupon.infrastructure.entity.UserCouponJpaEntity;
 import kr.hhplus.be.server.coupon.infrastructure.repository.UserCouponJpaRepository;
 import kr.hhplus.be.server.order.domain.type.OrderStatus;
@@ -30,10 +31,9 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 결제 Facade")
-public class PaymentFacadeIntegrationTest {
+public class PaymentFacadeIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private PaymentFacade paymentFacade;

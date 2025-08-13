@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.coupon.concurrency;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.coupon.application.facade.CouponFacade;
 import kr.hhplus.be.server.coupon.application.service.SaveUserCouponService;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
@@ -13,15 +14,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("통합 테스트 - 쿠폰 발급 동시성 제어 테스트")
-public class CouponConcurrencyTest {
+public class CouponConcurrencyTest extends IntegrationTestBase {
 
     @Autowired
     CouponFacade couponFacade;
@@ -35,6 +40,9 @@ public class CouponConcurrencyTest {
         // given
         int initialRemaining = 1000;
         int threadCount = 50;
+
+        AtomicInteger success = new AtomicInteger();
+        List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
 
         CouponIssue issue = new CouponIssue(
                 null,
@@ -64,7 +72,9 @@ public class CouponConcurrencyTest {
                             LocalDateTime.now().plusDays(30)
                     );
                     couponFacade.issueToUser(cmd);
-                } catch (Exception ignored) {
+                    success.incrementAndGet();
+                } catch (Throwable t) {
+                    errors.add(t);
                 } finally {
                     done.countDown();
                 }
@@ -77,6 +87,7 @@ public class CouponConcurrencyTest {
 
         // then
         CouponIssue updated = couponIssueRepository.findById(couponIssueId);
+        assertThat(errors).isEmpty();
         assertThat(updated.getRemaining()).isEqualTo(initialRemaining - threadCount);
     }
 } 

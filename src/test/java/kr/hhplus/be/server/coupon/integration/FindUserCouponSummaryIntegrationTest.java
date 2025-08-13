@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.coupon.integration;
 
 import jakarta.persistence.EntityManager;
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
 import kr.hhplus.be.server.coupon.application.service.FindUserCouponSummaryService;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
@@ -18,10 +19,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 유저 쿠폰 목록 조회")
-class FindUserCouponSummaryIntegrationTest {
+class FindUserCouponSummaryIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private FindUserCouponSummaryService findUserCouponSummaryService;

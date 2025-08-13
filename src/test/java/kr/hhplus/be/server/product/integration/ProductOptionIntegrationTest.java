@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.product.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.product.application.service.DeductStockService; // 서비스명 유지 시 그대로 사용
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
@@ -18,10 +19,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 상품 재고 차감 (원자적 UPDATE 기반)")
-public class ProductOptionIntegrationTest {
+public class ProductOptionIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private DeductStockService deductStockService;

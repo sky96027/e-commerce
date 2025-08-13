@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.product.concurrency;
 
+import kr.hhplus.be.server.IntegrationTestBase;
+import kr.hhplus.be.server.product.application.facade.ProductFacade;
 import kr.hhplus.be.server.product.application.service.DeductStockService;
 import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.domain.model.Product;
@@ -20,12 +22,11 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @DisplayName("통합 테스트 - 상품 옵션 동시성 제어 테스트")
-public class ProductOptionConcurrencyTest {
+public class ProductOptionConcurrencyTest extends IntegrationTestBase {
 
     @Autowired
-    private DeductStockUseCase deductStockUseCase;
+    private ProductFacade productFacade;
 
     @Autowired
     private ProductOptionRepository productOptionRepository;
@@ -58,7 +59,7 @@ public class ProductOptionConcurrencyTest {
             executorService.execute(() -> {
                 try {
                     System.out.println("Thread " + threadIndex + " 시작");
-                    deductStockUseCase.deductStock(optionId, deductQuantity);
+                    productFacade.deductStock(optionId, deductQuantity);
                     System.out.println("Thread " + threadIndex + " 성공");
                 } catch (Exception e) {
                     System.err.println("Thread " + threadIndex + " 실패: " + e.getClass().getSimpleName() + " - " + e.getMessage());
