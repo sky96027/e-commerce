@@ -52,6 +52,10 @@ dependencies {
 	implementation("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 
+	// Redis
+	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.springframework.boot:spring-boot-starter-cache")
+	testImplementation ("org.springframework.boot:spring-boot-starter-test")
 }
 
 dockerCompose {
