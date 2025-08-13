@@ -23,7 +23,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +65,16 @@ public class PaymentFacade {
                 throw new IllegalStateException("잔액 부족");
             }
 
-            // 3. 재고 차감 (옵션별 직렬화: Pub/Sub 락은 ProductFacade 내부)
+            // 3. 재고 차감 (옵션별 직렬화: Pub/Sub 락은 ProductFacade 내부, 정렬해서 deadlock 방지)
+            Map<Long, Integer> qtyByOption = new HashMap<>();
+            for (OrderItemDto item : orderItems) {
+                qtyByOption.merge(item.optionId(), item.quantity(), Integer::sum); // 중복 옵션 합치기
+            }
+
+            // 순서: optionId 오름차순
+            List<Map.Entry<Long, Integer>> sorted = new ArrayList<>(qtyByOption.entrySet());
+            sorted.sort(Map.Entry.comparingByKey());
+
             for (OrderItemDto item : orderItems) {
                 productFacade.deductStock(item.optionId(), item.quantity());
             }
