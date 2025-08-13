@@ -7,12 +7,16 @@ import kr.hhplus.be.server.user.domain.model.User;
  * 구현체는 인프라 계층에 위치함
  */
 public interface UserRepository {
-    User selectById(long userId)
+    User findById(long userId)
             ;
     User insert(long balance);
 
-    User update(long userId, long balance);
+    // User update(long userId, long balance);
 
-    // Lock
-    User selectByIdForUpdate(long userId);
+    // 비관적 Lock(Legacy)
+    // User selectByIdForUpdate(long userId);
+
+    User charge(long userId, long amount);
+
+    User deduct(long userId, long amount);
 }

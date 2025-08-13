@@ -19,5 +19,5 @@ public interface DeductUserBalanceUseCase {
      * @param amount 사용 금액
      * @return 차감된 이후의 사용자 정보
      */
-    UserDto deductBalance(long userId, long amount);
+    UserDto deduct(long userId, long amount);
 }

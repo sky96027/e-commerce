@@ -32,7 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User selectById(long userId) {
+    public User findById(long userId) {
         return jpaRepository.findById(userId)
                 .map(mapper::toDomain)
                 .orElse(null);
@@ -46,17 +46,41 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public User charge(long userId, long amount) {
+        int updated = jpaRepository.incrementBalance(userId, amount);
+        if (updated != 1) {
+            throw new IllegalStateException("충전 실패: userId=" + userId);
+        }
+        UserJpaEntity entity = jpaRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + userId));
+        return mapper.toDomain(entity);
+    }
+
+    @Override
+    public User deduct(long userId, long amount) {
+        int updated = jpaRepository.decrementBalanceIfEnough(userId, amount);
+        if (updated != 1) {
+            throw new IllegalStateException("잔액 부족 또는 사용자 없음: userId=" + userId);
+        }
+        UserJpaEntity entity = jpaRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + userId));
+        return mapper.toDomain(entity);
+    }
+
+
+    /*@Override
     public User update(long userId, long balance) {
         UserJpaEntity entity = jpaRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다: " + userId));
         entity.setBalance(balance);
         return mapper.toDomain(jpaRepository.save(entity));
-    }
+    }*/
 
-    @Override
+    // 비관적 락 (Legacy)
+    /*@Override
     public User selectByIdForUpdate(long userId) {
         return jpaRepository.findByIdForUpdate(userId)
                 .map(mapper::toDomain)
                 .orElse(null);
-    }
+    }*/
 }
