@@ -53,6 +53,6 @@ public class OrderResponse {
             long discountAmount,
 
             @Schema(description = "쿠폰 ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-            long userCouponId
+            Long userCouponId
     ) {}
 }
