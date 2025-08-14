@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 
@@ -26,13 +27,15 @@ class SaveUserCouponServiceTest {
     private UserCouponRepository userCouponRepository;
     @Mock
     private CouponIssueRepository couponIssueRepository;
+    @Mock
+    private ApplicationEventPublisher publisher;
     @InjectMocks
     private SaveUserCouponService saveUserCouponService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository);
+        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository, publisher);
     }
 
     @Test
