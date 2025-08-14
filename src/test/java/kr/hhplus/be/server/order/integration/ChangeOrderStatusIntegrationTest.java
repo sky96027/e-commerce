@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.order.integration;
 
 import jakarta.persistence.EntityManager;
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.order.application.dto.OrderDto;
 import kr.hhplus.be.server.order.application.service.ChangeOrderStatusService;
 import kr.hhplus.be.server.order.domain.type.OrderStatus;
@@ -22,10 +23,9 @@ import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 주문 상태 변경")
-public class ChangeOrderStatusIntegrationTest {
+public class ChangeOrderStatusIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private ChangeOrderStatusService changeOrderStatusService;

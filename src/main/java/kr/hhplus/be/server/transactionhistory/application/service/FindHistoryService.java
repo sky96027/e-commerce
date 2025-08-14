@@ -1,9 +1,12 @@
 package kr.hhplus.be.server.transactionhistory.application.service;
 
+import jakarta.annotation.PostConstruct;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +21,7 @@ import java.util.List;
  * 이 클래스는 오직 "거래 내역 조회"라는 하나의 유스케이스만 책임지며,
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
+@Slf4j
 @Service
 public class FindHistoryService implements FindHistoryUseCase {
     private final TransactionHistoryRepository repository;
@@ -26,7 +30,13 @@ public class FindHistoryService implements FindHistoryUseCase {
         this.repository = repository;
     }
 
+    @PostConstruct
+    void checkProxy() {
+        log.info("FindHistoryService bean = {}", this.getClass());
+    }
+
     @Override
+    @Cacheable(cacheNames = "tx:recent", key = "'u:' + #p0")
     public List<TransactionHistoryDto> findAllByUserId(long userId) {
         List<TransactionHistory> history = repository.findAllByUserId(userId);
         return TransactionHistoryDto.fromList(history);

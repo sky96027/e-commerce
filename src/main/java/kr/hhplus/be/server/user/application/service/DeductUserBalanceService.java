@@ -4,6 +4,7 @@ import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.usecase.DeductUserBalanceUseCase;
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class DeductUserBalanceService implements DeductUserBalanceUseCase {
     private final UserRepository userRepository;
-
-    public DeductUserBalanceService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     /**
      * 주어진 사용자 ID를 기반으로 사용자 정보를 조회하고, 차감하여,
@@ -33,13 +31,10 @@ public class DeductUserBalanceService implements DeductUserBalanceUseCase {
      * @param amount 차감 금액
      * @return 차감 후 사용자 정보를 담은 UserDto
      */
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public UserDto deductBalance(long userId, long amount) {
-        User user = userRepository.selectByIdForUpdate(userId);
-        User updated = user.deduct(amount);
-        User saved = userRepository.update(userId, updated.getBalance());
-
-        return UserDto.from(saved);
+    @Transactional(propagation = Propagation.MANDATORY)
+    public UserDto deduct(long userId, long amount) {
+        User user = userRepository.deduct(userId, amount);
+        return UserDto.from(user);
     }
 }

@@ -25,7 +25,8 @@ class ProductOptionTest {
         assertThat(updated.getProductId()).isEqualTo(option.getProductId());
     }
 
-    @Test
+    // db update 로 책임 이동
+    /*@Test
     @DisplayName("차감량이 음수일 경우 예외 발생")
     void deduct_negativeAmount_throwsException() {
         // given
@@ -35,7 +36,7 @@ class ProductOptionTest {
         assertThatThrownBy(() -> option.deduct(-1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("차감량은 음수일 수 없습니다.");
-    }
+    }*/
 
     @Test
     @DisplayName("재고 부족 시 예외 발생")

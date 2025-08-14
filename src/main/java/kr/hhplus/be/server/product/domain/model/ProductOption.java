@@ -43,7 +43,27 @@ public class ProductOption {
         this.expiredAt = expiredAt;
     }
 
+    /** 양수 수량만 허용 (입력 검증) */
+    public static void requirePositive(int qty) {
+        if (qty <= 0) throw new IllegalArgumentException("수량은 양수여야 합니다.");
+    }
+
+    /** (계산/시뮬레이션용) 차감 후 스냅샷 – 영속 반영 아님 */
     public ProductOption deduct(int amount) {
+        requirePositive(amount);
+        if (this.stock < amount) throw new IllegalStateException("재고가 부족합니다.");
+        return new ProductOption(optionId, productId, content, status, price,
+                this.stock - amount, createdAt, expiredAt);
+    }
+
+    /** (계산/시뮬레이션용) 증가 후 스냅샷 – 영속 반영 아님 */
+    public ProductOption add(int amount) {
+        requirePositive(amount);
+        return new ProductOption(optionId, productId, content, status, price,
+                this.stock + amount, createdAt, expiredAt);
+    }
+
+    /*public ProductOption deduct(int amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("차감량은 음수일 수 없습니다.");
         }
@@ -74,5 +94,5 @@ public class ProductOption {
                 this.stock + amount,
                 this.createdAt,
                 this.expiredAt);
-    }
+    }*/
 }

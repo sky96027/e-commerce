@@ -1,81 +1,160 @@
 package kr.hhplus.be.server.product.application.service;
 
+import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.StockCounter;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
-import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
-import java.time.LocalDateTime;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class DeductStockServiceTest {
-    @Mock
-    private ProductOptionRepository productOptionRepository;
-    @InjectMocks
-    private DeductStockService deductStockService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        deductStockService = new DeductStockService(productOptionRepository);
-    }
+    @Mock
+    ProductOptionRepository productOptionRepository;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
+
+    @Mock
+    StockCounter stockCounter;
+
+    @InjectMocks
+    DeductStockService sut;
 
     @Test
-    @DisplayName("정상 재고 차감")
+    @DisplayName("정상 재고 차감 시 Redis와 DB 업데이트가 호출되고 이벤트가 발행된다")
     void deductStock_success() {
         // given
         long optionId = 1L;
-        ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
-        ProductOption updated = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 8, option.getCreatedAt(), null);
+        long productId = 100L;
+        int qty = 2;
 
-        when(productOptionRepository.findOptionByOptionIdForUpdate(optionId)).thenReturn(option);
-        when(productOptionRepository.insertOrUpdate(any(ProductOption.class))).thenReturn(updated);
+        ProductOption mockOption = mock(ProductOption.class);
+        when(mockOption.getProductId()).thenReturn(productId);
+        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
+        when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(8L); // 성공 시 남은 재고 반환
+        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(true); // DB 성공
 
-        // when
-        deductStockService.deductStock(optionId, 2);
+        // when & then
+        assertThatCode(() -> sut.deductStock(optionId, qty))
+                .doesNotThrowAnyException();
 
-        // then
-        verify(productOptionRepository, times(1)).findOptionByOptionIdForUpdate(optionId);
-        verify(productOptionRepository, times(1)).insertOrUpdate(any(ProductOption.class));
+        verify(productOptionRepository).findOptionByOptionId(optionId);
+        verify(stockCounter).tryDeductHash(productId, optionId, qty);
+        verify(productOptionRepository).decrementStock(optionId, qty); // DB 업데이트 호출 확인
+        
+        // 이벤트 발행 확인
+        ArgumentCaptor<StockChangedEvent> eventCaptor = ArgumentCaptor.forClass(StockChangedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        
+        StockChangedEvent capturedEvent = eventCaptor.getValue();
+        assertThat(capturedEvent.productId()).isEqualTo(productId);
+        assertThat(capturedEvent.optionId()).isEqualTo(optionId);
+        assertThat(capturedEvent.changeType()).isEqualTo(StockChangedEvent.DEDUCT);
+        assertThat(capturedEvent.quantity()).isEqualTo(qty);
     }
 
     @Test
-    @DisplayName("재고 부족 시 예외 발생")
-    void deductStock_insufficientStock_throwsException() {
+    @DisplayName("Redis 재고 부족 시 DB에서 재확인 및 차감 후 이벤트 발행")
+    void deductStock_redisInsufficient_dbSuccess() {
         // given
         long optionId = 2L;
-        ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 1, LocalDateTime.now(), null);
-        when(productOptionRepository.findOptionByOptionIdForUpdate(optionId)).thenReturn(option);
+        long productId = 200L;
+        int qty = 100;
+
+        ProductOption mockOption = mock(ProductOption.class);
+        when(mockOption.getProductId()).thenReturn(productId);
+        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
+        when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(-1L); // Redis 재고 부족
+        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(true); // DB 성공
+        when(mockOption.getStock()).thenReturn(50); // DB 조회 후 남은 재고
 
         // when & then
-        assertThatThrownBy(() -> deductStockService.deductStock(optionId, 2))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("재고가 부족합니다");
-        verify(productOptionRepository, times(1)).findOptionByOptionIdForUpdate(optionId);
-        verify(productOptionRepository, never()).insertOrUpdate(any(ProductOption.class));
+        assertThatCode(() -> sut.deductStock(optionId, qty))
+                .doesNotThrowAnyException();
+
+        verify(stockCounter).tryDeductHash(productId, optionId, qty);
+        verify(productOptionRepository).decrementStock(optionId, qty);
+        verify(productOptionRepository, times(2)).findOptionByOptionId(optionId); // 조회 2회 (처음 + DB 성공 후)
+        verify(stockCounter).initStockHash(productId, optionId, 50);
+        
+        // 이벤트 발행 확인
+        ArgumentCaptor<StockChangedEvent> eventCaptor = ArgumentCaptor.forClass(StockChangedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        
+        StockChangedEvent capturedEvent = eventCaptor.getValue();
+        assertThat(capturedEvent.productId()).isEqualTo(productId);
+        assertThat(capturedEvent.optionId()).isEqualTo(optionId);
+        assertThat(capturedEvent.changeType()).isEqualTo(StockChangedEvent.DEDUCT);
+        assertThat(capturedEvent.quantity()).isEqualTo(qty);
     }
 
     @Test
-    @DisplayName("음수 차감 시 예외 발생")
-    void deductStock_negativeAmount_throwsException() {
+    @DisplayName("재고 부족 시 예외를 그대로 전달한다")
+    void deductStock_insufficient() {
         // given
-        long optionId = 3L;
-        ProductOption option = new ProductOption(optionId, 2L, "옵션", ProductOptionStatus.ON_SALE, 10000L, 10, LocalDateTime.now(), null);
-        when(productOptionRepository.findOptionByOptionIdForUpdate(optionId)).thenReturn(option);
+        long optionId = 2L;
+        long productId = 200L;
+        int qty = 100;
+
+        ProductOption mockOption = mock(ProductOption.class);
+        when(mockOption.getProductId()).thenReturn(productId);
+        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
+        when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(-1L); // Redis 재고 부족
+        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(false); // DB도 실패
 
         // when & then
-        assertThatThrownBy(() -> deductStockService.deductStock(optionId, -1))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("차감량은 음수일 수 없습니다");
-        verify(productOptionRepository, times(1)).findOptionByOptionIdForUpdate(optionId);
-        verify(productOptionRepository, never()).insertOrUpdate(any(ProductOption.class));
+        assertThatThrownBy(() -> sut.deductStock(optionId, qty))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("재고 부족");
+
+        verify(productOptionRepository).findOptionByOptionId(optionId);
+        verify(stockCounter).tryDeductHash(productId, optionId, qty);
+        verify(productOptionRepository).decrementStock(optionId, qty);
+        verifyNoMoreInteractions(productOptionRepository);
+        verifyNoInteractions(eventPublisher);
     }
-} 
+
+    @Test
+    @DisplayName("옵션을 찾을 수 없을 때 예외를 발생시킨다")
+    void deductStock_optionNotFound() {
+        // given
+        long optionId = 999L;
+        int qty = 2;
+
+        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(null);
+
+        // when & then
+        assertThatThrownBy(() -> sut.deductStock(optionId, qty))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("옵션을 찾을 수 없음");
+
+        verify(productOptionRepository).findOptionByOptionId(optionId);
+        verifyNoMoreInteractions(productOptionRepository);
+        verifyNoInteractions(stockCounter, eventPublisher);
+    }
+
+    @Test
+    @DisplayName("음수 차감 시 유효성 예외를 그대로 전달한다")
+    void deductStock_negative() {
+        // given
+        long optionId = 3L;
+        int qty = -1;
+
+        // when & then
+        assertThatThrownBy(() -> sut.deductStock(optionId, qty))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verifyNoInteractions(productOptionRepository, stockCounter, eventPublisher);
+    }
+}

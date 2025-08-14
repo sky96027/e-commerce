@@ -6,6 +6,7 @@ import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderItem;
 import kr.hhplus.be.server.order.domain.repository.OrderItemRepository;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class FindOrderByOrderIdService implements FindOrderByOrderIdUseCase {
      * @return 주문 정보를 담은 OrderDto
      */
     @Override
+    @Cacheable(cacheNames = "order:summary", key = "#orderId")
     public OrderDto findById(long orderId) {
         Order order = orderRepository.findById(orderId);
         List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);

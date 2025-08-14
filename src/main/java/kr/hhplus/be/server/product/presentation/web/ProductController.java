@@ -48,7 +48,7 @@ public class ProductController implements ProductApiSpec {
      * 상품 상세 조회 API
      * 상품 정보와 옵션 목록을 포함한 응답 반환
      */
-    @GetMapping("/product/{id}")
+    @GetMapping("/{id}")
     @Override
     public ResponseEntity<ProductResponse.GetProductDetail> getProductDetail(@PathVariable("id") Long productId) {
         ProductDetailDto dto = productFacade.getProductDetail(productId);

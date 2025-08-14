@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.order.application.dto.OrderDto;
 import kr.hhplus.be.server.order.application.dto.OrderItemDto;
 import kr.hhplus.be.server.order.application.service.FindOrderByOrderIdService;
@@ -22,10 +23,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 주문 단건 조회")
-public class FindOrderIntegrationTest {
+public class FindOrderIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private FindOrderByOrderIdService findOrderByOrderIdService;

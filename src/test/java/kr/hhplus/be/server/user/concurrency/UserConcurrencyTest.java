@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.user.concurrency;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
@@ -19,9 +20,8 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @DisplayName("통합 테스트 - 동시성 제어 테스트")
-public class UserConcurrencyTest {
+public class UserConcurrencyTest extends IntegrationTestBase {
 
     @Autowired
     private UserFacade userFacade;
@@ -66,7 +66,7 @@ public class UserConcurrencyTest {
         latch.await();
 
         // then - 잔액 검증
-        User updatedUser = userRepository.selectById(userId);
+        User updatedUser = userRepository.findById(userId);
         assertThat(updatedUser.getBalance()).isEqualTo(initialBalance + chargeAmount * threadCount);
 
         // 거래 내역 검증

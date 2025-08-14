@@ -1,14 +1,18 @@
 package kr.hhplus.be.server.product.application.facade;
 
+import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.product.application.dto.ProductDetailDto;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
 import kr.hhplus.be.server.product.application.dto.ProductSummaryDto;
+import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.application.usecase.FindDetailUseCase;
 import kr.hhplus.be.server.product.application.usecase.FindProductOptionsUseCase;
 import kr.hhplus.be.server.product.application.usecase.FindProductSummaryUseCase;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,21 +22,14 @@ import java.util.stream.Collectors;
  * 도메인 간 경계를 명확히 하기 위해 다른 도메인은 항상 facade를 거친다.
  */
 @Component
+@RequiredArgsConstructor
 public class ProductFacade {
 
     private final FindProductSummaryUseCase findProductSummaryUseCase;
     private final FindDetailUseCase findDetailUseCase;
     private final FindProductOptionsUseCase findProductOptionsUseCase;
-
-    public ProductFacade(
-            FindProductSummaryUseCase findProductSummaryUseCase,
-            FindDetailUseCase findDetailUseCase,
-            FindProductOptionsUseCase findProductOptionsUseCase
-    ) {
-        this.findProductSummaryUseCase = findProductSummaryUseCase;
-        this.findDetailUseCase = findDetailUseCase;
-        this.findProductOptionsUseCase = findProductOptionsUseCase;
-    }
+    private final RedisDistributedLockManager lockManager;
+    private final DeductStockUseCase deductStockUseCase;
 
     /**
      * 전체 상품 목록을 조회하고, 각 상품의 옵션 중 최저가를 함께 반환한다.
@@ -66,5 +63,53 @@ public class ProductFacade {
         List<ProductOptionDto> options = findProductOptionsUseCase.findByProductId(productId);
 
         return ProductDetailDto.from(product, options);
+    }
+
+    /**
+     * [PUB/SUB LOCK] 상품 옵션 재고 차감
+     *
+     * - 쿠폰/핫SKU처럼 경합이 높을 수 있으므로 Pub/Sub 기반 잠금 적용
+     * - 트랜잭션(@Transactional)은 Service 메서드에서 시작/종료되며,
+     *   아래 finally에서 unlock은 Service 커밋이 끝난 뒤 호출됨(동일 스레드 전제)
+     */
+    public void deductStock(long optionId, int quantity) {
+        final String key = "product:stock:option:" + optionId;
+
+        String token = lockManager.lockBlockingPubSub(
+                key,
+                Duration.ofSeconds(10),  // TTL: p99 크리티컬 섹션 시간 이상 또는 워치독 사용
+                Duration.ofSeconds(30)   // 전체 대기 한도
+        );
+        if (token == null) {
+            throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
+        }
+
+        try {
+            deductStockUseCase.deductStock(optionId, quantity);
+        } finally {
+            lockManager.unlock(key, token);
+        }
+    }
+
+    /**
+     * [SPIN LOCK] 상품 옵션 재고 차감
+     */
+    public void deductStockSpinLock(long optionId, int quantity) {
+        final String key = "product:stock:option:" + optionId;
+
+        String token = lockManager.lockBlocking(
+                key,
+                Duration.ofSeconds(3),
+                Duration.ofSeconds(5),
+                Duration.ofMillis(50)
+        );
+        if (token == null) {
+            throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
+        }
+        try {
+            deductStockUseCase.deductStock(optionId, quantity);
+        } finally {
+            lockManager.unlock(key, token);
+        }
     }
 }

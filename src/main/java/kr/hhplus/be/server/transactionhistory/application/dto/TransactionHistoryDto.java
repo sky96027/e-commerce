@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.transactionhistory.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
 
@@ -13,12 +15,30 @@ import java.util.stream.Collectors;
  * 도메인 객체를 외부에 직접 노출하지 않도록 분리한 계층용 DTO
  */
 public record TransactionHistoryDto(
-        long transactionId,
-        long userId,
-        TransactionType type,
-        long amount,
-        LocalDateTime transactionTime
+        @JsonProperty("transactionId") long transactionId,
+        @JsonProperty("userId") long userId,
+        @JsonProperty("type") TransactionType type,
+        @JsonProperty("amount") long amount,
+        @JsonProperty("transactionTime") LocalDateTime transactionTime
 ) {
+    /**
+     * Jackson 역직렬화를 위한 생성자
+     */
+    @JsonCreator
+    public TransactionHistoryDto(
+            @JsonProperty("transactionId") long transactionId,
+            @JsonProperty("userId") long userId,
+            @JsonProperty("type") TransactionType type,
+            @JsonProperty("amount") long amount,
+            @JsonProperty("transactionTime") LocalDateTime transactionTime
+    ) {
+        this.transactionId = transactionId;
+        this.userId = userId;
+        this.type = type;
+        this.amount = amount;
+        this.transactionTime = transactionTime;
+    }
+
     /**
      * 도메인 모델로부터 DTO로 변환하는 정적 팩토리 메서드
      * @param transactionHistory 객체

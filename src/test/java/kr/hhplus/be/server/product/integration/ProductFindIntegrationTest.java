@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.product.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.product.application.dto.ProductDetailDto;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
@@ -31,10 +32,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
 @Transactional
 @DisplayName("통합 테스트 - 상품 조회")
-public class ProductFindIntegrationTest {
+public class ProductFindIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private ProductFacade productFacade;
