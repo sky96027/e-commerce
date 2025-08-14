@@ -28,14 +28,25 @@ spring:
         format_sql: true
         show_sql: true
         use_sql_comments: true
+      type:
+        descriptor:
+          sql: trace
   data:
     redis:
       host: localhost
       port: 6379
-    cache:
-      type: redis
+      timeout: 2000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
 
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
+    org.springframework.cache: debug
+    kr.hhplus.be.server: debug
