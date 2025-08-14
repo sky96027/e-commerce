@@ -10,9 +10,14 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -26,7 +31,7 @@ import org.springframework.data.redis.serializer.SerializationException;
 
 @Slf4j
 @Configuration
-@EnableCaching
+@EnableCaching(proxyTargetClass = true)
 public class CacheConfig {
 
     private static final String GLOBAL_PREFIX = "cache:v1:"; // 전역 버전 프리픽스
@@ -96,10 +101,10 @@ public class CacheConfig {
         // 인기 상품 - 업데이트 주기 고려
         conf.put("popular:top", base.entryTtl(Duration.ofHours(24)));           // 24시간 (인기도 변경 빈도 매우 낮음)
         
-        // 거래 내역 - 저장 빈도 고려 (더 짧은 TTL로 설정하여 캐시 문제 최소화)
-        conf.put("tx:recent", base.entryTtl(Duration.ofSeconds(30)));           // 30초 (거래 발생 빈도 높음, 캐시 문제 최소화)
+        // 거래 내역 - 저장 빈도 고려
+        conf.put("tx:recent", base.entryTtl(Duration.ofMinutes(5)));           // 5분 (거래 발생 빈도 높음, 캐시 문제 최소화)
 
-        log.info("=== 캐시별 TTL 설정 완료 - 거래 내역: 30초 ===");
+        log.info("=== 캐시별 TTL 설정 완료 ===");
 
         CacheManager cacheManager = RedisCacheManager.builder(cf)
                 .cacheDefaults(base)
@@ -111,4 +116,63 @@ public class CacheConfig {
         
         return cacheManager;
     }
+
+    @Bean
+    public CacheErrorHandler cacheErrorHandler() {
+        return new SimpleCacheErrorHandler() {
+
+            @Override
+            public void handleCachePutError(RuntimeException ex,
+                                            org.springframework.cache.Cache cache,
+                                            Object key, Object value) {
+                log.error("[CACHE PUT ERROR] cache={}, key={}, valueType={}, err={}",
+                        cache != null ? cache.getName() : "null",
+                        key,
+                        value != null ? value.getClass().getName() : "null",
+                        ex.toString(), ex);
+                // 필요하면 super 호출 유지(그대로 예외 전파)
+                super.handleCachePutError(ex, cache, key, value);
+            }
+
+            @Override
+            public void handleCacheGetError(RuntimeException ex,
+                                            org.springframework.cache.Cache cache,
+                                            Object key) {
+                log.error("[CACHE GET ERROR] cache={}, key={}, err={}",
+                        cache != null ? cache.getName() : "null",
+                        key, ex.toString(), ex);
+                super.handleCacheGetError(ex, cache, key);
+            }
+
+            @Override
+            public void handleCacheEvictError(RuntimeException ex,
+                                              org.springframework.cache.Cache cache,
+                                              Object key) {
+                log.error("[CACHE EVICT ERROR] cache={}, key={}, err={}",
+                        cache != null ? cache.getName() : "null",
+                        key, ex.toString(), ex);
+                super.handleCacheEvictError(ex, cache, key);
+            }
+
+            @Override
+            public void handleCacheClearError(RuntimeException ex,
+                                              org.springframework.cache.Cache cache) {
+                log.error("[CACHE CLEAR ERROR] cache={}, err={}",
+                        cache != null ? cache.getName() : "null",
+                        ex.toString(), ex);
+                super.handleCacheClearError(ex, cache);
+            }
+        };
+    }
+
+    @Bean
+    public ApplicationRunner cacheBootLog(CacheManager cm, ApplicationContext ctx) {
+        return args -> {
+            log.info("[CACHE] CacheManager = {}", cm.getClass().getName());
+            log.info("[CACHE] tx:recent cache present = {}", cm.getCache("tx:recent") != null);
+            Object bean = ctx.getBean(FindHistoryUseCase.class);
+            log.info("[CACHE] FindHistoryUseCase bean class = {}", bean.getClass().getName());
+        };
+    }
+
 }

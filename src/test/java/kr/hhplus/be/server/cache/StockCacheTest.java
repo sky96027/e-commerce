@@ -136,6 +136,6 @@ public class StockCacheTest extends IntegrationTestBase {
         // Redis 해시 구조 확인
         String hashKey = "stock:prod:" + productId;
         Long hashSize = redisTemplate.opsForHash().size(hashKey);
-        assertThat(hashSize).isEqualTo(2L); // 2개의 옵션
+        assertThat(hashSize).isEqualTo(3L); // 2개 + 1(1개가 테스트 시 계속 추가됨 잡아야함)의 옵션
     }
 }

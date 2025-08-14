@@ -59,6 +59,14 @@ public class DeductStockService implements DeductStockUseCase {
             }
             // DB 성공 시 Redis 재고 동기화
             stockCounter.initStockHash(productId, optionId, repository.findOptionByOptionId(optionId).getStock());
+        } else {
+            // Redis에서 재고 차감 성공 시에도 DB 동기화
+            boolean ok = repository.decrementStock(optionId, quantity);
+            if (!ok) {
+                // DB 실패 시 Redis 롤백
+                stockCounter.compensateHash(productId, optionId, quantity);
+                throw new IllegalStateException("DB 재고 차감 실패: optionId=" + optionId + ", qty=" + quantity);
+            }
         }
         
         // 재고 변경 이벤트 발행
