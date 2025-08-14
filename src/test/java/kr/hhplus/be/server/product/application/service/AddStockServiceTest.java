@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.product.application.service;
 
 import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.StockCounter;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -24,11 +25,14 @@ class AddStockServiceTest {
     @Mock
     ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    StockCounter stockCounter;
+
     @InjectMocks
     AddStockService sut;
 
     @Test
-    @DisplayName("정상 재고 증가 시 레포지토리의 원자적 UPDATE가 1회 호출되고 이벤트가 발행된다")
+    @DisplayName("정상 재고 증가 시 Redis와 DB 업데이트가 호출되고 이벤트가 발행된다")
     void addStock_success() {
         // given
         long optionId = 1L;
@@ -45,6 +49,7 @@ class AddStockServiceTest {
                 .doesNotThrowAnyException();
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
+        verify(stockCounter).compensateHash(productId, optionId, qty);
         verify(productOptionRepository).incrementStock(optionId, qty);
         
         // 이벤트 발행 확인
@@ -77,6 +82,7 @@ class AddStockServiceTest {
                 .hasMessageContaining("증가량이 음수 또는 옵션 없음");
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
+        verify(stockCounter).compensateHash(productId, optionId, qty);
         verify(productOptionRepository).incrementStock(optionId, qty);
         verifyNoMoreInteractions(productOptionRepository);
         verifyNoInteractions(eventPublisher);
@@ -98,7 +104,7 @@ class AddStockServiceTest {
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
         verifyNoMoreInteractions(productOptionRepository);
-        verifyNoInteractions(eventPublisher);
+        verifyNoInteractions(stockCounter, eventPublisher);
     }
 
     @Test
@@ -112,6 +118,6 @@ class AddStockServiceTest {
         assertThatThrownBy(() -> sut.addStock(optionId, qty))
                 .isInstanceOf(IllegalArgumentException.class);
 
-        verifyNoInteractions(productOptionRepository, eventPublisher);
+        verifyNoInteractions(productOptionRepository, stockCounter, eventPublisher);
     }
 }

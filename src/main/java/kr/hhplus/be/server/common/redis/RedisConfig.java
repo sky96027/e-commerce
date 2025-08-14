@@ -98,8 +98,8 @@ public class RedisConfig {
                         "if v == ARGV[1] then " +
                         "  redis.call('DEL', KEYS[1]); " +
                         "  redis.call('PUBLISH', KEYS[2], ARGV[1]); " +
-                        "  result = 1; " +
-                        "else result = 0; end"
+                        "  return 1; " +
+                        "else return 0; end"
         );
         return script;
     }

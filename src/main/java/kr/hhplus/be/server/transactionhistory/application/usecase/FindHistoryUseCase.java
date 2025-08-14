@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.transactionhistory.application.usecase;
 
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 

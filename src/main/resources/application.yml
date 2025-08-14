@@ -48,5 +48,7 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
-    org.springframework.cache: debug
+    org.springframework.cache: trace
+    org.springframework.cache.interceptor: trace
+    org.springframework.aop: debug
     kr.hhplus.be.server: debug
