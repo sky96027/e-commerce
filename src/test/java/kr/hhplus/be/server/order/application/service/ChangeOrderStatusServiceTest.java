@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,13 +27,15 @@ class ChangeOrderStatusServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private OrderItemRepository orderItemRepository;
+    @Mock
+    private ApplicationEventPublisher publisher;
     @InjectMocks
     private ChangeOrderStatusService changeOrderStatusService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        changeOrderStatusService = new ChangeOrderStatusService(orderRepository, orderItemRepository);
+        changeOrderStatusService = new ChangeOrderStatusService(orderRepository, orderItemRepository, publisher);
     }
 
     @Test
