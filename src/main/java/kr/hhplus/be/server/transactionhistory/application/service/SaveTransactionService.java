@@ -1,8 +1,11 @@
 package kr.hhplus.be.server.transactionhistory.application.service;
 
+import kr.hhplus.be.server.common.redis.cache.events.TransactionOccurredEvent;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,17 +20,17 @@ import org.springframework.transaction.annotation.Transactional;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class SaveTransactionService implements SaveTransactionUseCase {
 
     private final TransactionHistoryRepository repository;
-
-    public SaveTransactionService(TransactionHistoryRepository repository) {
-        this.repository = repository;
-    }
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void save(long userId, TransactionType type, long amount) {
+
         repository.save(userId, type, amount);
+        publisher.publishEvent(new TransactionOccurredEvent(userId));
     }
 }

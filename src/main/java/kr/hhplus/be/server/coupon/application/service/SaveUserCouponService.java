@@ -1,17 +1,17 @@
 package kr.hhplus.be.server.coupon.application.service;
 
+import kr.hhplus.be.server.common.redis.cache.events.UserCouponChangedEvent;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.usecase.SaveUserCouponUseCase;
 import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * [UseCase 구현체]
@@ -23,17 +23,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class SaveUserCouponService implements SaveUserCouponUseCase {
     private final UserCouponRepository userCouponRepository;
     private final CouponIssueRepository couponIssueRepository;
-
-    public SaveUserCouponService(
-            UserCouponRepository userCouponRepository,
-            CouponIssueRepository couponIssueRepository
-    ) {
-        this.userCouponRepository = userCouponRepository;
-        this.couponIssueRepository = couponIssueRepository;
-    }
+    private final ApplicationEventPublisher publisher;
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
@@ -55,5 +49,6 @@ public class SaveUserCouponService implements SaveUserCouponUseCase {
         );
 
         userCouponRepository.insertOrUpdate(userCoupon);
+        publisher.publishEvent(new UserCouponChangedEvent(command.userId()));
     }
 }

@@ -3,6 +3,7 @@ package kr.hhplus.be.server.product.application.service;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
 import kr.hhplus.be.server.product.application.usecase.FindProductOptionsUseCase;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class FindProductOptionsService implements FindProductOptionsUseCase {
      * @return 상품 옵션 DTO 목록
      */
     @Override
+    @Cacheable(cacheNames = "product:options", key = "#productId")
     public List<ProductOptionDto> findByProductId(long productId) {
         return productOptionRepository.findOptionsByProductId(productId).stream()
                 .map(ProductOptionDto::from)  // domain → dto

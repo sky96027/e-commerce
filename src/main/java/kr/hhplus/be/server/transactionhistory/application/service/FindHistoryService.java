@@ -4,6 +4,7 @@ import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistory
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class FindHistoryService implements FindHistoryUseCase {
     }
 
     @Override
+    @Cacheable(cacheNames = "tx:recent", key = "#userId")
     public List<TransactionHistoryDto> findAllByUserId(long userId) {
         List<TransactionHistory> history = repository.findAllByUserId(userId);
         return TransactionHistoryDto.fromList(history);
