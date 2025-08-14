@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.application.facade;
 
-import kr.hhplus.be.server.common.redis.RedisDistributedLockManager;
+import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.product.application.dto.ProductDetailDto;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
