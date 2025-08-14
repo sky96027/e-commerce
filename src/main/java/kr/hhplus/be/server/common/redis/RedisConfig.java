@@ -43,7 +43,7 @@ public class RedisConfig {
     }
 
     /**
-     * 락 해제 스크립트:
+     * Spin 락 해제 스크립트:
      * (1) 현재 키의 값이 전달받은 토큰과 같으면 DEL
      * (2) 아니면 아무 것도 하지 않음
      */
@@ -61,7 +61,9 @@ public class RedisConfig {
         return script;
     }*/
 
-    /** Pub/Sub 해제용: DEL + PUBLISH 원자화 스크립트 */
+    /** Pub/Sub 락 해제 스크립트:
+     * DEL + PUBLISH 원자화 스크립트
+     * */
     @Bean
     public DefaultRedisScript<Long> unlockAndPublishScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
