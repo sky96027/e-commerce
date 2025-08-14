@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.user.integration;
 
+import kr.hhplus.be.server.IntegrationTestBase;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
@@ -17,10 +18,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@Transactional
 @DisplayName("통합 테스트 - 사용자 거래 내역 조회")
-public class UserTransactionHistoryIntegrationTest {
+public class UserTransactionHistoryIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private UserFacade userFacade;

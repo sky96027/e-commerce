@@ -4,6 +4,8 @@ import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.infrastructure.repository.UserJpaRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,13 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class ChargeUserBalanceService implements ChargeUserBalanceUseCase {
 
     private final UserRepository userRepository;
-
-    public ChargeUserBalanceService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     /**
      * 주어진 사용자 ID를 기반으로 사용자 정보를 조회하고, 충전하여,
@@ -34,13 +33,10 @@ public class ChargeUserBalanceService implements ChargeUserBalanceUseCase {
      * @param amount 충전 금액
      * @return 충전 후 사용자 정보를 담은 UserDto
      */
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public UserDto charge(long userId, long amount) {
-        User user = userRepository.selectByIdForUpdate(userId);
-        User updated = user.charge(amount);
-        User saved = userRepository.update(userId, updated.getBalance());
-
-        return UserDto.from(saved);
+        User user = userRepository.charge(userId, amount);
+        return UserDto.from(user);
     }
 }

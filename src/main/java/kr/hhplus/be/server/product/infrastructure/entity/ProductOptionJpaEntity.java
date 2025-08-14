@@ -48,6 +48,7 @@ public class ProductOptionJpaEntity {
     @Column(name = "content")
     private String content;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ProductOptionStatus status;
 

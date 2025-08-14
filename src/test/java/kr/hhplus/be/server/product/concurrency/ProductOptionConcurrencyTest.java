@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.concurrency;
 
-import kr.hhplus.be.server.product.application.service.DeductStockService;
-import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
+import kr.hhplus.be.server.IntegrationTestBase;
+import kr.hhplus.be.server.product.application.facade.ProductFacade;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
@@ -20,12 +20,11 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@DisplayName("통합 테스트 - 상품 옵션 동시성 제어 테스트")
-public class ProductOptionConcurrencyTest {
+@DisplayName("통합 테스트 - 상품 옵션 동시성 제어 테스트 (Redis 분산 락)")
+public class ProductOptionConcurrencyTest extends IntegrationTestBase {
 
     @Autowired
-    private DeductStockUseCase deductStockUseCase;
+    private ProductFacade productFacade;
 
     @Autowired
     private ProductOptionRepository productOptionRepository;
@@ -34,7 +33,7 @@ public class ProductOptionConcurrencyTest {
     private ProductRepository productRepository;
 
     @Test
-    @DisplayName("50개의 동시 요청에도 상품 옵션 재고가 정확히 차감된다")
+    @DisplayName("50개의 동시 요청에도 상품 옵션 재고가 정확히 차감된다 (Redis 분산 락)")
     void deductStock_concurrency_success() throws InterruptedException {
         // given
         int initialStock = 100;
@@ -52,13 +51,13 @@ public class ProductOptionConcurrencyTest {
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        // when - 동시에 같은 상품 옵션의 재고 차감
+        // when - 동시에 같은 상품 옵션의 재고 차감 (Redis 분산 락 사용)
         for (int i = 0; i < threadCount; i++) {
             final int threadIndex = i;
             executorService.execute(() -> {
                 try {
                     System.out.println("Thread " + threadIndex + " 시작");
-                    deductStockUseCase.deductStock(optionId, deductQuantity);
+                    productFacade.deductStock(optionId, deductQuantity);
                     System.out.println("Thread " + threadIndex + " 성공");
                 } catch (Exception e) {
                     System.err.println("Thread " + threadIndex + " 실패: " + e.getClass().getSimpleName() + " - " + e.getMessage());

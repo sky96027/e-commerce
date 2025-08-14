@@ -7,8 +7,11 @@ import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
 import kr.hhplus.be.server.user.presentation.contract.UserApiSpec;
 import kr.hhplus.be.server.user.presentation.dto.UserRequest;
 import kr.hhplus.be.server.user.presentation.dto.UserResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -37,9 +40,15 @@ public class UserController implements UserApiSpec {
     }
 
     // 유저 잔액 충전
-    @PostMapping("/{id}/charge")
+    @PostMapping(value = "/{id}/charge", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Override
-    public ResponseEntity<Void> chargeBalance(@RequestBody UserRequest.ChargeBalance request) {
+    public ResponseEntity<Void> chargeBalance(
+            @PathVariable("id") long id,
+            @RequestBody UserRequest.ChargeBalance request
+    ) {
+        if (id != request.userId()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 접근입니다.");
+        }
         userFacade.chargeWithHistory(request.userId(), request.amount());
         return ResponseEntity.ok().build();
     }

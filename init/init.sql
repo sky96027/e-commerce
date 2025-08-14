@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS product_option (
     option_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     product_id BIGINT NOT NULL,
     content VARCHAR(255),
-    status VARCHAR(20),
+    status VARCHAR(20) NOT NULL,
     price BIGINT,
     stock INT,
     created_at DATETIME,

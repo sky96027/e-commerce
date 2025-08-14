@@ -11,6 +11,6 @@ public interface CouponIssueRepository {
 
     CouponIssue save(CouponIssue couponIssue);
 
-    // Lock
-    CouponIssue findByIdForUpdate(long couponIssueId);
+    // 비관적 락 (Legacy)
+    // CouponIssue findByIdForUpdate(long couponIssueId);
 }

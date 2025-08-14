@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.coupon.concurrency;
 
+import kr.hhplus.be.server.IntegrationTestBase;
+import kr.hhplus.be.server.coupon.application.facade.CouponFacade;
 import kr.hhplus.be.server.coupon.application.service.SaveUserCouponService;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
@@ -12,18 +14,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("통합 테스트 - 쿠폰 발급 동시성 제어 테스트")
-public class CouponConcurrencyTest {
+public class CouponConcurrencyTest extends IntegrationTestBase {
 
     @Autowired
-    private SaveUserCouponService saveUserCouponService;
+    CouponFacade couponFacade;
 
     @Autowired
     private CouponIssueRepository couponIssueRepository;
@@ -34,59 +40,53 @@ public class CouponConcurrencyTest {
         // given
         int initialRemaining = 1000;
         int threadCount = 50;
-        long userId = 1L;
-        long couponId = 1L;
-        long policyId = 1L;
 
-        // 쿠폰 이슈 생성
-        CouponIssue couponIssue = new CouponIssue(
-            null,
-            policyId,
-            1000, // totalIssued
-            initialRemaining,
-            LocalDateTime.now(),
-            CouponIssueStatus.ISSUABLE,
-            10.0f, // discountRateSnapshot
-            30, // usagePeriodSnapshot
-            CouponPolicyType.RATE
+        AtomicInteger success = new AtomicInteger();
+        List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
+
+        CouponIssue issue = new CouponIssue(
+                null,
+                /*policyId*/ 1L,
+                /*totalIssued*/ 1000,
+                /*remaining*/ initialRemaining,
+                LocalDateTime.now(),
+                CouponIssueStatus.ISSUABLE,
+                10.0f, /*usagePeriod*/ 30, CouponPolicyType.RATE
         );
-        CouponIssue updateddCouponIssue = couponIssueRepository.save(couponIssue);
+        CouponIssue saved = couponIssueRepository.save(issue);
+        long couponIssueId = saved.getCouponIssueId();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
-        CountDownLatch latch = new CountDownLatch(threadCount);
+        ExecutorService pool = Executors.newFixedThreadPool(10);
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(threadCount);
 
-        // when - 동시에 같은 쿠폰 발급 요청
         for (int i = 0; i < threadCount; i++) {
-            final int threadIndex = i;
-            executorService.execute(() -> {
+            pool.execute(() -> {
                 try {
-                    System.out.println("Thread " + threadIndex + " 시작");
-                    SaveUserCouponCommand command = new SaveUserCouponCommand(
-                        userId, 
-                        couponId, 
-                        policyId, 
-                        CouponPolicyType.RATE,
-                        10.0f, 
-                        30, 
-                        LocalDateTime.now().plusDays(30)
+                    start.await();
+                    SaveUserCouponCommand cmd = new SaveUserCouponCommand(
+                            /*userId*/ 1L,
+                            /*couponId(=couponIssueId)*/ couponIssueId,
+                            /*policyId*/ 1L,
+                            CouponPolicyType.RATE, 10.0f, 30,
+                            LocalDateTime.now().plusDays(30)
                     );
-                    saveUserCouponService.save(command);
-                    System.out.println("Thread " + threadIndex + " 성공");
-                } catch (Exception e) {
-                    System.err.println("Thread " + threadIndex + " 실패: " + e.getClass().getSimpleName() + " - " + e.getMessage());
-                    e.printStackTrace();
+                    couponFacade.issueToUser(cmd);
+                    success.incrementAndGet();
+                } catch (Throwable t) {
+                    errors.add(t);
                 } finally {
-                    latch.countDown();
+                    done.countDown();
                 }
             });
         }
 
-        latch.await();
+        start.countDown();
+        done.await();
+        pool.shutdown();
 
-        // then - 남은 수량 검증
-        CouponIssue updatedCouponIssue = couponIssueRepository.findById(couponId);
-        assertThat(updatedCouponIssue.getRemaining()).isEqualTo(initialRemaining - threadCount);
-
-        executorService.shutdown();
+        // then
+        CouponIssue updated = couponIssueRepository.findById(couponIssueId);
+        assertThat(updated.getRemaining()).isEqualTo(initialRemaining - threadCount);
     }
 } 

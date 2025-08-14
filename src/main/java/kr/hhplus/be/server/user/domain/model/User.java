@@ -23,17 +23,26 @@ public class User {
     }
     public static User empty(Long userId) { return new User(userId, 0L); }
 
+    /** 입력 검증: 양수 금액만 허용 */
+    public static void requirePositive(long amount) {
+        if (amount <= 0) throw new IllegalArgumentException("금액은 양수여야 합니다.");
+    }
+
+    /**
+     * (계산용) 충전 후 잔액을 반환하는 순수 함수.
+     * 실제 반영은 Repository의 increment UPDATE가 담당.
+     */
     public User charge(long amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("충전 금액은 음수일 수 없습니다.");
-        }
+        requirePositive(amount);
         return new User(this.userId, this.balance + amount);
     }
 
+    /**
+     * (계산용) 차감 후 잔액을 반환하는 순수 함수.
+     * 실제 반영은 Repository의 decrement UPDATE가 담당.
+     */
     public User deduct(long amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("차감 금액은 음수일 수 없습니다.");
-        }
+        requirePositive(amount);
         if (this.balance < amount) {
             throw new IllegalStateException("잔액이 부족합니다.");
         }

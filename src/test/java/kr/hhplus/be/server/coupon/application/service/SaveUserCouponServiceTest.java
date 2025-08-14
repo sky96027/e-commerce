@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 
@@ -26,13 +27,15 @@ class SaveUserCouponServiceTest {
     private UserCouponRepository userCouponRepository;
     @Mock
     private CouponIssueRepository couponIssueRepository;
+    @Mock
+    private ApplicationEventPublisher publisher;
     @InjectMocks
     private SaveUserCouponService saveUserCouponService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository);
+        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository, publisher);
     }
 
     @Test
@@ -44,7 +47,7 @@ class SaveUserCouponServiceTest {
         );
         CouponIssue couponIssue = new CouponIssue(2L, 3L, 100, 10, LocalDateTime.now(), CouponIssueStatus.ISSUABLE, 10.0f, 30, CouponPolicyType.FIXED);
 
-        when(couponIssueRepository.findByIdForUpdate(2L)).thenReturn(couponIssue);
+        when(couponIssueRepository.findById(2L)).thenReturn(couponIssue);
         doAnswer(invocation -> {
             CouponIssue arg = invocation.getArgument(0);
             assertThat(arg.getRemaining()).isEqualTo(9);
@@ -55,7 +58,7 @@ class SaveUserCouponServiceTest {
         saveUserCouponService.save(command);
 
         // then
-        verify(couponIssueRepository, times(1)).findByIdForUpdate(2L);
+        verify(couponIssueRepository, times(1)).findById(2L);
         verify(couponIssueRepository, times(1)).save(any(CouponIssue.class));
         //verify(couponIssueRepository, times(1)).updateRemaining(2L);
         verify(userCouponRepository, times(1)).insertOrUpdate(any(UserCoupon.class));
@@ -69,13 +72,13 @@ class SaveUserCouponServiceTest {
                 1L, 2L, 3L, CouponPolicyType.FIXED, 10.0f, 30, LocalDateTime.now().plusDays(30)
         );
         CouponIssue couponIssue = new CouponIssue(2L, 3L, 100, 0, LocalDateTime.now(), CouponIssueStatus.ISSUABLE, 10.0f, 30, CouponPolicyType.FIXED);
-        when(couponIssueRepository.findByIdForUpdate(2L)).thenReturn(couponIssue);
+        when(couponIssueRepository.findById(2L)).thenReturn(couponIssue);
 
         // when & then
         assertThatThrownBy(() -> saveUserCouponService.save(command))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("쿠폰 잔량이 소진되었습니다");
-        verify(couponIssueRepository, times(1)).findByIdForUpdate(2L);
+        verify(couponIssueRepository, times(1)).findById(2L);
         verify(couponIssueRepository, never()).save(any(CouponIssue.class));
         verify(userCouponRepository, never()).insertOrUpdate(any(UserCoupon.class));
     }
