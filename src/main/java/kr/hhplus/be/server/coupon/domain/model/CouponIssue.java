@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.coupon.domain.model;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -50,7 +52,7 @@ public class CouponIssue {
 
     public CouponIssue decreaseRemaining() {
         if (this.remaining <= 0) {
-            throw new IllegalStateException("쿠폰 잔량이 소진되었습니다.");
+            throw new RestApiException(CouponErrorCode.COUPON_REMAINING_EMPTY_ERROR);
         }
         return new CouponIssue(
                 this.couponIssueId,

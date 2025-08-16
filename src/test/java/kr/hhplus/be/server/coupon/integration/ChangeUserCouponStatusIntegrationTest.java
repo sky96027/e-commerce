@@ -60,7 +60,7 @@ public class ChangeUserCouponStatusIntegrationTest extends IntegrationTestBase {
         assertThat(updated.getStatus()).isEqualTo(UserCouponStatus.USED);
 
         // DB 반영 확인
-        UserCoupon reloaded = userCouponRepository.findByUserCouponId(savedId).orElseThrow();
+        UserCoupon reloaded = userCouponRepository.findByUserCouponId(savedId);
         assertThat(reloaded.getStatus()).isEqualTo(UserCouponStatus.USED);
     }
 

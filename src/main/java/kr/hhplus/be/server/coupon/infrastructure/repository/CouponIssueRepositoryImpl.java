@@ -1,9 +1,11 @@
 package kr.hhplus.be.server.coupon.infrastructure.repository;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
 import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import kr.hhplus.be.server.coupon.infrastructure.entity.CouponIssueJpaEntity;
 import kr.hhplus.be.server.coupon.infrastructure.mapper.CouponIssueMapper;
 import kr.hhplus.be.server.user.domain.model.User;
@@ -36,7 +38,7 @@ public class CouponIssueRepositoryImpl implements CouponIssueRepository {
         return jpaRepository.findById(couponIssueId)
                 .map(mapper::toDomain)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("해당 쿠폰 발급 정보가 존재하지 않습니다. id=" + couponIssueId));
+                        new RestApiException(CouponErrorCode.COUPON_ISSUE_NOT_FOUND_ERROR));
     }
 
     @Override
