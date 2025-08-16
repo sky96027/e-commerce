@@ -16,7 +16,7 @@ public interface UserRepository {
     // 비관적 Lock(Legacy)
     // User selectByIdForUpdate(long userId);
 
-    User charge(long userId, long amount);
+    void charge(long userId, long amount);
 
-    User deduct(long userId, long amount);
+    void deduct(long userId, long amount);
 }

@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.user.application.facade;
 
+import kr.hhplus.be.server.common.exception.CommonErrorCode;
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
@@ -44,7 +46,7 @@ public class UserFacade {
 
         String token = lockManager.lockBlocking(
                 key, Duration.ofSeconds(3), Duration.ofSeconds(2), Duration.ofMillis(50));
-        if (token == null) throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
+        if (token == null) throw new RestApiException(CommonErrorCode.LOCK_ACQUISITION_FAILED_ERROR);;
 
         try {
             return chargeUserBalanceWithHistoryUseCase.execute(userId, amount);

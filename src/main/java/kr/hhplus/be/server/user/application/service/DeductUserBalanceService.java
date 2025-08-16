@@ -34,7 +34,9 @@ public class DeductUserBalanceService implements DeductUserBalanceUseCase {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public UserDto deduct(long userId, long amount) {
-        User user = userRepository.deduct(userId, amount);
-        return UserDto.from(user);
+        userRepository.deduct(userId, amount);
+        User updated = userRepository.findById(userId);
+
+        return UserDto.from(updated);
     }
 }
