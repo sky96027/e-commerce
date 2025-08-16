@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.coupon.infrastructure.repository;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import kr.hhplus.be.server.coupon.infrastructure.entity.UserCouponJpaEntity;
 import kr.hhplus.be.server.coupon.infrastructure.mapper.UserCouponMapper;
 import org.springframework.stereotype.Repository;
@@ -43,9 +45,10 @@ public class UserCouponRepositoryImpl implements UserCouponRepository {
      * userCouponId로 단일 쿠폰 조회
      */
     @Override
-    public Optional<UserCoupon> findByUserCouponId(long userCouponId) {
+    public UserCoupon findByUserCouponId(long userCouponId) {
         return jpaRepository.findById(userCouponId)
-                .map(mapper::toDomain);
+                .map(mapper::toDomain)
+                .orElseThrow(() -> new RestApiException(CouponErrorCode.USER_COUPON_NOT_FOUND_ERROR));
     }
 
     /**
