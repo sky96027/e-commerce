@@ -59,8 +59,7 @@ public class SaveOrderService implements SaveOrderUseCase {
                     long discountAmount = 0L;
 
                     if (item.userCouponId() != null) {
-                        UserCoupon coupon = userCouponRepository.findByUserCouponId(item.userCouponId())
-                                .orElseThrow(() -> new IllegalArgumentException("쿠폰을 찾을 수 없습니다: id = " + item.userCouponId()));
+                        UserCoupon coupon = userCouponRepository.findByUserCouponId(item.userCouponId());
 
                         long totalItemPrice = item.productPrice() * item.quantity();
 

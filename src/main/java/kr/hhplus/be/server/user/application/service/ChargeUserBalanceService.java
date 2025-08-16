@@ -36,7 +36,9 @@ public class ChargeUserBalanceService implements ChargeUserBalanceUseCase {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public UserDto charge(long userId, long amount) {
-        User user = userRepository.charge(userId, amount);
+        userRepository.charge(userId, amount);
+        User user = userRepository.findById(userId);
+
         return UserDto.from(user);
     }
 }

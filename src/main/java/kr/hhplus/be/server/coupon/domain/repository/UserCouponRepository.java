@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface UserCouponRepository {
     List<UserCoupon> findByUserId(long userId);
 
-    Optional<UserCoupon> findByUserCouponId(long userCouponId);
+    UserCoupon findByUserCouponId(long userCouponId);
 
     UserCoupon insertOrUpdate(UserCoupon userCoupon);
 }

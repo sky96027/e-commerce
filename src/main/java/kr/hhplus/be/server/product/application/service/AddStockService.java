@@ -42,9 +42,6 @@ public class AddStockService implements AddStockUseCase {
         
         // 상품 ID 조회
         ProductOption productOption = repository.findOptionByOptionId(optionId);
-        if (productOption == null) {
-            throw new IllegalStateException("옵션을 찾을 수 없음: optionId=" + optionId);
-        }
         
         long productId = productOption.getProductId();
         
@@ -52,10 +49,7 @@ public class AddStockService implements AddStockUseCase {
         stockCounter.compensateHash(productId, optionId, quantity);
         
         // DB에서도 재고 증가 (2차 소스)
-        boolean ok = repository.incrementStock(optionId, quantity);
-        if (!ok) {
-            throw new IllegalStateException("증가량이 음수 또는 옵션 없음: optionId=" + optionId + ", qty=" + quantity);
-        }
+        repository.incrementStock(optionId, quantity);
         
         // 재고 변경 이벤트 발행
         eventPublisher.publishEvent(new StockChangedEvent(

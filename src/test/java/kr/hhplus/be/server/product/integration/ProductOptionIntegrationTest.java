@@ -1,13 +1,15 @@
 package kr.hhplus.be.server.product.integration;
 
 import kr.hhplus.be.server.IntegrationTestBase;
-import kr.hhplus.be.server.product.application.service.DeductStockService; // 서비스명 유지 시 그대로 사용
+import kr.hhplus.be.server.common.exception.RestApiException;
+import kr.hhplus.be.server.product.application.service.DeductStockService;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
 import kr.hhplus.be.server.product.domain.type.ProductStatus;
+import kr.hhplus.be.server.product.exception.ProductErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +82,8 @@ public class ProductOptionIntegrationTest extends IntegrationTestBase {
 
         // when & then
         assertThatThrownBy(() -> deductStockService.deductStock(savedOption.getOptionId(), 2))
-                .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.OUT_OF_STOCK_ERROR);
     }
 
     @Test

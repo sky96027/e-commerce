@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.user.domain.model;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
+import kr.hhplus.be.server.user.exception.UserErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -87,7 +89,7 @@ class UserTest {
         User user = new User(1L, 500L);
 
         assertThatThrownBy(() -> user.deduct(600L))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("잔액이 부족합니다.");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", UserErrorCode.NOT_ENOUGH_BALANCE_ERROR);
     }
 }

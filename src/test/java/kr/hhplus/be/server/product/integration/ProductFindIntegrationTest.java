@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.product.integration;
 
 import kr.hhplus.be.server.IntegrationTestBase;
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.product.application.dto.ProductDetailDto;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
@@ -15,6 +16,7 @@ import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
 import kr.hhplus.be.server.product.domain.type.ProductStatus;
+import kr.hhplus.be.server.product.exception.ProductErrorCode;
 import kr.hhplus.be.server.product.infrastructure.entity.ProductJpaEntity;
 import kr.hhplus.be.server.product.infrastructure.entity.ProductOptionJpaEntity;
 import kr.hhplus.be.server.product.infrastructure.repository.ProductJpaRepository;
@@ -208,8 +210,8 @@ public class ProductFindIntegrationTest extends IntegrationTestBase {
 
         // when & then
         assertThatThrownBy(() -> findDetailService.findById(productId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상품을 찾을 수 없습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.PRODUCT_NOT_FOUND_ERROR);
     }
 
     @Test
@@ -319,7 +321,7 @@ public class ProductFindIntegrationTest extends IntegrationTestBase {
 
         // when & then
         assertThatThrownBy(() -> productFacade.getProductDetail(productId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상품을 찾을 수 없습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.PRODUCT_NOT_FOUND_ERROR);
     }
 } 
