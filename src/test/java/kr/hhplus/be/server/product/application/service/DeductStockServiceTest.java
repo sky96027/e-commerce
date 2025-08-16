@@ -1,9 +1,12 @@
 package kr.hhplus.be.server.product.application.service;
 
-import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
+import kr.hhplus.be.server.product.exception.ProductErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,13 +42,13 @@ class DeductStockServiceTest {
         // given
         long optionId = 1L;
         long productId = 100L;
-        int qty = 2;
+        int qty = 5;
 
         ProductOption mockOption = mock(ProductOption.class);
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
-        when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(8L); // 성공 시 남은 재고 반환
-        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(true); // DB 성공
+        when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(5L); // Redis 재고 충분
+        doNothing().when(productOptionRepository).decrementStock(optionId, qty);
 
         // when & then
         assertThatCode(() -> sut.deductStock(optionId, qty))
@@ -51,7 +56,7 @@ class DeductStockServiceTest {
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
         verify(stockCounter).tryDeductHash(productId, optionId, qty);
-        verify(productOptionRepository).decrementStock(optionId, qty); // DB 업데이트 호출 확인
+        verify(productOptionRepository).decrementStock(optionId, qty);
         
         // 이벤트 발행 확인
         ArgumentCaptor<StockChangedEvent> eventCaptor = ArgumentCaptor.forClass(StockChangedEvent.class);
@@ -76,7 +81,7 @@ class DeductStockServiceTest {
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
         when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(-1L); // Redis 재고 부족
-        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(true); // DB 성공
+        doNothing().when(productOptionRepository).decrementStock(optionId, qty);
         when(mockOption.getStock()).thenReturn(50); // DB 조회 후 남은 재고
 
         // when & then
@@ -111,12 +116,13 @@ class DeductStockServiceTest {
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
         when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(-1L); // Redis 재고 부족
-        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(false); // DB도 실패
+        doThrow(new RestApiException(ProductErrorCode.OUT_OF_STOCK_ERROR))
+                .when(productOptionRepository).decrementStock(optionId, qty);
 
         // when & then
         assertThatThrownBy(() -> sut.deductStock(optionId, qty))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("재고 부족");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.OUT_OF_STOCK_ERROR);
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
         verify(stockCounter).tryDeductHash(productId, optionId, qty);
@@ -132,12 +138,13 @@ class DeductStockServiceTest {
         long optionId = 999L;
         int qty = 2;
 
-        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(null);
+        when(productOptionRepository.findOptionByOptionId(optionId))
+                .thenThrow(new RestApiException(ProductErrorCode.OPTION_NOT_FOUND_ERROR));
 
         // when & then
         assertThatThrownBy(() -> sut.deductStock(optionId, qty))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("옵션을 찾을 수 없음");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.OPTION_NOT_FOUND_ERROR);
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
         verifyNoMoreInteractions(productOptionRepository);

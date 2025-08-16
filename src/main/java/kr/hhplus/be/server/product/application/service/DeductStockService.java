@@ -42,9 +42,6 @@ public class DeductStockService implements DeductStockUseCase {
         
         // 상품 ID 조회
         ProductOption productOption = repository.findOptionByOptionId(optionId);
-        if (productOption == null) {
-            throw new IllegalStateException("옵션을 찾을 수 없음: optionId=" + optionId);
-        }
         
         long productId = productOption.getProductId();
         
@@ -53,20 +50,15 @@ public class DeductStockService implements DeductStockUseCase {
         
         if (remainingStock == -1) {
             // Redis 재고 부족 시 DB에서 재확인 및 차감
-            boolean ok = repository.decrementStock(optionId, quantity);
-            if (!ok) {
-                throw new IllegalStateException("재고 부족 또는 옵션 없음: optionId=" + optionId + ", qty=" + quantity);
-            }
+            repository.decrementStock(optionId, quantity);
             // DB 성공 시 Redis 재고 동기화
             stockCounter.initStockHash(productId, optionId, repository.findOptionByOptionId(optionId).getStock());
         } else {
             // Redis에서 재고 차감 성공 시에도 DB 동기화
-            boolean ok = repository.decrementStock(optionId, quantity);
-            if (!ok) {
-                // DB 실패 시 Redis 롤백
-                stockCounter.compensateHash(productId, optionId, quantity);
-                throw new IllegalStateException("DB 재고 차감 실패: optionId=" + optionId + ", qty=" + quantity);
-            }
+            repository.decrementStock(optionId, quantity);
+//            if (!ok) {
+//                stockCounter.compensateHash(productId, optionId, quantity);
+//            }
         }
         
         // 재고 변경 이벤트 발행

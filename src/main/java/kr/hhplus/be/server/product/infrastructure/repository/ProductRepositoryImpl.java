@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.product.infrastructure.repository;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
+import kr.hhplus.be.server.product.exception.ProductErrorCode;
 import kr.hhplus.be.server.product.infrastructure.entity.ProductJpaEntity;
 import kr.hhplus.be.server.product.infrastructure.mapper.ProductMapper;
 import org.springframework.stereotype.Repository;
@@ -31,7 +33,8 @@ public class ProductRepositoryImpl implements ProductRepository {
     public Product findById(long productId) {
         return jpaRepository.findById(productId)
                 .map(mapper::toDomain)
-                .orElse(null);
+                .orElseThrow(()->
+                        new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND_ERROR));
     }
 
     @Override

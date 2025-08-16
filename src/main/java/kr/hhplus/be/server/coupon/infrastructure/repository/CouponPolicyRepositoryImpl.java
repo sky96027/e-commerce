@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.coupon.infrastructure.repository;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.domain.model.CouponPolicy;
 import kr.hhplus.be.server.coupon.domain.repository.CouponPolicyRepository;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import kr.hhplus.be.server.coupon.infrastructure.entity.CouponPolicyJpaEntity;
 import kr.hhplus.be.server.coupon.infrastructure.mapper.CouponPolicyMapper;
 import org.springframework.stereotype.Repository;
@@ -24,7 +26,7 @@ public class CouponPolicyRepositoryImpl implements CouponPolicyRepository {
     public CouponPolicy findById(long couponPolicyId) {
         return jpaRepository.findById(couponPolicyId)
                 .map(mapper::toDomain)
-                .orElseThrow(() -> new IllegalArgumentException("해당 쿠폰 정책이 존재하지 않습니다: " + couponPolicyId));
+                .orElseThrow(() -> new RestApiException(CouponErrorCode.COUPON_POLICY_NOT_FOUND_ERROR));
     }
 
     @Override

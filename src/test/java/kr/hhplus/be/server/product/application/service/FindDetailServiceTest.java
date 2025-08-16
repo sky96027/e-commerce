@@ -1,9 +1,11 @@
 package kr.hhplus.be.server.product.application.service;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import kr.hhplus.be.server.product.domain.type.ProductStatus;
+import kr.hhplus.be.server.product.exception.ProductErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,12 +57,13 @@ class FindDetailServiceTest {
     void findById_notFound_throwsException() {
         // given
         long productId = 999L;
-        when(productRepository.findById(productId)).thenReturn(null);
+        when(productRepository.findById(productId))
+                .thenThrow(new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND_ERROR));
 
         // when & then
         assertThatThrownBy(() -> findDetailService.findById(productId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상품을 찾을 수 없습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.PRODUCT_NOT_FOUND_ERROR);
         verify(productRepository, times(1)).findById(productId);
     }
 }
