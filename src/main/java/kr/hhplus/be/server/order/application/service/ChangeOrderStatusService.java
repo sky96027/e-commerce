@@ -38,9 +38,6 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     @Override
     public OrderDto changeStatus(long orderId, OrderStatus newStatus) {
         Order current = orderRepository.findById(orderId);
-        if (current == null) {
-            throw new IllegalArgumentException("해당 주문이 존재하지 않습니다. orderId = " + orderId);
-        }
 
         Order updated = current.changeStatus(newStatus);
         orderRepository.save(updated);

@@ -1,7 +1,10 @@
 package kr.hhplus.be.server.order.infrastructure.repository;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
+import kr.hhplus.be.server.order.exception.OrderErrorCode;
 import kr.hhplus.be.server.order.infrastructure.entity.OrderJpaEntity;
 import kr.hhplus.be.server.order.infrastructure.mapper.OrderMapper;
 import org.springframework.stereotype.Repository;
@@ -24,7 +27,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     public Order findById(long orderId) {
         return jpaRepository.findById(orderId)
                 .map(mapper::toDomain)
-                .orElse(null);
+                .orElseThrow(() ->
+                        new RestApiException(OrderErrorCode.ORDER_NOT_FOUND_ERROR));
     }
 
     @Override
