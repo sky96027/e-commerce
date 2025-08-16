@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.payment.infrastructure.repository;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
+import kr.hhplus.be.server.payment.exception.PaymentErrorCode;
 import kr.hhplus.be.server.payment.infrastructure.entity.PaymentJpaEntity;
 import kr.hhplus.be.server.payment.infrastructure.mapper.PaymentMapper;
 import org.springframework.stereotype.Repository;
@@ -34,6 +36,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     public Payment findById(long orderId) {
         return jpaRepository.findByOrderId(orderId)
                 .map(mapper::toDomain)
-                .orElse(null);
+                .orElseThrow(() ->
+                      new RestApiException(PaymentErrorCode.PAYMENT_NOT_FOUND_ERROR));
     }
 }

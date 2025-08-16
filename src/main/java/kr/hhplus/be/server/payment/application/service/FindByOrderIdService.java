@@ -1,9 +1,11 @@
 package kr.hhplus.be.server.payment.application.service;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.payment.application.dto.PaymentDto;
 import kr.hhplus.be.server.payment.application.usecase.FindByOrderIdUseCase;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
+import kr.hhplus.be.server.payment.exception.PaymentErrorCode;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,9 +37,7 @@ public class FindByOrderIdService implements FindByOrderIdUseCase {
     @Override
     public PaymentDto findByOrderId(long orderId) {
         Payment payment = paymentRepository.findById(orderId);
-        if (payment == null) {
-            throw new IllegalArgumentException("결제를 찾을 수 없습니다. orderId: " + orderId);
-        }
+
         return PaymentDto.from(payment);
     }
 }
