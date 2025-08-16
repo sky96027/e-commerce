@@ -42,7 +42,7 @@ class AddStockServiceTest {
         ProductOption mockOption = mock(ProductOption.class);
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
-        when(productOptionRepository.incrementStock(optionId, qty)).thenReturn(true);
+        doNothing().when(productOptionRepository).incrementStock(optionId, qty);
 
         // when & then
         assertThatCode(() -> sut.addStock(optionId, qty))
@@ -74,7 +74,7 @@ class AddStockServiceTest {
         ProductOption mockOption = mock(ProductOption.class);
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
-        when(productOptionRepository.incrementStock(optionId, qty)).thenReturn(false);
+        doNothing().when(productOptionRepository).incrementStock(optionId, qty);
 
         // when & then
         assertThatThrownBy(() -> sut.addStock(optionId, qty))
