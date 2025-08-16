@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.coupon.domain.model;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +37,7 @@ class CouponIssueTest {
         );
         // when & then
         assertThatThrownBy(issue::decreaseRemaining)
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("쿠폰 잔량이 소진되었습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", CouponErrorCode.COUPON_REMAINING_EMPTY_ERROR);
     }
 } 

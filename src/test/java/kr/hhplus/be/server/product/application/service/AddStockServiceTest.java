@@ -1,9 +1,12 @@
 package kr.hhplus.be.server.product.application.service;
 
-import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.product.application.usecase.AddStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
+import kr.hhplus.be.server.product.exception.ProductErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,12 +79,13 @@ class AddStockServiceTest {
         ProductOption mockOption = mock(ProductOption.class);
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
-        doNothing().when(productOptionRepository).incrementStock(optionId, qty);
+        doThrow(new RestApiException(ProductErrorCode.INVALID_QUANTITY_ERROR))
+                .when(productOptionRepository).incrementStock(optionId, qty);
 
         // when & then
         assertThatThrownBy(() -> sut.addStock(optionId, qty))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("증가량이 음수 또는 옵션 없음");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.INVALID_QUANTITY_ERROR);
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
         verify(stockCounter).compensateHash(productId, optionId, qty);
@@ -95,12 +101,13 @@ class AddStockServiceTest {
         long optionId = 999L;
         int qty = 5;
 
-        when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(null);
+        when(productOptionRepository.findOptionByOptionId(optionId))
+                .thenThrow(new RestApiException(ProductErrorCode.OPTION_NOT_FOUND_ERROR));
 
         // when & then
         assertThatThrownBy(() -> sut.addStock(optionId, qty))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("옵션을 찾을 수 없음");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ProductErrorCode.OPTION_NOT_FOUND_ERROR);
 
         verify(productOptionRepository).findOptionByOptionId(optionId);
         verifyNoMoreInteractions(productOptionRepository);

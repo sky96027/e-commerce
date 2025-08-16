@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.payment.integration;
 
 import kr.hhplus.be.server.IntegrationTestBase;
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.payment.application.dto.PaymentDto;
 import kr.hhplus.be.server.payment.application.dto.SavePaymentCommand;
 import kr.hhplus.be.server.payment.application.service.FindByOrderIdService;
@@ -10,6 +11,7 @@ import kr.hhplus.be.server.payment.application.usecase.SavePaymentUseCase;
 import kr.hhplus.be.server.payment.domain.model.Payment;
 import kr.hhplus.be.server.payment.domain.repository.PaymentRepository;
 import kr.hhplus.be.server.payment.domain.type.PaymentStatus;
+import kr.hhplus.be.server.payment.exception.PaymentErrorCode;
 import kr.hhplus.be.server.payment.infrastructure.entity.PaymentJpaEntity;
 import kr.hhplus.be.server.payment.infrastructure.repository.PaymentJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -144,8 +146,8 @@ public class PaymentIntegrationTest extends IntegrationTestBase {
 
         // when & then
         assertThatThrownBy(() -> findByOrderIdUseCase.findByOrderId(nonExistentOrderId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("결제를 찾을 수 없습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", PaymentErrorCode.PAYMENT_NOT_FOUND_ERROR);
     }
 
     @Test

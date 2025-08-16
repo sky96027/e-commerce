@@ -1,11 +1,13 @@
 package kr.hhplus.be.server.coupon.integration;
 
 import kr.hhplus.be.server.IntegrationTestBase;
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.application.service.ChangeUserCouponStatusService;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +74,7 @@ public class ChangeUserCouponStatusIntegrationTest extends IntegrationTestBase {
 
         // when & then
         assertThatThrownBy(() -> changeUserCouponStatusService.changeStatus(invalidId, UserCouponStatus.USED))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("해당 ID의 쿠폰이 존재하지 않습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", CouponErrorCode.USER_COUPON_NOT_FOUND_ERROR);
     }
 }
