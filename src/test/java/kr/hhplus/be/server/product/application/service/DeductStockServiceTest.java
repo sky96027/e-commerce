@@ -43,7 +43,7 @@ class DeductStockServiceTest {
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
         when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(8L); // 성공 시 남은 재고 반환
-        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(true); // DB 성공
+        doNothing().when(productOptionRepository).decrementStock(optionId, qty);
 
         // when & then
         assertThatCode(() -> sut.deductStock(optionId, qty))
@@ -76,7 +76,7 @@ class DeductStockServiceTest {
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
         when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(-1L); // Redis 재고 부족
-        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(true); // DB 성공
+        doNothing().when(productOptionRepository).decrementStock(optionId, qty);
         when(mockOption.getStock()).thenReturn(50); // DB 조회 후 남은 재고
 
         // when & then
@@ -111,7 +111,7 @@ class DeductStockServiceTest {
         when(mockOption.getProductId()).thenReturn(productId);
         when(productOptionRepository.findOptionByOptionId(optionId)).thenReturn(mockOption);
         when(stockCounter.tryDeductHash(productId, optionId, qty)).thenReturn(-1L); // Redis 재고 부족
-        when(productOptionRepository.decrementStock(optionId, qty)).thenReturn(false); // DB도 실패
+        doNothing().when(productOptionRepository).decrementStock(optionId, qty);
 
         // when & then
         assertThatThrownBy(() -> sut.deductStock(optionId, qty))
