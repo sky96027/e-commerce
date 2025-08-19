@@ -1,6 +1,8 @@
 package kr.hhplus.be.server.product.application.facade;
 
-import kr.hhplus.be.server.common.redis.RedisDistributedLockManager;
+import kr.hhplus.be.server.common.exception.CommonErrorCode;
+import kr.hhplus.be.server.common.exception.RestApiException;
+import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.product.application.dto.ProductDetailDto;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
@@ -81,7 +83,7 @@ public class ProductFacade {
                 Duration.ofSeconds(30)   // 전체 대기 한도
         );
         if (token == null) {
-            throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
+            throw new RestApiException(CommonErrorCode.LOCK_ACQUISITION_FAILED_ERROR);
         }
 
         try {
@@ -104,7 +106,7 @@ public class ProductFacade {
                 Duration.ofMillis(50)
         );
         if (token == null) {
-            throw new IllegalStateException("잠시 후 다시 시도해 주세요.");
+            throw new RestApiException(CommonErrorCode.LOCK_ACQUISITION_FAILED_ERROR);
         }
         try {
             deductStockUseCase.deductStock(optionId, quantity);

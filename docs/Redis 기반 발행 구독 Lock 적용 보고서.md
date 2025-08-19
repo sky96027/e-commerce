@@ -27,7 +27,7 @@ Spin Lock으로만 동시성을 제어할 경우 트래픽이 클 것으로 예�
 
 - 실패 시 구독하고 수면. 해제 시점에 서버가 푸시로 깨움.
 - 총 Redis 호출 수 :
-  - 해제 시 **`PUBLISH`** 1회 + 대기자별 재시도 **`SETNX`**1회 수준(미스 시그널 가드 포함해도 상수 회수).
+  - 해제 시 **`PUBLISH`** 1회 + 대기자별 재시도 **`SETNX`**1회 수준.
   - 폴링 명령이 없어져 `QPS`가 경합 시간 **`L`** 에 비례하지 않음.
 - 해제 후 추가 지연: `≈ 네트워크 + 리스너 디스패치`(수 ms 수준). `b`에 의존하지 않음.
 - 대기 중 스레드는 슬립 상태 → CPU/컨텍스트 스위치 감소.
@@ -143,7 +143,6 @@ public class RedisDistributedLockManager {
             String channel = ch(key);
             CompletableFuture<String> f = waitRegistry.await(channel);
 
-            // 미스 시그널 가드: 등록 직후 즉시 한 번 더 시도
             token = tryLock(key, ttl);
             if (token != null) {
                 waitRegistry.cancel(channel, f);

@@ -1,74 +1,54 @@
 spring:
   application:
     name: hhplus
+  profiles:
+    active: local
+  datasource:
+    name: HangHaePlusDataSource
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      max-lifetime: 60000
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    username: application
+    password: application
   jpa:
     open-in-view: false
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: none
     properties:
+      hibernate.timezone.default_storage: NORMALIZE_UTC
+      hibernate.jdbc.time_zone: UTC
       hibernate:
         format_sql: true
         show_sql: true
         use_sql_comments: true
+      type:
+        descriptor:
+          sql: trace
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
 
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
-
-
-#spring:
-#  application:
-#    name: hhplus
-#  profiles:
-#    active: local
-#  datasource:
-#    name: HangHaePlusDataSource
-#    type: com.zaxxer.hikari.HikariDataSource
-#    hikari:
-#      maximum-pool-size: 50
-#      minimum-idle: 10
-#      connection-timeout: 30000
-#      max-lifetime: 60000
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#  jpa:
-#    open-in-view: false
-#    generate-ddl: true
-#    show-sql: true
-#    hibernate:
-#      ddl-auto: none
-#    properties:
-#      hibernate.timezone.default_storage: NORMALIZE_UTC
-#      hibernate.jdbc.time_zone: UTC
-#      hibernate:
-#        format_sql: true
-#        show_sql: true
-#        use_sql_comments: true
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6379
-#    cache:
-#      type: redis
-#
-#
-#---
-#spring.config.activate.on-profile: local, test
-#
-#logging:
-#  level:
-#    org.hibernate.SQL: debug              # Hibernate가 생성한 SQL 로그 출력
-#    org.hibernate.type.descriptor.sql: trace  # 바인딩된 파라미터 값 출력
-#
-#spring:
-#  datasource:
-#    url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
-#    username: application
-#    password: application
-#  jpa:
-#    show-sql: true
-#    hibernate:
-#      ddl-auto: none
-#    properties:
-#      hibernate:
-#        format_sql: true
-#        show_sql: true
-#        use_sql_comments: true
+    org.springframework.cache: trace
+    org.springframework.cache.interceptor: trace
+    org.springframework.aop: debug
+    kr.hhplus.be.server: debug

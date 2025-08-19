@@ -15,9 +15,9 @@ public interface ProductOptionRepository {
 
     ProductOption insertOrUpdate(ProductOption productOption);
 
-    boolean  decrementStock(long optionId, int quantity);
+    void  decrementStock(long optionId, int quantity);
 
-    boolean  incrementStock(long optionId, int quantity);
+    void  incrementStock(long optionId, int quantity);
 
     // 비관적 Lock (Legacy)
     /*ProductOption findOptionByOptionIdForUpdate(long optionId);*/

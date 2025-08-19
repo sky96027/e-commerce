@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.user.application.service;
 
-import kr.hhplus.be.server.common.redis.RedisDistributedLockManager;
+import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;

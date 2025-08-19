@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.user.domain.model;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
+import kr.hhplus.be.server.user.exception.UserErrorCode;
 import lombok.Getter;
 
 /**
@@ -25,7 +27,7 @@ public class User {
 
     /** 입력 검증: 양수 금액만 허용 */
     public static void requirePositive(long amount) {
-        if (amount <= 0) throw new IllegalArgumentException("금액은 양수여야 합니다.");
+        if (amount <= 0) throw new RestApiException(UserErrorCode.INVALID_AMOUNT_ERROR);
     }
 
     /**
@@ -44,7 +46,7 @@ public class User {
     public User deduct(long amount) {
         requirePositive(amount);
         if (this.balance < amount) {
-            throw new IllegalStateException("잔액이 부족합니다.");
+            throw new RestApiException(UserErrorCode.NOT_ENOUGH_BALANCE_ERROR);
         }
         return new User(this.userId, this.balance - amount);
     }

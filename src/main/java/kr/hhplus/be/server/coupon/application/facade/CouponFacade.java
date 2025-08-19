@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.coupon.application.facade;
 
-import kr.hhplus.be.server.common.redis.RedisDistributedLockManager;
+import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.usecase.SaveUserCouponUseCase;
 import lombok.RequiredArgsConstructor;

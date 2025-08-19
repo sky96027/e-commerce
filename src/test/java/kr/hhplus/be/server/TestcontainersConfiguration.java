@@ -1,11 +1,19 @@
 package kr.hhplus.be.server;
 
 import jakarta.annotation.PreDestroy;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-@Configuration
+import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
+
+import static org.mockito.Mockito.mock;
+
+@TestConfiguration
 class TestcontainersConfiguration {
 
 	public static final MySQLContainer<?> MYSQL_CONTAINER;
@@ -27,5 +35,23 @@ class TestcontainersConfiguration {
 		if (MYSQL_CONTAINER.isRunning()) {
 			MYSQL_CONTAINER.stop();
 		}
+	}
+
+	/**
+	 * 테스트용 Redis Mock 설정
+	 * Redis가 제대로 동작하지 않는 테스트 환경에서 사용
+	 */
+	@Bean
+	@Primary
+	@Profile("test")
+	public StockCounter mockStockCounter() {
+		return mock(StockCounter.class);
+	}
+
+	@Bean
+	@Primary
+	@Profile("test")
+	public RedisDistributedLockManager mockLockManager() {
+		return mock(RedisDistributedLockManager.class);
 	}
 }

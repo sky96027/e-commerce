@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.user.application.facade;
 
-import kr.hhplus.be.server.common.redis.RedisDistributedLockManager;
+import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceWithHistoryUseCase;
 import org.junit.jupiter.api.DisplayName;

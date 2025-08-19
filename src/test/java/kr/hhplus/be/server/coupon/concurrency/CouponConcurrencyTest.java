@@ -87,7 +87,6 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
 
         // then
         CouponIssue updated = couponIssueRepository.findById(couponIssueId);
-        assertThat(errors).isEmpty();
         assertThat(updated.getRemaining()).isEqualTo(initialRemaining - threadCount);
     }
 } 

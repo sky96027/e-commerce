@@ -9,10 +9,7 @@ import kr.hhplus.be.server.order.presentation.contract.OrderApiSpec;
 import kr.hhplus.be.server.order.presentation.dto.OrderRequest;
 import kr.hhplus.be.server.order.presentation.dto.OrderResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -66,7 +63,43 @@ public class OrderController implements OrderApiSpec {
                         item.optionId(),
                         item.quantity(),
                         item.discountAmount(),
-                        item.userCouponId()
+                        item.userCouponId() // null일 수 있음
+                ))
+                .toList();
+
+        OrderResponse.CreateOrderResponse response = new OrderResponse.CreateOrderResponse(
+                orderDto.orderId(),
+                orderDto.userId(),
+                orderDto.totalAmount(),
+                orderDto.totalDiscountAmount(),
+                orderDto.status(),
+                orderDto.orderAt(),
+                items
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 주문 ID로 주문 조회
+     */
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponse.CreateOrderResponse> getOrderById(@PathVariable long orderId) {
+        OrderDto orderDto = findOrderByOrderIdUseCase.findById(orderId);
+        
+        if (orderDto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<OrderResponse.OrderItem> items = orderDto.items().stream()
+                .map(item -> new OrderResponse.OrderItem(
+                        item.productId(),
+                        item.productName(),
+                        item.productPrice(),
+                        item.optionId(),
+                        item.quantity(),
+                        item.discountAmount(),
+                        item.userCouponId() // null일 수 있음
                 ))
                 .toList();
 
