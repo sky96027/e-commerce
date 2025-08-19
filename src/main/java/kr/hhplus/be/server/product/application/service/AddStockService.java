@@ -35,21 +35,33 @@ public class AddStockService implements AddStockUseCase {
      * @param optionId 증가할 옵션 ID
      * @param quantity 증가량
      */
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void addStock(long optionId, int quantity) {
         ProductOption.requirePositive(quantity);
         
         // 상품 ID 조회
         ProductOption productOption = repository.findOptionByOptionId(optionId);
-        
         long productId = productOption.getProductId();
-        
-        // Redis에서 재고 증가 (1차 소스)
-        stockCounter.compensateHash(productId, optionId, quantity);
-        
-        // DB에서도 재고 증가 (2차 소스)
-        repository.incrementStock(optionId, quantity);
+
+        boolean redisIncremented = false;
+
+        try {
+            // Redis에서 재고 증가 (1차 소스)
+            stockCounter.compensateHash(productId, optionId, quantity);
+            redisIncremented = true;
+
+            // DB에서도 재고 증가 (2차 소스)
+            repository.incrementStock(optionId, quantity);
+
+        } catch (RuntimeException e) {
+            // 보상 코드
+            if (redisIncremented) {
+                stockCounter.compensateHash(productId, optionId, -quantity);
+            }
+            throw e;
+        }
+
         
         // 재고 변경 이벤트 발행
         eventPublisher.publishEvent(new StockChangedEvent(
