@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.product.infrastructure.repository;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
+import kr.hhplus.be.server.product.exception.ProductErrorCode;
 import kr.hhplus.be.server.product.infrastructure.entity.ProductOptionJpaEntity;
 import kr.hhplus.be.server.product.infrastructure.mapper.ProductOptionMapper;
 import org.springframework.stereotype.Repository;
@@ -40,7 +42,8 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepository {
     public ProductOption findOptionByOptionId(long optionId) {
         return jpaRepository.findById(optionId)
                 .map(mapper::toDomain)
-                .orElse(null);
+                .orElseThrow(()->
+                        new RestApiException(ProductErrorCode.OPTION_NOT_FOUND_ERROR));
     }
 
     @Override
@@ -51,13 +54,24 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepository {
     }
 
     @Override
-    public boolean decrementStock(long optionId, int quantity) {
-        return jpaRepository.decrementStockIfEnough(optionId, quantity) == 1;
+    public void decrementStock(long optionId, int quantity) {
+        if (quantity <= 0) {
+            throw new RestApiException(ProductErrorCode.INVALID_QUANTITY_ERROR);
+        }
+
+        int updated = jpaRepository.decrementStockIfEnough(optionId, quantity);
+        if (updated != 1) {
+            throw new RestApiException(ProductErrorCode.OUT_OF_STOCK_ERROR);
+        }
     }
 
     @Override
-    public boolean  incrementStock(long optionId, int quantity) {
-        return jpaRepository.incrementStock(optionId, quantity) == 1;
+    public void  incrementStock(long optionId, int quantity) {
+        if (quantity <= 0) {
+            throw new RestApiException(ProductErrorCode.INVALID_QUANTITY_ERROR);
+        }
+
+        int updated = jpaRepository.incrementStock(optionId, quantity);
     }
 
     // 비관적 Lock (Legacy)

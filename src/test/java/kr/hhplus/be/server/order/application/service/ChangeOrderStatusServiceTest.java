@@ -1,17 +1,20 @@
 package kr.hhplus.be.server.order.application.service;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.order.application.dto.OrderDto;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderItem;
 import kr.hhplus.be.server.order.domain.repository.OrderItemRepository;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import kr.hhplus.be.server.order.domain.type.OrderStatus;
+import kr.hhplus.be.server.order.exception.OrderErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,13 +29,15 @@ class ChangeOrderStatusServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private OrderItemRepository orderItemRepository;
+    @Mock
+    private ApplicationEventPublisher publisher;
     @InjectMocks
     private ChangeOrderStatusService changeOrderStatusService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        changeOrderStatusService = new ChangeOrderStatusService(orderRepository, orderItemRepository);
+        changeOrderStatusService = new ChangeOrderStatusService(orderRepository, orderItemRepository, publisher);
     }
 
     @Test
@@ -65,12 +70,13 @@ class ChangeOrderStatusServiceTest {
     void changeStatus_notFound_throwsException() {
         // given
         long orderId = 2L;
-        when(orderRepository.findById(orderId)).thenReturn(null);
+        when(orderRepository.findById(orderId))
+                .thenThrow(new RestApiException(OrderErrorCode.ORDER_NOT_FOUND_ERROR));
 
         // when & then
         assertThatThrownBy(() -> changeOrderStatusService.changeStatus(orderId, OrderStatus.AFTER_PAYMENT))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("해당 주문이 존재하지 않습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", OrderErrorCode.ORDER_NOT_FOUND_ERROR);
         verify(orderRepository, times(1)).findById(orderId);
         verify(orderRepository, never()).save(any(Order.class));
         verify(orderItemRepository, never()).findAllByOrderId(anyLong());

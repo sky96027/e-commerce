@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.coupon.application.service;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
@@ -7,12 +8,14 @@ import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 
@@ -26,13 +29,15 @@ class SaveUserCouponServiceTest {
     private UserCouponRepository userCouponRepository;
     @Mock
     private CouponIssueRepository couponIssueRepository;
+    @Mock
+    private ApplicationEventPublisher publisher;
     @InjectMocks
     private SaveUserCouponService saveUserCouponService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository);
+        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository, publisher);
     }
 
     @Test
@@ -73,8 +78,8 @@ class SaveUserCouponServiceTest {
 
         // when & then
         assertThatThrownBy(() -> saveUserCouponService.save(command))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("쿠폰 잔량이 소진되었습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasFieldOrPropertyWithValue("errorCode", CouponErrorCode.COUPON_REMAINING_EMPTY_ERROR);
         verify(couponIssueRepository, times(1)).findById(2L);
         verify(couponIssueRepository, never()).save(any(CouponIssue.class));
         verify(userCouponRepository, never()).insertOrUpdate(any(UserCoupon.class));

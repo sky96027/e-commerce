@@ -1,9 +1,11 @@
 package kr.hhplus.be.server.coupon.application.service;
 
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.domain.type.UserCouponStatus;
+import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
 import kr.hhplus.be.server.order.domain.model.Order;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +46,7 @@ class ChangeUserCouponStatusServiceTest {
         );
         UserCoupon updated = original.changeStatus(newStatus);
 
-        when(userCouponRepository.findByUserCouponId(userCouponId)).thenReturn(Optional.of(original));
+        when(userCouponRepository.findByUserCouponId(userCouponId)).thenReturn(original);
         when(userCouponRepository.insertOrUpdate(any(UserCoupon.class))).thenReturn(updated);
 
         // when
@@ -62,12 +64,16 @@ class ChangeUserCouponStatusServiceTest {
         // given
         long userCouponId = 1L;
         UserCouponStatus newStatus = UserCouponStatus.USED;
-        when(userCouponRepository.findByUserCouponId(userCouponId)).thenReturn(Optional.empty());
+
+        // 리포지토리에서 쿠폰이 없을 때 예외를 던지도록 설정
+        when(userCouponRepository.findByUserCouponId(userCouponId))
+                .thenThrow(new RestApiException(CouponErrorCode.USER_COUPON_NOT_FOUND_ERROR));
 
         // when & then
         assertThatThrownBy(() -> changeUserCouponStatusService.changeStatus(userCouponId, newStatus))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("해당 ID의 쿠폰이 존재하지 않습니다");
+                .isInstanceOf(RestApiException.class)
+                .hasMessageContaining("쿠폰을 찾을 수 없습니다.");
+
         verify(userCouponRepository, times(1)).findByUserCouponId(userCouponId);
         verify(userCouponRepository, never()).insertOrUpdate(any(UserCoupon.class));
     }

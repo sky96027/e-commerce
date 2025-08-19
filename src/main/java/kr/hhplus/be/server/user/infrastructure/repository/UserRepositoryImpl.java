@@ -1,8 +1,10 @@
 package kr.hhplus.be.server.user.infrastructure.repository;
 
 import jakarta.persistence.LockModeType;
+import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.user.domain.model.User;
 import kr.hhplus.be.server.user.domain.repository.UserRepository;
+import kr.hhplus.be.server.user.exception.UserErrorCode;
 import kr.hhplus.be.server.user.infrastructure.entity.UserJpaEntity;
 import kr.hhplus.be.server.user.infrastructure.mapper.UserMapper;
 import org.springframework.data.jpa.repository.Lock;
@@ -40,35 +42,29 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User insert(long balance) {
-        if (balance < 0) throw new IllegalArgumentException("초기 잔액은 음수일 수 없습니다.");
+        if (balance < 0) throw new RestApiException(UserErrorCode.INVALID_INITIAL_BALANCE_ERROR);
         UserJpaEntity saved = jpaRepository.save(new UserJpaEntity(balance));
         return mapper.toDomain(saved);
     }
 
     @Override
-    public User charge(long userId, long amount) {
+    public void charge(long userId, long amount) {
         User.requirePositive(amount); // 입력 검증(도메인 규칙)
         int updated = jpaRepository.incrementBalance(userId, amount);
         if (updated != 1) {
             // 사용자 미존재 또는 동시성 이슈(비정상) — 일단 not found로 통일
-            throw new IllegalStateException("충전 실패(사용자 없음 또는 동시성 문제): userId=" + userId);
+            throw new RestApiException(UserErrorCode.USER_NOT_FOUND_ERROR);
         }
-        UserJpaEntity entity = jpaRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("User not found: " + userId));
-        return mapper.toDomain(entity);
     }
 
     @Override
-    public User deduct(long userId, long amount) {
+    public void deduct(long userId, long amount) {
         User.requirePositive(amount); // 입력 검증
         int updated = jpaRepository.decrementBalanceIfEnough(userId, amount);
         if (updated != 1) {
             // 사용자 미존재 또는 동시성 이슈(비정상) — 일단 not found로 통일
-            throw new IllegalStateException("차감 실패(사용자 없음 또는 동시성 문제): userId=" + userId);
+            throw new RestApiException(UserErrorCode.USER_NOT_FOUND_ERROR);
         }
-        UserJpaEntity entity = jpaRepository.findById(userId)
-                .orElseThrow(() -> new IllegalStateException("User not found: " + userId));
-        return mapper.toDomain(entity);
     }
 
 

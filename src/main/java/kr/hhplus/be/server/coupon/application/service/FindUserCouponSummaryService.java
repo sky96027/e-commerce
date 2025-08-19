@@ -3,6 +3,7 @@ package kr.hhplus.be.server.coupon.application.service;
 import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
 import kr.hhplus.be.server.coupon.application.usecase.FindUserCouponSummaryUseCase;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class FindUserCouponSummaryService implements FindUserCouponSummaryUseCas
      * @return 쿠폰 DTO 목록
      */
     @Override
+    @Cacheable(cacheNames = "coupon:userSummary", key = "#userId")
     public List<UserCouponDto> findSummary(long userId) {
         return userCouponRepository.findByUserId(userId).stream()
                 .map(UserCouponDto::from)

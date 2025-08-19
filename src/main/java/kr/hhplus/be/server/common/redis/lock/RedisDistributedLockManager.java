@@ -1,24 +1,17 @@
-package kr.hhplus.be.server.common.redis;
+package kr.hhplus.be.server.common.redis.lock;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
@@ -80,7 +73,6 @@ public class RedisDistributedLockManager {
     /**
      * [PUB/SUB LOCK] 블로킹 방식(해제 알림 대기):
      * - 실패 시 채널 구독 후 알림을 받으면 즉시 재시도
-     * - 미스 시그널 방지: "구독 직후 락 존재 여부 재확인" 포함
      */
     public String lockBlockingPubSub(String key, Duration ttl, Duration wait) {
         long deadline = System.nanoTime() + wait.toNanos();
@@ -95,7 +87,6 @@ public class RedisDistributedLockManager {
             String channel = ch(key);
             CompletableFuture<String> f = waitRegistry.await(channel);
 
-            // 미스 시그널 가드: 등록 직후 즉시 한 번 더 시도
             token = tryLock(key, ttl);
             if (token != null) {
                 waitRegistry.cancel(channel, f);
