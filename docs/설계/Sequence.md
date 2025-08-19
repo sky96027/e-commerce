@@ -80,6 +80,8 @@ sequenceDiagram
 ```
 
 3. **거래 내역 조회**
+
+```mermaid
 sequenceDiagram
    actor User as 사용자
    participant BalanceAPI as 거래 내역 API
@@ -95,10 +97,9 @@ sequenceDiagram
 
    BalanceAPI -->> User: 거래 내역 JSON 응답
    deactivate BalanceAPI
-```mermaid
-
-
 ```
+
+
 
 ### 상품
 
