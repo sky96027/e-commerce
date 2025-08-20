@@ -37,7 +37,7 @@ public class PopularProductRepositoryImpl implements PopularProductRepository {
             int sold = (int) Math.round(Optional.ofNullable(t.getScore()).orElse(0.0));
 
             list.add(new PopularProduct(
-                    0L,                              // id (스냅샷 미사용)
+                    0L,
                     productId,
                     sold,                            // totalSoldQuantity = score
                     rank++,                          // rank
