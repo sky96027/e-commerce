@@ -4,17 +4,20 @@ import kr.hhplus.be.server.coupon.application.dto.CouponPolicyDto;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
 import kr.hhplus.be.server.coupon.application.facade.CouponFacade;
+import kr.hhplus.be.server.coupon.application.usecase.EnqueueCouponIssueUseCase;
 import kr.hhplus.be.server.coupon.application.usecase.FindCouponPolicyUseCase;
 import kr.hhplus.be.server.coupon.application.usecase.FindUserCouponSummaryUseCase;
 import kr.hhplus.be.server.coupon.application.usecase.SaveUserCouponUseCase;
 import kr.hhplus.be.server.coupon.presentation.contract.CouponApiSpec;
 import kr.hhplus.be.server.coupon.presentation.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.presentation.dto.CouponResponse;
+import kr.hhplus.be.server.coupon.presentation.dto.EnqueueResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/coupon")
@@ -23,7 +26,7 @@ public class CouponController implements CouponApiSpec {
 
     private final FindUserCouponSummaryUseCase findUserCouponSummaryUseCase;
     private final SaveUserCouponUseCase saveUserCouponUseCase;
-    private final CouponFacade couponFacade;
+    private final EnqueueCouponIssueUseCase enqueueCouponIssueUseCase;
     private final FindCouponPolicyUseCase findCouponPolicyUseCase;
 
     /**
@@ -56,18 +59,19 @@ public class CouponController implements CouponApiSpec {
      */
     @PostMapping("/issue")
     @Override
-    public ResponseEntity<Void> issueCouponToUser(@RequestBody CouponRequest.IssueCouponRequest request) {
+    public ResponseEntity<EnqueueResult> issueCouponToUser(@RequestBody CouponRequest.IssueCouponRequest request) {
         SaveUserCouponCommand command = new SaveUserCouponCommand(
-                request.couponId(),
                 request.userId(),
+                request.couponId(),
                 request.policyId(),
                 request.typeSnapshot(),
                 request.discountRateSnapshot(),
                 request.usagePeriodSnapshot(),
                 request.expiredAt()
         );
-        couponFacade.issueToUser(command);
-        return ResponseEntity.ok().build();
+        String reservationId = enqueueCouponIssueUseCase.enqueue(command);
+
+        return ResponseEntity.accepted().body(new EnqueueResult(reservationId));
     }
 
     /**
