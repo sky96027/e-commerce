@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.application.service;
 
 import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
-import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeductStockService implements DeductStockUseCase {
     private final ProductOptionRepository repository;
     private final ApplicationEventPublisher eventPublisher;
-    private final StockCounter stockCounter; // 추가
+    private final StockCounter stockCounter;
 
     /**
      * 주어진 옵션 ID를 기반으로 옵션 정보를 조회하고, 차감한다.
