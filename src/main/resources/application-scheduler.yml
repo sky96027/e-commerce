@@ -1,0 +1,7 @@
+spring:
+  config:
+    activate:
+      on-profile: scheduler
+popular:
+  rank:
+    scheduler-enabled: true
