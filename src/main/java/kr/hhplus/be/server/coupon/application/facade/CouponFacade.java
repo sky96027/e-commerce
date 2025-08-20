@@ -3,6 +3,7 @@ package kr.hhplus.be.server.coupon.application.facade;
 import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.usecase.SaveUserCouponUseCase;
+import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +12,11 @@ import java.time.Duration;
 @Component
 @RequiredArgsConstructor
 public class CouponFacade {
-    private final RedisDistributedLockManager lockManager; // 이미 있는 매니저 사용
+    private final RedisDistributedLockManager lockManager;
     private final SaveUserCouponUseCase saveUserCouponUseCase;
+    private final CouponIssueRepository queueRepo;
 
-    public void issueToUser(SaveUserCouponCommand command) {
+    /*public void issueToUser(SaveUserCouponCommand command) {
         String key = "coupon:issue:" + command.couponId();
 
         // [PUB/SUB LOCK] 해제 알림 기반 블로킹 획득
@@ -30,6 +32,6 @@ public class CouponFacade {
         } finally {
             lockManager.unlock(key, token);
         }
-    }
+    }*/
 
 }
