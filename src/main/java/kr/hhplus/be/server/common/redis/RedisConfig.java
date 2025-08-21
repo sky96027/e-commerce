@@ -3,6 +3,7 @@ package kr.hhplus.be.server.common.redis;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -15,6 +16,7 @@ import io.lettuce.core.ReadFrom;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
 import java.time.Duration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Redis 연결 팩토리를 등록하고 스프링 캐시를 활성화하는 설정 클래스.
@@ -66,44 +68,6 @@ public class RedisConfig {
         return template;
     }
 
-    /**
-     * Spin 락 해제 스크립트:
-     * (1) 현재 키의 값이 전달받은 토큰과 같으면 DEL
-     * (2) 아니면 아무 것도 하지 않음
-     */
-    /*@Bean
-    public DefaultRedisScript<Long> unlockScript() {
-        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-        script.setResultType(Long.class);
-        script.setScriptText(
-                "if redis.call('get', KEYS[1]) == ARGV[1] then " +
-                        "  return redis.call('del', KEYS[1]) " +
-                        "else " +
-                        "  return 0 " +
-                        "end"
-        );
-        return script;
-    }*/
-
-    /** Pub/Sub 락 해제 스크립트:
-     * DEL + PUBLISH 원자화 스크립트
-     * */
-    @Bean
-    public DefaultRedisScript<Long> unlockAndPublishScript() {
-        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-        script.setResultType(Long.class);
-        script.setScriptText(
-                // KEYS[1]=lockKey, KEYS[2]=channel, ARGV[1]=token
-                "local v = redis.call('GET', KEYS[1]); " +
-                        "if v == ARGV[1] then " +
-                        "  redis.call('DEL', KEYS[1]); " +
-                        "  redis.call('PUBLISH', KEYS[2], ARGV[1]); " +
-                        "  return 1; " +
-                        "else return 0; end"
-        );
-        return script;
-    }
-
     /** Pub/Sub 구독 컨테이너 */
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory cf) {
@@ -111,4 +75,5 @@ public class RedisConfig {
         container.setConnectionFactory(cf);
         return container;
     }
+
 }

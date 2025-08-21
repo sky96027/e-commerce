@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.integration;
 
 import kr.hhplus.be.server.IntegrationTestBase;
-import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import kr.hhplus.be.server.product.application.service.DeductStockService;
 import kr.hhplus.be.server.product.application.service.AddStockService;
 import org.junit.jupiter.api.DisplayName;

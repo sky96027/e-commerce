@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.integration;
 
 import kr.hhplus.be.server.IntegrationTestBase;
-import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

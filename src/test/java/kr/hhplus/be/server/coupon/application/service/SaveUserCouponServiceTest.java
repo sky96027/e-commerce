@@ -9,6 +9,7 @@ import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
 import kr.hhplus.be.server.coupon.exception.CouponErrorCode;
+import kr.hhplus.be.server.coupon.infrastructure.redis.CouponIssueCounter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,13 +32,15 @@ class SaveUserCouponServiceTest {
     private CouponIssueRepository couponIssueRepository;
     @Mock
     private ApplicationEventPublisher publisher;
+    @Mock
+    private CouponIssueCounter counter;
     @InjectMocks
     private SaveUserCouponService saveUserCouponService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository, publisher);
+        saveUserCouponService = new SaveUserCouponService(userCouponRepository, couponIssueRepository, publisher, counter);
     }
 
     @Test
@@ -49,20 +52,17 @@ class SaveUserCouponServiceTest {
         );
         CouponIssue couponIssue = new CouponIssue(2L, 3L, 100, 10, LocalDateTime.now(), CouponIssueStatus.ISSUABLE, 10.0f, 30, CouponPolicyType.FIXED);
 
-        when(couponIssueRepository.findById(2L)).thenReturn(couponIssue);
-        doAnswer(invocation -> {
-            CouponIssue arg = invocation.getArgument(0);
-            assertThat(arg.getRemaining()).isEqualTo(9);
-            return null;
-        }).when(couponIssueRepository).save(any(CouponIssue.class));
+        when(couponIssueRepository.findRemainingById(2L)).thenReturn(java.util.Optional.of(10));
+        when(couponIssueRepository.decrementRemaining(2L)).thenReturn(1);
+        when(counter.getRemaining(2L)).thenReturn(-2L, 10L); // 첫 번째 호출은 -2L, 두 번째 호출은 10L
+        when(counter.tryDecrement(2L, 1)).thenReturn(9L);
 
         // when
         saveUserCouponService.save(command);
 
         // then
-        verify(couponIssueRepository, times(1)).findById(2L);
-        verify(couponIssueRepository, times(1)).save(any(CouponIssue.class));
-        //verify(couponIssueRepository, times(1)).updateRemaining(2L);
+        verify(couponIssueRepository, times(1)).findRemainingById(2L);
+        verify(couponIssueRepository, times(1)).decrementRemaining(2L);
         verify(userCouponRepository, times(1)).insertOrUpdate(any(UserCoupon.class));
     }
 
@@ -74,14 +74,16 @@ class SaveUserCouponServiceTest {
                 1L, 2L, 3L, CouponPolicyType.FIXED, 10.0f, 30, LocalDateTime.now().plusDays(30)
         );
         CouponIssue couponIssue = new CouponIssue(2L, 3L, 100, 0, LocalDateTime.now(), CouponIssueStatus.ISSUABLE, 10.0f, 30, CouponPolicyType.FIXED);
-        when(couponIssueRepository.findById(2L)).thenReturn(couponIssue);
+        when(couponIssueRepository.findRemainingById(2L)).thenReturn(java.util.Optional.of(0));
+        when(counter.getRemaining(2L)).thenReturn(-2L, 0L); // 첫 번째 호출은 -2L, 두 번째 호출은 0L
+        when(counter.tryDecrement(2L, 1)).thenReturn(-1L);
 
         // when & then
         assertThatThrownBy(() -> saveUserCouponService.save(command))
                 .isInstanceOf(RestApiException.class)
                 .hasFieldOrPropertyWithValue("errorCode", CouponErrorCode.COUPON_REMAINING_EMPTY_ERROR);
-        verify(couponIssueRepository, times(1)).findById(2L);
-        verify(couponIssueRepository, never()).save(any(CouponIssue.class));
+        verify(couponIssueRepository, times(1)).findRemainingById(2L);
+        verify(couponIssueRepository, never()).decrementRemaining(2L);
         verify(userCouponRepository, never()).insertOrUpdate(any(UserCoupon.class));
     }
-} 
+}
