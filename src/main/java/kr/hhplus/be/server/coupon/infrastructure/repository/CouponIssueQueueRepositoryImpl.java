@@ -17,8 +17,12 @@ import java.util.Set;
 public class CouponIssueQueueRepositoryImpl implements CouponIssueQueueRepository {
 
     private final StringRedisTemplate redis;
-    private final @Qualifier("enqueueLua") DefaultRedisScript<Long> enqueueLua;
-    private final @Qualifier("popIfPayloadExistsLua") DefaultRedisScript<String> popIfPayloadExistsLua;
+
+    @Qualifier("enqueueLua")
+    private final DefaultRedisScript<Long> enqueueLua;
+
+    @Qualifier("popIfPayloadExistsLua")
+    private final  DefaultRedisScript<String> popIfPayloadExistsLua;
 
     private String qKey(long couponId)  { return "coupon:issue:{" + couponId + "}:q"; }
     private String seqKey(long couponId) { return "coupon:issue:{" + couponId + "}:seq"; }

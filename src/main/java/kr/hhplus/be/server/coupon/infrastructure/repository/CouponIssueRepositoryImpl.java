@@ -47,6 +47,17 @@ public class CouponIssueRepositoryImpl implements CouponIssueRepository {
                 jpaRepository.save(mapper.toEntity(couponIssue))
         );
     }
+
+    @Override
+    public Optional<Integer> findRemainingById(long couponIssueId) {
+        return jpaRepository.findRemainingById(couponIssueId);
+    }
+
+    @Override
+    public int decrementRemaining(long couponIssueId) {
+        return jpaRepository.decrementRemaining(couponIssueId);
+    }
+
     // 비관적 락 (Legacy)
     /*@Override
     public CouponIssue findByIdForUpdate(long CouponIssueId) {
@@ -54,4 +65,6 @@ public class CouponIssueRepositoryImpl implements CouponIssueRepository {
                 .map(mapper::toDomain)
                 .orElse(null);
     }*/
+
+
 }

@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.common.redis.lock;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class RedisDistributedLockManager {
 
     private final StringRedisTemplate redis;
     /** unlock 시 DEL + PUBLISH 를 원자적으로 수행하는 스크립트 */
+    @Qualifier("unlockAndPublishScript")
     private final DefaultRedisScript<Long> unlockAndPublishScript;
 
     private final RedisPubSubWaitRegistry waitRegistry;
