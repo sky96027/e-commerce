@@ -12,7 +12,11 @@ public enum CouponErrorCode implements ErrorCode {
     COUPON_POLICY_NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, "해당 쿠폰 정책이 존재하지 않습니다."),
     USER_COUPON_NOT_FOUND_ERROR(HttpStatus.NOT_FOUND, "쿠폰을 찾을 수 없습니다."),
     COUPON_REMAINING_EMPTY_ERROR(HttpStatus.BAD_REQUEST, "쿠폰 잔량이 소진되었습니다."),
-    ENQUEUE_FAILED_ERROR(HttpStatus.BAD_REQUEST, "Enqueue 실패.");
+    ENQUEUE_FAILED_ERROR(HttpStatus.BAD_REQUEST, "Enqueue 실패."),
+    INVENTORY_NOT_INITIALIZED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "쿠폰 잔량이 초기화되지 않았습니다."),
+    COUPON_WRITE_THROUGH_FAILED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "쿠폰 잔량 DB 동기 반영에 실패했습니다.");
+
+
 
     private final HttpStatus httpStatus;
     private final String message;
