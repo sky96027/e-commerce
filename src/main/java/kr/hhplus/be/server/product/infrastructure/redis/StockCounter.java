@@ -1,10 +1,12 @@
-package kr.hhplus.be.server.common.redis.cache;
+package kr.hhplus.be.server.product.infrastructure.redis;
 
 import java.util.Collections;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,10 +21,12 @@ public class StockCounter {
     private final StringRedisTemplate redis;
 
     // 해시 모드
-    private final DefaultRedisScript<Long> stockDecrementHashScript;
+    @Qualifier("atomicHashDecrementIfEnoughScript")
+    private final RedisScript<Long> atomicHashDecrementIfEnoughScript;
 
-    // 단일 키 모드 (원하면 주입받아 사용)
-    private final DefaultRedisScript<Long> stockDecrementKeyScript;
+    // 단일 키 모드
+    @Qualifier("atomicHashDecrementIfEnoughScript")
+    private final RedisScript<Long> atomicKeyDecrementIfEnoughScript;
 
     // === 해시 모드 API ===
     private String hashKey(long productId) {
@@ -43,7 +47,7 @@ public class StockCounter {
      */
     public long tryDeductHash(long productId, long optionId, int qty) {
         Long r = redis.execute(
-                stockDecrementHashScript,
+                atomicHashDecrementIfEnoughScript,
                 Collections.singletonList(hashKey(productId)),
                 String.valueOf(optionId),
                 String.valueOf(qty)
@@ -74,7 +78,7 @@ public class StockCounter {
 
     public long tryDeductKey(long optionId, int qty) {
         Long r = redis.execute(
-                stockDecrementKeyScript,
+                atomicHashDecrementIfEnoughScript,
                 Collections.singletonList(singleKey(optionId)),
                 String.valueOf(qty)
         );

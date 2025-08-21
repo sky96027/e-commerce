@@ -21,3 +21,5 @@ spring:
 logging:
   level:
     org.hibernate.SQL: warn
+    org.springframework.beans.factory.support: DEBUG
+    org.springframework.context.annotation: TRACE

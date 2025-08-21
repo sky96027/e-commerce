@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.hhplus.be.server.coupon.presentation.dto.CouponRequest;
 import kr.hhplus.be.server.coupon.presentation.dto.CouponResponse;
+import kr.hhplus.be.server.coupon.presentation.dto.EnqueueResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,5 +18,5 @@ public interface CouponApiSpec {
     ResponseEntity<List<CouponResponse.GetUserCoupon>> getCouponsByUserId(@PathVariable long userId);
 
     @Operation(summary = "쿠폰 발급")
-    ResponseEntity<Void> issueCouponToUser(@RequestParam CouponRequest.IssueCouponRequest request);
+    ResponseEntity<EnqueueResult> issueCouponToUser(@RequestParam CouponRequest.IssueCouponRequest request);
 }

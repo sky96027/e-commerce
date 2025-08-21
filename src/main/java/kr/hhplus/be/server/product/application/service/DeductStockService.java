@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.application.service;
 
 import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
-import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeductStockService implements DeductStockUseCase {
     private final ProductOptionRepository repository;
     private final ApplicationEventPublisher eventPublisher;
-    private final StockCounter stockCounter; // 추가
+    private final StockCounter stockCounter;
 
     /**
      * 주어진 옵션 ID를 기반으로 옵션 정보를 조회하고, 차감한다.
@@ -42,23 +42,30 @@ public class DeductStockService implements DeductStockUseCase {
         
         // 상품 ID 조회
         ProductOption productOption = repository.findOptionByOptionId(optionId);
-        
         long productId = productOption.getProductId();
         
         // Redis에서 재고 차감 시도 (1차 소스)
         long remainingStock = stockCounter.tryDeductHash(productId, optionId, quantity);
-        
-        if (remainingStock == -1) {
-            // Redis 재고 부족 시 DB에서 재확인 및 차감
-            repository.decrementStock(optionId, quantity);
-            // DB 성공 시 Redis 재고 동기화
-            stockCounter.initStockHash(productId, optionId, repository.findOptionByOptionId(optionId).getStock());
-        } else {
-            // Redis에서 재고 차감 성공 시에도 DB 동기화
-            repository.decrementStock(optionId, quantity);
-//            if (!ok) {
-//                stockCounter.compensateHash(productId, optionId, quantity);
-//            }
+        boolean redisDecremented = (remainingStock != -1);
+
+
+        try {
+            if (!redisDecremented) {
+                // Redis 재고 부족 시 DB에서 재확인 및 차감
+                repository.decrementStock(optionId, quantity);
+                // DB 성공 시 Redis 재고 동기화
+                long fresh = repository.findOptionByOptionId(optionId).getStock();
+                stockCounter.initStockHash(productId, optionId, fresh);
+            } else {
+                // Redis 차감 성공 -> DB도 Write-Through
+                repository.decrementStock(optionId, quantity);
+            }
+        } catch (RuntimeException e) {
+            // 보상 코드
+            if (redisDecremented) {
+                stockCounter.compensateHash(productId, optionId, quantity);
+            }
+            throw e;
         }
         
         // 재고 변경 이벤트 발행

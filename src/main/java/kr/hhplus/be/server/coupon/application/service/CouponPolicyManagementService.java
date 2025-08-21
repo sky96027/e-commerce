@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.coupon.application.service;
 
 import kr.hhplus.be.server.common.redis.cache.events.CouponPolicyChangedEvent;
+import kr.hhplus.be.server.coupon.application.usecase.CouponPolicyManagementUseCase;
 import kr.hhplus.be.server.coupon.domain.model.CouponPolicy;
 import kr.hhplus.be.server.coupon.domain.repository.CouponPolicyRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
-public class CouponPolicyManagementService {
-    
+public class CouponPolicyManagementService implements CouponPolicyManagementUseCase {
+
     private final CouponPolicyRepository couponPolicyRepository;
     private final ApplicationEventPublisher eventPublisher;
-    
+
     /**
      * 쿠폰 정책 수정
      * 변경 후 CouponPolicyChangedEvent를 발행하여 관련 캐시를 무효화
@@ -26,10 +27,10 @@ public class CouponPolicyManagementService {
     @Transactional
     public CouponPolicy updateCouponPolicy(CouponPolicy couponPolicy) {
         CouponPolicy updatedPolicy = couponPolicyRepository.update(couponPolicy);
-        
+
         // 쿠폰 정책 변경 이벤트 발행 (트랜잭션 커밋 후 캐시 무효화)
         eventPublisher.publishEvent(new CouponPolicyChangedEvent(updatedPolicy.getPolicyId()));
-        
+
         return updatedPolicy;
     }
 }

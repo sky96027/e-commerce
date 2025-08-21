@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import kr.hhplus.be.server.common.redis.lock.RedisDistributedLockManager;
 
 import static org.mockito.Mockito.mock;

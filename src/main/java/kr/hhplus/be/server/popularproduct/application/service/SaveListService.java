@@ -2,6 +2,7 @@ package kr.hhplus.be.server.popularproduct.application.service;
 
 import kr.hhplus.be.server.popularproduct.application.usecase.SaveListUseCase;
 import kr.hhplus.be.server.popularproduct.domain.repository.PopularProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,16 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class SaveListService implements SaveListUseCase {
     private final PopularProductRepository repository;
 
-    public SaveListService(PopularProductRepository repository) {
-        this.repository = repository;
-    }
-
-    // 현재 미구현
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void replaceAll() {
         repository.replaceAll();
     }

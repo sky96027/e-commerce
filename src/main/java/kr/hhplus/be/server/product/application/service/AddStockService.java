@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.product.application.service;
 
 import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
-import kr.hhplus.be.server.common.redis.cache.StockCounter;
+import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import kr.hhplus.be.server.product.application.usecase.AddStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AddStockService implements AddStockUseCase {
     private final ProductOptionRepository repository;
     private final ApplicationEventPublisher eventPublisher;
-    private final StockCounter stockCounter; // 추가
+    private final StockCounter stockCounter;
 
     /**
      * 주어진 옵션 ID를 기반으로 옵션 정보를 조회하고, 증가한다.
@@ -35,21 +35,33 @@ public class AddStockService implements AddStockUseCase {
      * @param optionId 증가할 옵션 ID
      * @param quantity 증가량
      */
-    @Transactional(propagation = Propagation.REQUIRED)
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void addStock(long optionId, int quantity) {
         ProductOption.requirePositive(quantity);
         
         // 상품 ID 조회
         ProductOption productOption = repository.findOptionByOptionId(optionId);
-        
         long productId = productOption.getProductId();
-        
-        // Redis에서 재고 증가 (1차 소스)
-        stockCounter.compensateHash(productId, optionId, quantity);
-        
-        // DB에서도 재고 증가 (2차 소스)
-        repository.incrementStock(optionId, quantity);
+
+        boolean redisIncremented = false;
+
+        try {
+            // Redis에서 재고 증가 (1차 소스)
+            stockCounter.compensateHash(productId, optionId, quantity);
+            redisIncremented = true;
+
+            // DB에서도 재고 증가 (2차 소스)
+            repository.incrementStock(optionId, quantity);
+
+        } catch (RuntimeException e) {
+            // 보상 코드
+            if (redisIncremented) {
+                stockCounter.compensateHash(productId, optionId, -quantity);
+            }
+            throw e;
+        }
+
         
         // 재고 변경 이벤트 발행
         eventPublisher.publishEvent(new StockChangedEvent(
