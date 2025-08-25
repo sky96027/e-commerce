@@ -24,10 +24,6 @@ public class StockCounter {
     @Qualifier("atomicHashDecrementIfEnoughScript")
     private final RedisScript<Long> atomicHashDecrementIfEnoughScript;
 
-    // 단일 키 모드
-    @Qualifier("atomicHashDecrementIfEnoughScript")
-    private final RedisScript<Long> atomicKeyDecrementIfEnoughScript;
-
     // === 해시 모드 API ===
     private String hashKey(long productId) {
         return "stock:prod:" + productId;
