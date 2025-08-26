@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.common.cache;
+package kr.hhplus.be.server.common.redis.cache;
 
 public class CacheKeyUtil {
     private static final String GLOBAL_PREFIX = "cache:v1:";

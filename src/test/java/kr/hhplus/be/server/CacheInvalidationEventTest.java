@@ -1,6 +1,6 @@
 package kr.hhplus.be.server;
 
-import kr.hhplus.be.server.common.cache.events.*;
+import kr.hhplus.be.server.common.redis.cache.events.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

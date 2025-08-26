@@ -1,11 +1,10 @@
-package kr.hhplus.be.server.common.cache.invalidator;
+package kr.hhplus.be.server.common.redis.cache.invalidator;
 
-import kr.hhplus.be.server.common.cache.CacheKeyUtil;
-import kr.hhplus.be.server.common.cache.events.CouponPolicyChangedEvent;
-import kr.hhplus.be.server.common.cache.events.UserCouponChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.CacheKeyUtil;
+import kr.hhplus.be.server.common.redis.cache.events.CouponPolicyChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.events.UserCouponChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;

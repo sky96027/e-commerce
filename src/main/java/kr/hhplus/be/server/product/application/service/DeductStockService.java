@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.application.service;
 
-import kr.hhplus.be.server.common.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
 import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import kr.hhplus.be.server.product.application.usecase.DeductStockUseCase;
 import kr.hhplus.be.server.product.domain.model.ProductOption;

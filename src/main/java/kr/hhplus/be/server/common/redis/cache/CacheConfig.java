@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.common.cache;
+package kr.hhplus.be.server.common.redis.cache;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.coupon.application.service;
 
 import kr.hhplus.be.server.common.exception.RestApiException;
-import kr.hhplus.be.server.common.cache.events.UserCouponChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.events.UserCouponChangedEvent;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.usecase.SaveUserCouponUseCase;
 import kr.hhplus.be.server.coupon.domain.model.UserCoupon;
