@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.application.service;
 
-import kr.hhplus.be.server.common.redis.cache.CacheSingleFlight;
+import kr.hhplus.be.server.common.cache.CacheSingleFlight;
 import kr.hhplus.be.server.product.application.dto.ProductDto;
 import kr.hhplus.be.server.product.application.usecase.FindDetailUseCase;
 import kr.hhplus.be.server.product.domain.model.Product;

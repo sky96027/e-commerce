@@ -1,6 +1,6 @@
-package kr.hhplus.be.server.common.redis.cache.invalidator;
+package kr.hhplus.be.server.common.cache.invalidator;
 
-import kr.hhplus.be.server.common.redis.cache.events.TransactionOccurredEvent;
+import kr.hhplus.be.server.common.cache.events.TransactionOccurredEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
