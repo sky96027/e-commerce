@@ -63,11 +63,11 @@
 
 ### 구현
 
-**Redis Cache 설정 추가**
+**Spring Cache 설정 추가**
 
 https://github.com/sky96027/e-commerce/commit/4ce9e3c74535c77413004a489b390929221ad245
 
-**Redis Cache 관리 클래스, Cache 적용 대상 Invalidator, 캐시 무효화 event 추가**
+**Spring Cache 관리 클래스, Cache 적용 대상 Invalidator, 캐시 무효화 event 추가**
 
 https://github.com/sky96027/e-commerce/commit/9e4f55891eea2a8905c8f70843c84101fd7b0af3
 

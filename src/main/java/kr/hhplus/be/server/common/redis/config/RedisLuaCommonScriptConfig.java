@@ -18,6 +18,7 @@ public class RedisLuaCommonScriptConfig {
 
     /** 해시 기반 원자적 감소: KEYS[1]=stock:prod:{productId}, ARGV[1]=field(optionId 등), ARGV[2]=qty */
     @Bean
+    @Primary
     public RedisScript<Long> atomicHashDecrementIfEnoughScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setLocation(new ClassPathResource("redis/scripts/atomic-hash-decrement.lua"));
