@@ -26,6 +26,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -62,6 +63,9 @@ public class ProductFindIntegrationTest extends IntegrationTestBase {
     @Autowired
     private ProductOptionJpaRepository productOptionJpaRepository;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     private Product savedProduct;
     private ProductOption savedOption1;
     private ProductOption savedOption2;
@@ -70,6 +74,8 @@ public class ProductFindIntegrationTest extends IntegrationTestBase {
     void setUp() {
         // 테스트 데이터 생성
         createTestData();
+        // Cache 초기화
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
     }
 
     private void createTestData() {

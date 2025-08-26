@@ -1,14 +1,18 @@
 package kr.hhplus.be.server.order.application.service;
 
+import kr.hhplus.be.server.common.cache.CacheKeyUtil;
 import kr.hhplus.be.server.order.application.dto.OrderDto;
 import kr.hhplus.be.server.order.application.usecase.FindOrderByOrderIdUseCase;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderItem;
 import kr.hhplus.be.server.order.domain.repository.OrderItemRepository;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -22,18 +26,12 @@ import java.util.List;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class FindOrderByOrderIdService implements FindOrderByOrderIdUseCase {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-
-    public FindOrderByOrderIdService(
-            OrderRepository orderRepository,
-            OrderItemRepository orderItemRepository
-    ) {
-        this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
-    }
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 주어진 주문 ID를 기반으로 주문 및 주문 항목 정보를 조회하고, DTO로 변환하여 반환한다.
@@ -41,11 +39,20 @@ public class FindOrderByOrderIdService implements FindOrderByOrderIdUseCase {
      * @return 주문 정보를 담은 OrderDto
      */
     @Override
-    @Cacheable(cacheNames = "order:summary", key = "#orderId")
     public OrderDto findById(long orderId) {
+        String key = CacheKeyUtil.orderSummaryKey(orderId);
+
+        OrderDto cached = (OrderDto) redisTemplate.opsForValue().get(key);
+        if (cached != null) {
+            return cached;
+        }
+
         Order order = orderRepository.findById(orderId);
         List<OrderItem> items = orderItemRepository.findAllByOrderId(orderId);
+        OrderDto dto = OrderDto.from(order, items);
 
-        return OrderDto.from(order, items);
+        redisTemplate.opsForValue().set(key, dto, Duration.ofMinutes(2));
+
+        return dto;
     }
 }
