@@ -9,6 +9,7 @@ import kr.hhplus.be.server.order.application.usecase.FindOrderByOrderIdUseCase;
 import kr.hhplus.be.server.order.application.usecase.FindOrderItemByOrderIdUseCase;
 import kr.hhplus.be.server.order.domain.type.OrderStatus;
 import kr.hhplus.be.server.payment.application.dto.SavePaymentCommand;
+import kr.hhplus.be.server.payment.application.event.PaymentCompletedEvent;
 import kr.hhplus.be.server.payment.application.usecase.SavePaymentUseCase;
 import kr.hhplus.be.server.payment.domain.type.PaymentStatus;
 import kr.hhplus.be.server.product.application.facade.ProductFacade; // ★ 사용
@@ -20,6 +21,7 @@ import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
 import kr.hhplus.be.server.user.application.usecase.DeductUserBalanceUseCase;
 import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,7 +43,9 @@ public class PaymentFacade {
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;
     private final FindOrderByOrderIdUseCase findOrderByOrderIdUseCase;
     private final FindOrderItemByOrderIdUseCase findOrderItemByOrderIdUseCase;
-    private final ProductFacade productFacade; // ★ 주입
+    private final ProductFacade productFacade;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     // @Transactional 제거 → 각 도메인 서비스(@Transactional) 단위 커밋 + 보상 로직 유효
     public long processPayment(long orderId) {
@@ -49,6 +53,7 @@ public class PaymentFacade {
         OrderDto order = null;
         long totalAmount = 0L;
         long paymentId;
+
         boolean stockDeducted = false;
         boolean balanceDeducted = false;
         List<Long> usedCouponIds = new ArrayList<>();
@@ -57,21 +62,14 @@ public class PaymentFacade {
             // 1. 주문 조회
             order = findOrderByOrderIdUseCase.findById(orderId);
             orderItems = findOrderItemByOrderIdUseCase.findByOrderId(orderId);
-
-            // 2. 잔액 확인
-            UserDto user = findUserUseCase.findById(order.userId());
             totalAmount = order.totalAmount();
-            if (user.balance() < totalAmount) {
-                throw new IllegalStateException("잔액 부족");
-            }
 
-            // 3. 재고 차감 (옵션별 직렬화: Pub/Sub 락은 ProductFacade 내부, 정렬해서 deadlock 방지)
+            // 2. 재고 차감
             Map<Long, Integer> qtyByOption = new HashMap<>();
             for (OrderItemDto item : orderItems) {
                 qtyByOption.merge(item.optionId(), item.quantity(), Integer::sum); // 중복 옵션 합치기
             }
-
-            // 순서: optionId 오름차순
+            // 순서: optionId 오름차순, deadLock 방지
             List<Map.Entry<Long, Integer>> sorted = new ArrayList<>(qtyByOption.entrySet());
             sorted.sort(Map.Entry.comparingByKey());
 
@@ -80,14 +78,11 @@ public class PaymentFacade {
             }
             stockDeducted = true;
 
-            // 4. 잔액 차감
+            // 3. 잔액 차감
             deductUserBalanceUseCase.deduct(order.userId(), totalAmount);
             balanceDeducted = true;
 
-            // 5. 거래내역 저장
-            saveTransactionUseCase.save(order.userId(), TransactionType.USE, totalAmount);
-
-            // 6. 쿠폰 상태 변경
+            // 4. 쿠폰 상태 변경
             for (OrderItemDto item : orderItems) {
                 if (item.userCouponId() != null) {
                     changeUserCouponStatusUseCase.changeStatus(item.userCouponId(), UserCouponStatus.USED);
@@ -95,10 +90,10 @@ public class PaymentFacade {
                 }
             }
 
-            // 7. 주문 상태 업데이트
+            // 5. 주문 상태 업데이트
             changeOrderStatusUseCase.changeStatus(orderId, OrderStatus.AFTER_PAYMENT);
 
-            // 8. 결제 내역 저장
+            // 6. 결제 내역 저장
             paymentId = savePaymentUseCase.save(new SavePaymentCommand(
                     order.orderId(),
                     order.userId(),
@@ -106,6 +101,10 @@ public class PaymentFacade {
                     order.totalDiscountAmount(),
                     PaymentStatus.AFTER_PAYMENT
             ));
+
+            eventPublisher.publishEvent(
+                    new PaymentCompletedEvent(order.userId(), paymentId, totalAmount)
+            );
 
             return paymentId;
 
