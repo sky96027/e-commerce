@@ -3,6 +3,7 @@ package kr.hhplus.be.server.popularproduct.infrastructure.redis;
 import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -18,6 +19,7 @@ public class PopularityCollector {
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onStockChanged(StockChangedEvent e) {
         if (!StockChangedEvent.DEDUCT.equals(e.changeType())) return; // 판매만 집계
