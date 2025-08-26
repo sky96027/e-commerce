@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.common.redis.cache;
+package kr.hhplus.be.server.common.cache;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;

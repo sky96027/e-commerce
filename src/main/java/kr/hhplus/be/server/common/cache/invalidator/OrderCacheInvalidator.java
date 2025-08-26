@@ -1,6 +1,6 @@
-package kr.hhplus.be.server.common.redis.cache.invalidator;
+package kr.hhplus.be.server.common.cache.invalidator;
 
-import kr.hhplus.be.server.common.redis.cache.events.OrderStatusChangedEvent;
+import kr.hhplus.be.server.common.cache.events.OrderStatusChangedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;

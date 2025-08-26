@@ -1,8 +1,7 @@
 package kr.hhplus.be.server.popularproduct.infrastructure.redis;
 
-import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.common.cache.events.StockChangedEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
