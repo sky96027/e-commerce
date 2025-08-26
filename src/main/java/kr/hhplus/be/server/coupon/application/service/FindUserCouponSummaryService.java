@@ -1,11 +1,16 @@
 package kr.hhplus.be.server.coupon.application.service;
 
+import kr.hhplus.be.server.common.cache.CacheKeyUtil;
 import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
 import kr.hhplus.be.server.coupon.application.usecase.FindUserCouponSummaryUseCase;
 import kr.hhplus.be.server.coupon.domain.repository.UserCouponRepository;
+import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,13 +25,11 @@ import java.util.stream.Collectors;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class FindUserCouponSummaryService implements FindUserCouponSummaryUseCase {
 
     private final UserCouponRepository userCouponRepository;
-
-    public FindUserCouponSummaryService(UserCouponRepository userCouponRepository) {
-        this.userCouponRepository = userCouponRepository;
-    }
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 전체 쿠폰 목록을 조회하여 DTO 리스트로 변환한다.
@@ -34,10 +37,20 @@ public class FindUserCouponSummaryService implements FindUserCouponSummaryUseCas
      * @return 쿠폰 DTO 목록
      */
     @Override
-    @Cacheable(cacheNames = "coupon:userSummary", key = "#userId")
     public List<UserCouponDto> findSummary(long userId) {
-        return userCouponRepository.findByUserId(userId).stream()
+        String key = CacheKeyUtil.couponUserSummaryKey(userId);
+
+        List<UserCouponDto> cached = (List<UserCouponDto>) redisTemplate.opsForValue().get(key);
+        if (cached != null && !cached.isEmpty()) {
+            return cached;
+        }
+
+        List<UserCouponDto> coupons = userCouponRepository.findByUserId(userId).stream()
                 .map(UserCouponDto::from)
                 .collect(Collectors.toList());
+
+        redisTemplate.opsForValue().set(key, coupons, Duration.ofMinutes(10));
+
+        return coupons;
     }
 }

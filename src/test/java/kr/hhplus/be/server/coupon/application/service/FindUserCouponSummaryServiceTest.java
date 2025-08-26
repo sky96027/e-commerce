@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -22,13 +24,18 @@ import static org.mockito.Mockito.when;
 class FindUserCouponSummaryServiceTest {
     @Mock
     private UserCouponRepository userCouponRepository;
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOps;
     @InjectMocks
     private FindUserCouponSummaryService findUserCouponSummaryService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        findUserCouponSummaryService = new FindUserCouponSummaryService(userCouponRepository);
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        findUserCouponSummaryService = new FindUserCouponSummaryService(userCouponRepository, redisTemplate);
     }
 
     @Test

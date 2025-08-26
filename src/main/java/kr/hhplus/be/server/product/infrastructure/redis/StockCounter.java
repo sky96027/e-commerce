@@ -2,6 +2,7 @@ package kr.hhplus.be.server.product.infrastructure.redis;
 
 import java.util.Collections;
 
+import kr.hhplus.be.server.common.cache.CacheKeyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -11,8 +12,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Redis를 1차 소스로 사용하는 재고 카운터
- * - 권장 운용: "상품별 해시" (한 키 안에서 다옵션 원자 처리)
- * - 필요 시 "옵션별 단일 키" 모드도 지원
  */
 @Component
 @RequiredArgsConstructor
@@ -24,13 +23,9 @@ public class StockCounter {
     @Qualifier("atomicHashDecrementIfEnoughScript")
     private final RedisScript<Long> atomicHashDecrementIfEnoughScript;
 
-    // 단일 키 모드
-    @Qualifier("atomicHashDecrementIfEnoughScript")
-    private final RedisScript<Long> atomicKeyDecrementIfEnoughScript;
-
     // === 해시 모드 API ===
     private String hashKey(long productId) {
-        return "stock:prod:" + productId;
+        return CacheKeyUtil.stockHashKey(productId);
     }
 
     public void initStockHash(long productId, long optionId, long qty) {
@@ -60,32 +55,5 @@ public class StockCounter {
      */
     public void compensateHash(long productId, long optionId, int qty) {
         redis.opsForHash().increment(hashKey(productId), String.valueOf(optionId), qty);
-    }
-
-    // === 단일 키 모드 API (선택) ===
-    private String singleKey(long optionId) {
-        return "stock:" + optionId;
-    }
-
-    public void initStockKey(long optionId, long qty) {
-        redis.opsForValue().set(singleKey(optionId), String.valueOf(qty));
-    }
-
-    public long getStockKey(long optionId) {
-        String v = redis.opsForValue().get(singleKey(optionId));
-        return v == null ? 0L : Long.parseLong(v);
-    }
-
-    public long tryDeductKey(long optionId, int qty) {
-        Long r = redis.execute(
-                atomicHashDecrementIfEnoughScript,
-                Collections.singletonList(singleKey(optionId)),
-                String.valueOf(qty)
-        );
-        return r == null ? -1 : r;
-    }
-
-    public void compensateKey(long optionId, int qty) {
-        redis.opsForValue().increment(singleKey(optionId), qty);
     }
 }

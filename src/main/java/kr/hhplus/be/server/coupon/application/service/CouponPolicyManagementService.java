@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.coupon.application.service;
 
-import kr.hhplus.be.server.common.redis.cache.events.CouponPolicyChangedEvent;
+import kr.hhplus.be.server.common.cache.events.CouponPolicyChangedEvent;
 import kr.hhplus.be.server.coupon.application.usecase.CouponPolicyManagementUseCase;
 import kr.hhplus.be.server.coupon.domain.model.CouponPolicy;
 import kr.hhplus.be.server.coupon.domain.repository.CouponPolicyRepository;

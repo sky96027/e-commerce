@@ -6,6 +6,7 @@ import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import kr.hhplus.be.server.product.domain.type.ProductStatus;
 import kr.hhplus.be.server.product.exception.ProductErrorCode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,8 @@ import static org.mockito.Mockito.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 @ExtendWith(MockitoExtension.class)
 class FindDetailServiceTest {
@@ -25,8 +28,18 @@ class FindDetailServiceTest {
     @Mock
     ProductRepository productRepository;
 
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOps;
+
     @InjectMocks
     FindDetailService findDetailService;
+
+    @BeforeEach
+    void setup() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+    }
 
     @Test
     @DisplayName("상품 ID로 상세 조회 성공")
