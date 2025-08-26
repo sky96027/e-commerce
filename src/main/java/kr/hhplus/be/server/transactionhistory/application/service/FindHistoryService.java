@@ -1,15 +1,22 @@
 package kr.hhplus.be.server.transactionhistory.application.service;
 
 import jakarta.annotation.PostConstruct;
+import kr.hhplus.be.server.common.cache.CacheKeyUtil;
+import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
+import kr.hhplus.be.server.order.application.dto.OrderDto;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
 import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * [UseCase 구현체]
@@ -21,24 +28,27 @@ import java.util.List;
  * 이 클래스는 오직 "거래 내역 조회"라는 하나의 유스케이스만 책임지며,
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
-@Slf4j
 @Service
+@RequiredArgsConstructor
 public class FindHistoryService implements FindHistoryUseCase {
     private final TransactionHistoryRepository repository;
-
-    public FindHistoryService(TransactionHistoryRepository repository) {
-        this.repository = repository;
-    }
-
-    @PostConstruct
-    void checkProxy() {
-        log.info("FindHistoryService bean = {}", this.getClass());
-    }
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    @Cacheable(cacheNames = "tx:recent", key = "'u:' + #p0")
     public List<TransactionHistoryDto> findAllByUserId(long userId) {
-        List<TransactionHistory> history = repository.findAllByUserId(userId);
-        return TransactionHistoryDto.fromList(history);
+        String key = CacheKeyUtil.transactionRecentKey(userId);
+
+        List<TransactionHistoryDto> cached = (List<TransactionHistoryDto>) redisTemplate.opsForValue().get(key);
+        if (cached != null) {
+            return cached;
+        }
+
+        List<TransactionHistoryDto> histories = repository.findAllByUserId(userId).stream()
+                .map(TransactionHistoryDto::from)
+                .collect(Collectors.toList());
+
+        redisTemplate.opsForValue().set(key, histories, Duration.ofMinutes(10));
+
+        return histories;
     }
 }

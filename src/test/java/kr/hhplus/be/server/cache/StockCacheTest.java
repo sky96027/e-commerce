@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.cache;
 
 import kr.hhplus.be.server.IntegrationTestBase;
+import kr.hhplus.be.server.common.cache.CacheKeyUtil;
 import kr.hhplus.be.server.product.infrastructure.redis.StockCounter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ public class StockCacheTest extends IntegrationTestBase {
         stockCounter.initStockHash(productId, optionId, initialStock);
 
         // then - Redis에 해시가 생성되었는지 확인
-        String hashKey = "stock:prod:" + productId;
+        String hashKey = CacheKeyUtil.stockHashKey(productId);
         Object stockValue = redisTemplate.opsForHash().get(hashKey, String.valueOf(optionId));
         
         assertThat(stockValue).isNotNull();
@@ -134,8 +135,8 @@ public class StockCacheTest extends IntegrationTestBase {
         assertThat(retrievedStock2).isEqualTo(stock2);
 
         // Redis 해시 구조 확인
-        String hashKey = "stock:prod:" + productId;
+        String hashKey = CacheKeyUtil.stockHashKey(productId);
         Long hashSize = redisTemplate.opsForHash().size(hashKey);
-        assertThat(hashSize).isEqualTo(3L); // 2개 + 1(1개가 테스트 시 계속 추가됨 잡아야함)의 옵션
+        assertThat(hashSize).isEqualTo(2L);
     }
 }

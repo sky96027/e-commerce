@@ -1,11 +1,15 @@
 package kr.hhplus.be.server.product.application.service;
 
+import kr.hhplus.be.server.common.cache.CacheKeyUtil;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
 import kr.hhplus.be.server.product.application.usecase.FindProductOptionsUseCase;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,13 +24,11 @@ import java.util.stream.Collectors;
  * 단일 책임 원칙(SRP)을 따르는 구조로 확장성과 테스트 용이성을 높인다.
  */
 @Service
+@RequiredArgsConstructor
 public class FindProductOptionsService implements FindProductOptionsUseCase {
 
     private final ProductOptionRepository productOptionRepository;
-
-    public FindProductOptionsService(ProductOptionRepository productOptionRepository) {
-        this.productOptionRepository = productOptionRepository;
-    }
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 상품 ID를 기반으로 해당 상품의 옵션들을 조회하여 DTO 리스트로 반환한다.
@@ -34,10 +36,20 @@ public class FindProductOptionsService implements FindProductOptionsUseCase {
      * @return 상품 옵션 DTO 목록
      */
     @Override
-    @Cacheable(cacheNames = "product:options", key = "#productId")
     public List<ProductOptionDto> findByProductId(long productId) {
-        return productOptionRepository.findOptionsByProductId(productId).stream()
-                .map(ProductOptionDto::from)  // domain → dto
+        String key = CacheKeyUtil.productOptionsKey(productId);
+
+        List<ProductOptionDto> cached = (List<ProductOptionDto>) redisTemplate.opsForValue().get(key);
+        if (cached != null && !cached.isEmpty()) {
+            return cached;
+        }
+
+        List<ProductOptionDto> options = productOptionRepository.findOptionsByProductId(productId).stream()
+                .map(ProductOptionDto::from)
                 .collect(Collectors.toList());
+
+        redisTemplate.opsForValue().set(key, options, Duration.ofMinutes(10));
+
+        return options;
     }
 }

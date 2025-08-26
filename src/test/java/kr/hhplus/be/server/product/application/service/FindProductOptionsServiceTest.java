@@ -4,6 +4,7 @@ import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
 import kr.hhplus.be.server.product.domain.model.ProductOption;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import kr.hhplus.be.server.product.domain.type.ProductOptionStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 @ExtendWith(MockitoExtension.class)
 class FindProductOptionsServiceTest {
@@ -24,8 +27,18 @@ class FindProductOptionsServiceTest {
     @Mock
     ProductOptionRepository productOptionRepository;
 
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOps;
+
     @InjectMocks
     FindProductOptionsService findProductOptionsService;
+
+    @BeforeEach
+    void setup() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+    }
 
     @Test
     @DisplayName("상품 ID로 옵션 목록 조회 성공")

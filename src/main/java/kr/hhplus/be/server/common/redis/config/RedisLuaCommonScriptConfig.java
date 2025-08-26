@@ -16,25 +16,12 @@ import org.springframework.data.redis.core.script.RedisScript;
 @Configuration
 public class RedisLuaCommonScriptConfig {
 
-    /** 해시 기반 원자적 감소: KEYS[1]=stock:prod:{productId}, ARGV[1]=field(optionId 등), ARGV[2]=qty */
-    // Primary는 atomicHashDecrementIfEnoughScript가 어디서 중복생성되는지 찾은 후에 제거
-    // Primary 사용은 최대한 지양해야함
+    /** 해시 기반 원자적 감소: KEYS[1]=stock:product:{productId}, ARGV[1]=field(optionId 등), ARGV[2]=qty */
     @Bean
     @Primary
     public RedisScript<Long> atomicHashDecrementIfEnoughScript() {
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setLocation(new ClassPathResource("redis/scripts/atomic-hash-decrement.lua"));
-        script.setResultType(Long.class);
-        return script;
-    }
-
-
-
-    /** 단일 키 기반 원자적 감소: KEYS[1]=stock:{optionId}, ARGV[1]=qty */
-    @Bean
-    public RedisScript<Long> atomicKeyDecrementIfEnoughScript() {
-        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-        script.setLocation(new ClassPathResource("redis/scripts/atomic-key-decrement.lua"));
         script.setResultType(Long.class);
         return script;
     }

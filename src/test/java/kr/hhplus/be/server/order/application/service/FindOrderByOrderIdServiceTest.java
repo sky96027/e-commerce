@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,13 +26,18 @@ class FindOrderByOrderIdServiceTest {
     private OrderRepository orderRepository;
     @Mock
     private OrderItemRepository orderItemRepository;
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
+    @Mock
+    private ValueOperations<String, Object> valueOps;
     @InjectMocks
     private FindOrderByOrderIdService findOrderByOrderIdService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        findOrderByOrderIdService = new FindOrderByOrderIdService(orderRepository, orderItemRepository);
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        findOrderByOrderIdService = new FindOrderByOrderIdService(orderRepository, orderItemRepository, redisTemplate);
     }
 
     @Test
