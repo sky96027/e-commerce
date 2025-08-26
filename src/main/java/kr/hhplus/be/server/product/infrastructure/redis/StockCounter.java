@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 
 /**
  * Redis를 1차 소스로 사용하는 재고 카운터
- * - 권장 운용: "상품별 해시" (한 키 안에서 다옵션 원자 처리)
- * - 필요 시 "옵션별 단일 키" 모드도 지원
  */
 @Component
 @RequiredArgsConstructor
