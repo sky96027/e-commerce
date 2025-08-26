@@ -2,6 +2,7 @@ package kr.hhplus.be.server.product.infrastructure.redis;
 
 import java.util.Collections;
 
+import kr.hhplus.be.server.common.cache.CacheKeyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,7 +25,7 @@ public class StockCounter {
 
     // === 해시 모드 API ===
     private String hashKey(long productId) {
-        return "stock:prod:" + productId;
+        return CacheKeyUtil.stockHashKey(productId);
     }
 
     public void initStockHash(long productId, long optionId, long qty) {
@@ -54,32 +55,5 @@ public class StockCounter {
      */
     public void compensateHash(long productId, long optionId, int qty) {
         redis.opsForHash().increment(hashKey(productId), String.valueOf(optionId), qty);
-    }
-
-    // === 단일 키 모드 API (선택) ===
-    private String singleKey(long optionId) {
-        return "stock:" + optionId;
-    }
-
-    public void initStockKey(long optionId, long qty) {
-        redis.opsForValue().set(singleKey(optionId), String.valueOf(qty));
-    }
-
-    public long getStockKey(long optionId) {
-        String v = redis.opsForValue().get(singleKey(optionId));
-        return v == null ? 0L : Long.parseLong(v);
-    }
-
-    public long tryDeductKey(long optionId, int qty) {
-        Long r = redis.execute(
-                atomicHashDecrementIfEnoughScript,
-                Collections.singletonList(singleKey(optionId)),
-                String.valueOf(qty)
-        );
-        return r == null ? -1 : r;
-    }
-
-    public void compensateKey(long optionId, int qty) {
-        redis.opsForValue().increment(singleKey(optionId), qty);
     }
 }
