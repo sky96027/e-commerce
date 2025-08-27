@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.common.cache.events;
+package kr.hhplus.be.server.common.redis.cache.events;
 
 /**
  * 재고 변경을 알리는 이벤트

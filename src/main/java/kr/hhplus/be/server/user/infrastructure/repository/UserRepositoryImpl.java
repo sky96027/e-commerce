@@ -52,19 +52,24 @@ public class UserRepositoryImpl implements UserRepository {
         User.requirePositive(amount); // 입력 검증(도메인 규칙)
         int updated = jpaRepository.incrementBalance(userId, amount);
         if (updated != 1) {
-            // 사용자 미존재 또는 동시성 이슈(비정상) — 일단 not found로 통일
             throw new RestApiException(UserErrorCode.USER_NOT_FOUND_ERROR);
         }
     }
 
     @Override
     public void deduct(long userId, long amount) {
-        User.requirePositive(amount); // 입력 검증
+        User.requirePositive(amount);
         int updated = jpaRepository.decrementBalanceIfEnough(userId, amount);
-        if (updated != 1) {
-            // 사용자 미존재 또는 동시성 이슈(비정상) — 일단 not found로 통일
+
+        if (updated == 1) {
+            return;
+        }
+
+        boolean exists = jpaRepository.existsById(userId);
+        if (!exists) {
             throw new RestApiException(UserErrorCode.USER_NOT_FOUND_ERROR);
         }
+        throw new RestApiException(UserErrorCode.NOT_ENOUGH_BALANCE_ERROR);
     }
 
 

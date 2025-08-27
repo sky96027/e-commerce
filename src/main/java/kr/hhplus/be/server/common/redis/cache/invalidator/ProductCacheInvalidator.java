@@ -1,13 +1,13 @@
-package kr.hhplus.be.server.common.cache.invalidator;
+package kr.hhplus.be.server.common.redis.cache.invalidator;
 
-import kr.hhplus.be.server.common.cache.CacheKeyUtil;
-import kr.hhplus.be.server.common.cache.events.ProductOptionsChangedEvent;
-import kr.hhplus.be.server.common.cache.events.ProductUpdatedEvent;
-import kr.hhplus.be.server.common.cache.events.StockChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.CacheKeyUtil;
+import kr.hhplus.be.server.common.redis.cache.events.ProductOptionsChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.events.ProductUpdatedEvent;
+import kr.hhplus.be.server.common.redis.cache.events.StockChangedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -19,6 +19,7 @@ public class ProductCacheInvalidator {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onProductUpdated(ProductUpdatedEvent e) {
         String key = CacheKeyUtil.productDetailKey(e.productId());
@@ -26,6 +27,7 @@ public class ProductCacheInvalidator {
         log.debug("상품 상세 캐시 무효화 - key={}", key);
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onProductOptionsChanged(ProductOptionsChangedEvent e) {
         String key = CacheKeyUtil.productOptionsKey(e.productId());

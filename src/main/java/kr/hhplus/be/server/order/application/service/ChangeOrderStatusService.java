@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.order.application.service;
 
-import kr.hhplus.be.server.common.cache.events.OrderStatusChangedEvent;
+import kr.hhplus.be.server.common.redis.cache.events.OrderStatusChangedEvent;
 import kr.hhplus.be.server.order.application.dto.OrderDto;
 import kr.hhplus.be.server.order.application.usecase.ChangeOrderStatusUseCase;
 import kr.hhplus.be.server.order.domain.model.Order;

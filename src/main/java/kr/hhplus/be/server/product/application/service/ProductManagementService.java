@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.product.application.service;
 
-import kr.hhplus.be.server.common.cache.events.ProductUpdatedEvent;
+import kr.hhplus.be.server.common.redis.cache.events.ProductUpdatedEvent;
 import kr.hhplus.be.server.product.domain.model.Product;
 import kr.hhplus.be.server.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
