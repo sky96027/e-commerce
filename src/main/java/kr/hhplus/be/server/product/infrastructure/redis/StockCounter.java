@@ -2,11 +2,10 @@ package kr.hhplus.be.server.product.infrastructure.redis;
 
 import java.util.Collections;
 
-import kr.hhplus.be.server.common.cache.CacheKeyUtil;
+import kr.hhplus.be.server.common.redis.cache.CacheKeyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 

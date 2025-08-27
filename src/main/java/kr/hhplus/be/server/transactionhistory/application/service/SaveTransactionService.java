@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.transactionhistory.application.service;
 
-import kr.hhplus.be.server.common.cache.events.TransactionOccurredEvent;
+import kr.hhplus.be.server.common.redis.cache.events.TransactionOccurredEvent;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
 import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;

@@ -1,11 +1,10 @@
 package kr.hhplus.be.server.product.application.service;
 
-import kr.hhplus.be.server.common.cache.CacheKeyUtil;
+import kr.hhplus.be.server.common.redis.cache.CacheKeyUtil;
 import kr.hhplus.be.server.product.application.dto.ProductOptionDto;
 import kr.hhplus.be.server.product.application.usecase.FindProductOptionsUseCase;
 import kr.hhplus.be.server.product.domain.repository.ProductOptionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

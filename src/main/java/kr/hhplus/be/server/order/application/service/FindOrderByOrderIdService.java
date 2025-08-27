@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.order.application.service;
 
-import kr.hhplus.be.server.common.cache.CacheKeyUtil;
+import kr.hhplus.be.server.common.redis.cache.CacheKeyUtil;
 import kr.hhplus.be.server.order.application.dto.OrderDto;
 import kr.hhplus.be.server.order.application.usecase.FindOrderByOrderIdUseCase;
 import kr.hhplus.be.server.order.domain.model.Order;
@@ -8,7 +8,6 @@ import kr.hhplus.be.server.order.domain.model.OrderItem;
 import kr.hhplus.be.server.order.domain.repository.OrderItemRepository;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 

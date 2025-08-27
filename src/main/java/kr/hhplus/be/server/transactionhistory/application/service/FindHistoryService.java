@@ -1,16 +1,10 @@
 package kr.hhplus.be.server.transactionhistory.application.service;
 
-import jakarta.annotation.PostConstruct;
-import kr.hhplus.be.server.common.cache.CacheKeyUtil;
-import kr.hhplus.be.server.coupon.application.dto.UserCouponDto;
-import kr.hhplus.be.server.order.application.dto.OrderDto;
+import kr.hhplus.be.server.common.redis.cache.CacheKeyUtil;
 import kr.hhplus.be.server.transactionhistory.application.dto.TransactionHistoryDto;
 import kr.hhplus.be.server.transactionhistory.application.usecase.FindHistoryUseCase;
-import kr.hhplus.be.server.transactionhistory.domain.model.TransactionHistory;
 import kr.hhplus.be.server.transactionhistory.domain.repository.TransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
