@@ -1,0 +1,11 @@
+services:
+  redis:
+    image: ${REDIS_IMAGE}
+    ports:
+      - "${REDIS_HOST_PORT}:6379"
+    command: ["sh","-lc","redis-server --appendonly ${REDIS_AOF}"]
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

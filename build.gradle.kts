@@ -56,6 +56,10 @@ dependencies {
 	// Redis
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation ("org.springframework.boot:spring-boot-starter-cache")
+
+	// Kafka
+	implementation ("org.springframework.boot:spring-boot-starter")
+	implementation ("org.springframework.kafka:spring-kafka")
 }
 
 dockerCompose {

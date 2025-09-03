@@ -1,35 +1,118 @@
-version: '3'
-services:
-  mysql:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_USER=application
-      - MYSQL_PASSWORD=application
-      - MYSQL_DATABASE=hhplus
-    volumes:
-      # - ./data/mysql/:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d
-
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "application", "-papplication" ]
-      timeout: 20s
-      retries: 10
-      interval: 10s
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-
-volumes:
-  redis_data:
-
 networks:
   default:
     driver: bridge
+  infra-net:
+    external: true
+
+volumes:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  kafka-1-data:
+  kafka-2-data:
+  kafka-3-data:
+
+services:
+  # MySQL
+  mysql:
+    extends:
+      file: ./infra/mysql/compose.yml
+      service: mysql
+
+  # Redis
+  redis:
+    extends:
+      file: ./infra/redis/compose.yml
+      service: redis
+
+  # Kafka brokers
+  kafka-1:
+    extends:
+      file: ./infra/kafka/compose.yml
+      service: kafka-1
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "kafka-1:29092", "--list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  kafka-2:
+    extends:
+      file: ./infra/kafka/compose.yml
+      service: kafka-2
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "kafka-2:29092", "--list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  kafka-3:
+    extends:
+      file: ./infra/kafka/compose.yml
+      service: kafka-3
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "kafka-3:29092", "--list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./infra/monitor/docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - infra-net
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - infra-net
+    depends_on:
+      - prometheus
+
+  # Redis Exporter
+  redis-exporter:
+    image: oliver006/redis_exporter
+    command:
+      - "--redis.addr=redis:6379"
+    ports:
+      - "9121:9121"
+    networks:
+      - infra-net
+    depends_on:
+      - redis
+    restart: always
+
+  # Kafka Exporter
+  kafka-exporter:
+    image: danielqsj/kafka-exporter
+    command:
+      - "--kafka.server=kafka-1:29092"
+      - "--kafka.server=kafka-2:29092"
+      - "--kafka.server=kafka-3:29092"
+    ports:
+      - "9308:9308"
+    networks:
+      - infra-net
+    depends_on:
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+    restart: always
