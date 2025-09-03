@@ -1,6 +1,6 @@
-package kr.hhplus.be.server.payment.application.event.listener;
+package kr.hhplus.be.server.payment.application.kafka.listener;
 
-import kr.hhplus.be.server.payment.application.event.PaymentCompletedEvent;
+import kr.hhplus.be.server.payment.application.event.dto.PaymentCompletedEvent;
 import kr.hhplus.be.server.payment.application.usecase.ExternalDataUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
