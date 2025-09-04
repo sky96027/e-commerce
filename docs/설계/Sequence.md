@@ -177,38 +177,47 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     actor User as 사용자
-    participant CouponAPI as 쿠폰 API
-    participant CouponBatchDB as 쿠폰 DB
+    participant CouponAPI as 쿠폰 API (HTTP)
+    participant Kafka as Kafka 토픽(coupon-issue)
+    participant Consumer as CouponIssueConsumer(컨슈머)
+    participant Redis as Redis 재고카운터
+    participant CouponDB as 쿠폰 이슈 DB
     participant UserCouponDB as 유저 쿠폰 DB
 
-    User ->> CouponAPI: 쿠폰 발급 요청 (couponId, userId)
+    User ->> CouponAPI: 쿠폰 발급 요청 (couponId, userId, policyId, ...)
     activate CouponAPI
 
-    %% 1. 발급 가능 기간 확인
-    CouponAPI ->> CouponBatchDB: 쿠폰 정보 확인 (couponId)
+    %% 1) API는 즉시 이벤트 발행
+    CouponAPI ->> Kafka: publish CouponIssueRequestedEvent(rid, userId, couponId, ...)
+    CouponAPI -->> User: 202 Accepted + reservationId(rid)
+    deactivate CouponAPI
 
-    alt 발급 기간 아님
-        CouponAPI -->> User: 발급 실패 (발급 기간이 아님)
-    else 발급 가능
-        %% 2. 중복 발급 확인
-        CouponAPI ->> UserCouponDB: 중복 발급 확인 (couponId, userId)
+    %% 2) 컨슈머가 이벤트를 비동기 처리
+    Kafka -->> Consumer: CouponIssueRequestedEvent(rid, ...)
+    activate Consumer
 
-        alt 이미 발급함
-            CouponAPI -->> User: 발급 실패 (이미 발급한 쿠폰)
-        else 발급 가능
-            CouponAPI ->> CouponBatchDB: 수량 선점 시도 (LOCK AND DECREMENT) 
-            alt 수량 초과
-                CouponAPI -->> User: 발급 실패 (발급량 초과)
-            else 수량 가능
-                CouponAPI ->> UserCouponDB: 유저 쿠폰 저장 (userCouponId, couponId, userId 등)
-                activate UserCouponDB
-                UserCouponDB -->> CouponAPI: 저장 완료
-                deactivate UserCouponDB
-                CouponAPI -->> User: 쿠폰 발급 완료 메시지
+    %% 2-1) 재고 선점 (원자 감소)
+    Consumer ->> Redis: tryDecrement(couponId, 1)
+    alt 재고 없음(-1) 또는 미초기화(-2)
+        Consumer -->> Kafka: 실패 로그/메트릭(rid, couponId)
+    else 재고 선점 성공
+        %% 2-2) DB write-through
+        Consumer ->> CouponDB: decrementRemaining(couponId) where remaining > 0
+        alt DB 차감 실패(경쟁으로 0 이하)
+            Consumer ->> Redis: compensate(+1)
+            Consumer -->> Kafka: 보상 처리 로그(rid)
+        else DB 차감 성공
+            %% 2-3) 유저 쿠폰 저장 (유니크 인덱스로 중복 방지)
+            Consumer ->> UserCouponDB: insertOrUpdate(userId, couponId, policySnapshot, expiredAt ...)
+            alt 중복 등으로 INSERT 실패
+                Consumer ->> Redis: compensate(+1)
+                Consumer -->> Kafka: 실패/보상 로그(rid)
+            else 저장 성공
+                Consumer -->> Kafka: 성공 로그(rid, userId, couponId)
             end
         end
     end
-    deactivate CouponAPI
+    deactivate Consumer
 ```
 
 ### 주문
@@ -270,70 +279,63 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     actor User as 사용자
-    participant PaymentAPI as 결제 API
+    participant PaymentAPI as 결제 API (PaymentFacade)
     participant OrderDB as 주문 DB
-    participant UserDB as 유저 DB
-    participant ProductOptionDB as 상품 옵션 DB
+    participant ProductSvc as 상품 옵션/재고
+    participant UserDB as 유저 잔액
     participant UserCouponDB as 유저 쿠폰 DB
     participant PaymentDB as 결제 DB
-    participant DataPlatform as 데이터 플랫폼 (외부)
+    participant Kafka as Kafka 토픽(payment-completed)
+    participant TxConsumer as TransactionHistoryConsumer
+    participant TxDB as 거래내역 DB
+    participant DataConsumer as ExternalDataConsumer
+    participant DataPlatform as 데이터 플랫폼(외부)
 
     User ->> PaymentAPI: 결제 요청 (orderId)
     activate PaymentAPI
 
-    %% 1. 주문 유효성 확인
-    PaymentAPI ->> OrderDB: 주문서 정보 조회 요청 (orderId)
-    activate OrderDB
-    OrderDB -->> PaymentAPI: 주문서 정보 반환 (주문ID, userId, {상품ID, 옵션ID, 수량, 쿠폰ID})
-    deactivate OrderDB
-    PaymentAPI ->> PaymentAPI: 주문서 유효성 검사 (상품 판매 종료, 옵션 삭제, 사용자와 주문서 불일치 등 유효하지 않은 주문)
+    PaymentAPI ->> OrderDB: 주문/주문아이템 조회 (orderId)
+    OrderDB -->> PaymentAPI: 주문/아이템/금액 반환
+
     alt 주문 무효
-        PaymentAPI -->> User: 결제 실패 (유효하지 않은 주문, 상품 판매 종료, 재고 없음 등)
+        PaymentAPI -->> User: 결제 실패 (유효하지 않은 주문)
     else 주문 유효
-        %% 2. 결제 금액 확인
-        
+        loop 옵션별
+            PaymentAPI ->> ProductSvc: 재고 차감(optionId, qty)
+            alt 재고 부족
+                PaymentAPI -->> User: 결제 실패 (재고 부족)
+            else 재고 차감 완료
+                ProductSvc -->> PaymentAPI: OK
+            end
+        end
 
-        %% 3. 잔액 확인
-        PaymentAPI ->> UserDB: 사용자 잔액 조회 (userId)
-        activate UserDB
-        UserDB -->> PaymentAPI: 사용자 잔액 반환
-        deactivate UserDB
-        PaymentAPI ->> PaymentAPI: 잔액 > 주문 총 금액 확인
+        PaymentAPI ->> UserDB: 잔액 차감(userId, totalAmount)
         alt 잔액 부족
+            loop 옵션별
+                PaymentAPI ->> ProductSvc: 재고 복원(+qty)
+            end
             PaymentAPI -->> User: 결제 실패 (잔액 부족)
-        else 잔액 충분
-            %% 4. 재고 차감
-            loop 상품별
-                PaymentAPI ->> ProductOptionDB: 재고 확인 및 차감 (옵션ID, 수량)
-                activate ProductOptionDB
-                alt 재고 부족
-                    PaymentAPI -->> User: 결제 실패 (재고 부족)
-                else 재고 충분
-                    ProductOptionDB -->> PaymentAPI: 재고 차감 완료
-                end
+        else 잔액 차감 성공
+            loop 쿠폰별(존재 시)
+                PaymentAPI ->> UserCouponDB: 상태 변경(ISSUED -> USED)
             end
-            deactivate ProductOptionDB
-						%% 5. 잔액 차감
-            PaymentAPI ->> UserDB: 잔액 차감 (UPDATE)
-						
-            %% 6. 결제 내역 저장
-            PaymentAPI ->> PaymentDB: 결제 내역 저장 (결제ID, orderId, userId, 총 금액, 총 할인 금액, 상태)
-            
-            %% 7. 주문 정보 저장
-            PaymentAPI ->> OrderDB: 주문 데이터 저장(orderID, status:AFTER_PAYMENT)
+            PaymentAPI ->> OrderDB: 상태 변경(BEFORE_PAYMENT -> AFTER_PAYMENT)
+            PaymentAPI ->> PaymentDB: 결제 저장(...)
+            PaymentDB -->> PaymentAPI: paymentId
+            PaymentAPI ->> Kafka: publish PaymentCompletedEvent(...)
+            PaymentAPI -->> User: 결제 성공 (paymentId)
 
-            %% 8. 쿠폰 사용 처리
-            loop 상품별
-                PaymentAPI ->> UserCouponDB: 쿠폰 사용 처리 UPDATE (UserCouponId, status: USED)
+            par 거래내역 적재
+                Kafka -->> TxConsumer: PaymentCompletedEvent
+                TxConsumer ->> TxDB: 거래내역 저장(...)
+            and 외부 데이터 플랫폼 전송
+                Kafka -->> DataConsumer: PaymentCompletedEvent
+                DataConsumer ->> DataPlatform: send(...)
             end
-
-            %% 9. 데이터 플랫폼 전송
-            PaymentAPI ->> DataPlatform: 주문 정보 전송 (orderId)
-
-            PaymentAPI -->> User: 결제 성공 응답
         end
     end
     deactivate PaymentAPI
+
 ```
 
 ### 인기 상품
