@@ -12,15 +12,6 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 @Configuration
 public class CouponRedisScriptConfig {
 
-    /** ENQUEUE: Redis TIME으로 μs 타임스탬프를 만들고, 쿠폰별 시퀀스를 더해 유니크/단조 score 생성 후 ZADD */
-    @Bean
-    public DefaultRedisScript<Long> enqueueLua() {
-        DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-        script.setLocation(new ClassPathResource("redis/scripts/enqueue.lua"));
-        script.setResultType(Long.class);
-        return script;
-    }
-
     /** 안전 pop: payload가 있으면 pop(OK), 없으면 tombstone pop(MISSING) */
     @Bean
     public DefaultRedisScript<String> popIfPayloadExistsLua() {
