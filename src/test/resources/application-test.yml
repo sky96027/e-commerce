@@ -18,6 +18,19 @@ spring:
           max-wait: -1ms
     cache:
       type: redis
+  kafka:
+    bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+    consumer:
+      group-id: payment-test
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 logging:
   level:
     org.hibernate.SQL: warn
