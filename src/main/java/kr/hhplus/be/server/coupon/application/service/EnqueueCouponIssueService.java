@@ -2,6 +2,8 @@ package kr.hhplus.be.server.coupon.application.service;
 
 import kr.hhplus.be.server.common.exception.RestApiException;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
+import kr.hhplus.be.server.coupon.application.event.dto.CouponIssueRequestedEvent;
+import kr.hhplus.be.server.coupon.application.kafka.producer.CouponEventProducer;
 import kr.hhplus.be.server.coupon.application.usecase.EnqueueCouponIssueUseCase;
 import kr.hhplus.be.server.coupon.domain.repository.CouponIssueCommandRepository;
 import kr.hhplus.be.server.coupon.domain.repository.CouponIssueQueueRepository;
@@ -20,22 +22,24 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EnqueueCouponIssueService implements EnqueueCouponIssueUseCase {
 
-    private final CouponIssueQueueRepository queueRepository;
-    private final CouponIssueCommandRepository commandRepository;
+    private final CouponEventProducer producer;
 
     @Override
     public String enqueue(SaveUserCouponCommand command) {
         String rid = UUID.randomUUID().toString();
 
-        // 1) payload 저장
-        commandRepository.save(rid, command);
+        CouponIssueRequestedEvent event = new CouponIssueRequestedEvent(
+                rid,
+                command.userId(),
+                command.couponId(),
+                command.policyId(),
+                command.typeSnapshot(),
+                command.discountRateSnapshot(),
+                command.usagePeriodSnapshot(),
+                command.expiredAt()
+        );
 
-        // 2) 큐 등록 (실패 시 payload 롤백)
-        long score = queueRepository.enqueue(command.couponId(), command.userId(), rid);
-        if (score < 0) {
-            commandRepository.delete(rid);
-            throw new RestApiException(CouponErrorCode.ENQUEUE_FAILED_ERROR);
-        }
+        producer.send(event);
         return rid;
     }
 }
