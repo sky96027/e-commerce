@@ -9,14 +9,13 @@ import kr.hhplus.be.server.order.application.usecase.FindOrderByOrderIdUseCase;
 import kr.hhplus.be.server.order.application.usecase.FindOrderItemByOrderIdUseCase;
 import kr.hhplus.be.server.order.domain.type.OrderStatus;
 import kr.hhplus.be.server.payment.application.dto.SavePaymentCommand;
-import kr.hhplus.be.server.payment.application.event.PaymentCompletedEvent;
+import kr.hhplus.be.server.payment.application.event.dto.PaymentCompletedEvent;
+import kr.hhplus.be.server.payment.application.kafka.producer.PaymentEventProducer;
 import kr.hhplus.be.server.payment.application.usecase.SavePaymentUseCase;
 import kr.hhplus.be.server.payment.domain.type.PaymentStatus;
 import kr.hhplus.be.server.product.application.facade.ProductFacade; // ★ 사용
 import kr.hhplus.be.server.product.application.usecase.AddStockUseCase;
 import kr.hhplus.be.server.transactionhistory.application.usecase.SaveTransactionUseCase;
-import kr.hhplus.be.server.transactionhistory.domain.type.TransactionType;
-import kr.hhplus.be.server.user.application.dto.UserDto;
 import kr.hhplus.be.server.user.application.usecase.ChargeUserBalanceUseCase;
 import kr.hhplus.be.server.user.application.usecase.DeductUserBalanceUseCase;
 import kr.hhplus.be.server.user.application.usecase.FindUserUseCase;
@@ -45,7 +44,8 @@ public class PaymentFacade {
     private final FindOrderItemByOrderIdUseCase findOrderItemByOrderIdUseCase;
     private final ProductFacade productFacade;
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final PaymentEventProducer paymentEventProducer;
+
 
     // @Transactional 제거 → 각 도메인 서비스(@Transactional) 단위 커밋 + 보상 로직 유효
     public long processPayment(long orderId) {
@@ -102,7 +102,8 @@ public class PaymentFacade {
                     PaymentStatus.AFTER_PAYMENT
             ));
 
-            eventPublisher.publishEvent(
+            paymentEventProducer.send(
+
                     new PaymentCompletedEvent(order.userId(), paymentId, totalAmount)
             );
 

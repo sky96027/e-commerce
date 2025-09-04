@@ -18,8 +18,34 @@ spring:
           max-wait: -1ms
     cache:
       type: redis
+  kafka:
+    bootstrap-servers: ${spring.kafka.bootstrap-servers:localhost:9092}
+    admin:
+      bootstrap-servers: ${spring.kafka.bootstrap-servers}
+      auto-create: true
+    listener:
+      missing-topics-fatal: false
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: "kr.hhplus.be.server.*"
+      bootstrap-servers: ${spring.kafka.bootstrap-servers:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      bootstrap-servers: ${spring.kafka.bootstrap-servers:localhost:9092}
+
 logging:
   level:
     org.hibernate.SQL: warn
     org.springframework.beans.factory.support: DEBUG
     org.springframework.context.annotation: TRACE
+    org.apache.kafka: WARN
+    org.springframework.kafka.core.KafkaAdmin: DEBUG
+    org.apache.kafka.clients.admin: DEBUG
+    org.springframework.kafka.listener: DEBUG
+    org.apache.kafka.clients.consumer: INFO
+    org.apache.kafka.clients.producer: INFO

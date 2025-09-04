@@ -48,6 +48,7 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testImplementation("org.testcontainers:kafka")
 
 	// lombok
 	compileOnly("org.projectlombok:lombok")
@@ -56,6 +57,10 @@ dependencies {
 	// Redis
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation ("org.springframework.boot:spring-boot-starter-cache")
+
+	// Kafka
+	implementation ("org.springframework.boot:spring-boot-starter")
+	implementation ("org.springframework.kafka:spring-kafka")
 }
 
 dockerCompose {
@@ -67,6 +72,7 @@ tasks.bootRun {
 	dependsOn("composeUp")
 	finalizedBy("composeDown")
 }
+
 
 tasks.test { useJUnitPlatform() }
 

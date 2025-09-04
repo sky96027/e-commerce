@@ -1,23 +1,21 @@
 package kr.hhplus.be.server.coupon.concurrency;
 
 import kr.hhplus.be.server.IntegrationTestBase;
-import kr.hhplus.be.server.coupon.application.dto.ProcessResult;
-import kr.hhplus.be.server.coupon.application.facade.CouponFacade;
-import kr.hhplus.be.server.coupon.application.service.SaveUserCouponService;
 import kr.hhplus.be.server.coupon.application.dto.SaveUserCouponCommand;
 import kr.hhplus.be.server.coupon.application.usecase.EnqueueCouponIssueUseCase;
-import kr.hhplus.be.server.coupon.application.usecase.ProcessCouponIssueUseCase;
 import kr.hhplus.be.server.coupon.application.usecase.SaveUserCouponUseCase;
 import kr.hhplus.be.server.coupon.domain.model.CouponIssue;
 import kr.hhplus.be.server.coupon.domain.repository.CouponIssueRepository;
 import kr.hhplus.be.server.coupon.domain.type.CouponIssueStatus;
 import kr.hhplus.be.server.coupon.domain.type.CouponPolicyType;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.junit.jupiter.api.Test;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,26 +28,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@TestPropertySource(properties = {
-        // 워커가 테스트 중 자동 실행되지 않도록 비활성화
-        "coupon.issue.worker.enabled=false",
-        // 혹시 켜져 있어도 큐 대상이 없게 막기
-        "coupon.issue.worker.coupon-ids="
-})
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("통합 테스트 - 쿠폰 발급 동시성 제어 테스트")
 public class CouponConcurrencyTest extends IntegrationTestBase {
-
-    @Autowired
-    private SaveUserCouponUseCase saveUserCouponUseCase;
 
     @Autowired
     private EnqueueCouponIssueUseCase enqueueCouponIssueUseCase;
 
     @Autowired
-    private ProcessCouponIssueUseCase processCouponIssueUseCase;
+    private CouponIssueRepository couponIssueRepository;
 
     @Autowired
-    private CouponIssueRepository couponIssueRepository;
+    Environment env;
+
+    @Test
+    @Order(1)
+    void sanity() {
+        System.out.println("bootstrap = " + env.getProperty("spring.kafka.bootstrap-servers"));
+    }
 
     /*@Test
     @DisplayName("50개의 동시 요청에도 쿠폰 발급이 정확히 처리된다(동기 처리 사용)")
@@ -109,8 +105,8 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
 
 
     @Test
-    @DisplayName("50개의 동시 예약 후 drain하면 정확히 발급 처리된다(queue, drain 사용)")
-    void enqueue_then_drain_success() throws Exception {
+    @DisplayName("50개의 동시 예약 후 Kafka Consumer가 정확히 발급 처리한다")
+    void enqueue_then_consume_success() throws Exception {
         // given
         int initialRemaining = 1000;
         int threadCount = 50;
@@ -131,12 +127,12 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
         CountDownLatch done  = new CountDownLatch(threadCount);
         List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
 
-        // when: 동시 Enqueue (예약)
+        // when: 동시 Enqueue (Kafka 이벤트 발행)
+
         for (int i = 0; i < threadCount; i++) {
             pool.execute(() -> {
                 try {
                     start.await();
-                    // SaveUserCouponCommand는 (userId, couponId, policyId, ...)
                     SaveUserCouponCommand cmd = new SaveUserCouponCommand(
                             /*userId*/ 1L,
                             /*couponId(=couponIssueId)*/ couponIssueId,
@@ -144,7 +140,7 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
                             CouponPolicyType.RATE, 10.0f, 30,
                             LocalDateTime.now().plusDays(30)
                     );
-                    enqueueCouponIssueUseCase.enqueue(cmd);
+                    enqueueCouponIssueUseCase.enqueue(cmd); // Kafka 이벤트 발행
                 } catch (Throwable t) {
                     errors.add(t);
                 } finally {
@@ -155,21 +151,14 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
         start.countDown();
         done.await();
         pool.shutdown();
+        // then: Kafka Consumer가 처리 끝날 때까지 대기
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(10))
+                .untilAsserted(() -> {
+                    CouponIssue updated = couponIssueRepository.findById(couponIssueId);
+                    assertThat(updated.getRemaining()).isEqualTo(initialRemaining - threadCount);
+                });
 
-        // and: 테스트 스레드에서 직접 drain (worker 대행)
-        int drained = 0;
-        while (true) {
-            ProcessResult r = processCouponIssueUseCase.process(couponIssueId);
-            if (r.status() == ProcessResult.Status.NOT_FOUND) break; // 큐 비었음
-            // SOLD_OUT/ALREADY_ISSUED도 1건 처리로 간주
-            drained++;
-        }
-
-        // then
         assertThat(errors).isEmpty();
-        assertThat(drained).isEqualTo(threadCount);
-
-        CouponIssue updated = couponIssueRepository.findById(couponIssueId);
-        assertThat(updated.getRemaining()).isEqualTo(initialRemaining - threadCount);
     }
 } 
