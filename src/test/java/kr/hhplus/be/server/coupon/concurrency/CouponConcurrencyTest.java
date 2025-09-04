@@ -46,6 +46,7 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
     void sanity() {
         System.out.println("bootstrap = " + env.getProperty("spring.kafka.bootstrap-servers"));
     }
+
     /*@Test
     @DisplayName("50개의 동시 요청에도 쿠폰 발급이 정확히 처리된다(동기 처리 사용)")
     void saveUserCoupon_concurrency_success() throws InterruptedException {
@@ -127,6 +128,7 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
         List<Throwable> errors = Collections.synchronizedList(new ArrayList<>());
 
         // when: 동시 Enqueue (Kafka 이벤트 발행)
+
         for (int i = 0; i < threadCount; i++) {
             pool.execute(() -> {
                 try {
@@ -149,7 +151,6 @@ public class CouponConcurrencyTest extends IntegrationTestBase {
         start.countDown();
         done.await();
         pool.shutdown();
-
         // then: Kafka Consumer가 처리 끝날 때까지 대기
         Awaitility.await()
                 .atMost(Duration.ofSeconds(10))

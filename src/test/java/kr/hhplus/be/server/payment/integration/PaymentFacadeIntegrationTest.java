@@ -64,7 +64,7 @@ class PaymentFacadeIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private UserCouponJpaRepository userCouponJpaRepository;
-
+  
     @MockBean
     private PaymentEventProducer paymentEventProducer;
 

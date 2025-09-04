@@ -73,6 +73,7 @@ tasks.bootRun {
 	finalizedBy("composeDown")
 }
 
+
 tasks.test { useJUnitPlatform() }
 
 tasks.withType<Test> {

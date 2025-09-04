@@ -46,6 +46,7 @@ public class PaymentFacade {
 
     private final PaymentEventProducer paymentEventProducer;
 
+
     // @Transactional 제거 → 각 도메인 서비스(@Transactional) 단위 커밋 + 보상 로직 유효
     public long processPayment(long orderId) {
         List<OrderItemDto> orderItems = null;
@@ -102,6 +103,7 @@ public class PaymentFacade {
             ));
 
             paymentEventProducer.send(
+
                     new PaymentCompletedEvent(order.userId(), paymentId, totalAmount)
             );
 

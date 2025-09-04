@@ -84,6 +84,7 @@ services:
     depends_on:
       - prometheus
 
+
   # Redis Exporter
   redis-exporter:
     image: oliver006/redis_exporter

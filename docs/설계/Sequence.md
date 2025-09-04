@@ -335,7 +335,6 @@ sequenceDiagram
         end
     end
     deactivate PaymentAPI
-
 ```
 
 ### 인기 상품
