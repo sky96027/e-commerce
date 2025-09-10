@@ -117,3 +117,18 @@ services:
       kafka-3:
         condition: service_healthy
     restart: always
+
+  # mysql Exporter
+  mysqld-exporter:
+    image: prom/mysqld-exporter
+    command:
+      - "--config.my-cnf=/etc/mysql/.my.cnf"
+    volumes:
+      - ./infra/mysql/.my.cnf:/etc/mysql/.my.cnf:ro
+    ports:
+      - "9104:9104"
+    networks:
+      - infra-net
+    depends_on:
+      - mysql
+    restart: always
