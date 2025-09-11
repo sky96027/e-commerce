@@ -94,6 +94,8 @@ services:
       - "--kafka.server=kafka-1:29092"
       - "--kafka.server=kafka-2:29092"
       - "--kafka.server=kafka-3:29092"
+      - "--kafka.version=2.8.0"
+      - "--consumer"
     ports:
       - "9308:9308"
     networks:
