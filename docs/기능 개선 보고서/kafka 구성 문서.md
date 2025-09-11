@@ -63,10 +63,10 @@ consumer:
 group-id: my-group
 auto-offset-reset: earliest
 key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 producer:
 key-serializer: org.apache.kafka.common.serialization.StringSerializer
-value-serializer: org.apache.kafka.common.serialization.StringSerializer
+value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 popular:
 rank:
@@ -103,7 +103,7 @@ prometheus:
 image: prom/prometheus:latest
 container_name: prometheus
 volumes:
-- ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+- ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 - prometheus_data:/prometheus
 ports: ["9090:9090"]
 networks: [monitor]

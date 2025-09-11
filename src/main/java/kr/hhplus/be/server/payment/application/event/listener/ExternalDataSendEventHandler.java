@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.payment.application.event.listener;
 
+import kr.hhplus.be.server.payment.application.event.dto.PaymentCompletedEvent;
 import kr.hhplus.be.server.payment.application.usecase.ExternalDataUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -15,7 +16,7 @@ public class ExternalDataSendEventHandler {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void sendExternalData() {
+    public void sendExternalData(PaymentCompletedEvent event) {
         externalDataUseCase.send();
     }
 }

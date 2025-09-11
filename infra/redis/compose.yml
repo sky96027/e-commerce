@@ -6,6 +6,5 @@ services:
     command: ["sh","-lc","redis-server --appendonly ${REDIS_AOF}"]
     volumes:
       - redis_data:/data
-
-volumes:
-  redis_data:
+    networks:
+      - infra-net
