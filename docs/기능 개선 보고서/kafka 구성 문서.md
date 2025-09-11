@@ -103,7 +103,7 @@ prometheus:
 image: prom/prometheus:latest
 container_name: prometheus
 volumes:
-- ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+- ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 - prometheus_data:/prometheus
 ports: ["9090:9090"]
 networks: [monitor]

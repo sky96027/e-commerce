@@ -61,6 +61,9 @@ dependencies {
 	// Kafka
 	implementation ("org.springframework.boot:spring-boot-starter")
 	implementation ("org.springframework.kafka:spring-kafka")
+
+	// prometheus
+	implementation ("io.micrometer:micrometer-registry-prometheus")
 }
 
 dockerCompose {

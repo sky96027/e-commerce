@@ -56,34 +56,23 @@ services:
       timeout: 10s
       retries: 10
 
-  # Prometheus
+    # Prometheus
   prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./infra/monitor/docker/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
-    networks:
-      - infra-net
+    extends:
+      file: ./infra/monitor/compose.yml
+      service: prometheus
 
   # Grafana
   grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - infra-net
-    depends_on:
-      - prometheus
+    extends:
+      file: ./infra/monitor/compose.yml
+      service: grafana
 
+  # Node Exporter
+  node-exporter:
+    extends:
+      file: ./infra/monitor/compose.yml
+      service: node-exporter
 
   # Redis Exporter
   redis-exporter:

@@ -3,12 +3,12 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
-      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     ports:
       - "9090:9090"
     networks:
-      - monitor
+      - infra-net
 
   grafana:
     image: grafana/grafana:latest
@@ -18,17 +18,29 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/provisioning/dashboards-json:/etc/grafana/provisioning/dashboards-json
     ports:
       - "3000:3000"
     networks:
-      - monitor
+      - infra-net
     depends_on:
       - prometheus
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - infra-net
+    restart: always
 
 volumes:
   prometheus_data:
   grafana_data:
 
 networks:
-  monitor:
-    driver: bridge
+  infra-net:
+    external: true
+

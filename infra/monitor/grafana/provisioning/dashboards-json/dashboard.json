@@ -1,0 +1,55 @@
+{
+  "id": null,
+  "title": "Basic System & DB Overview",
+  "tags": ["system", "db", "prometheus"],
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "CPU Usage (%)",
+      "targets": [
+        {
+          "expr": "100 - (avg without (cpu) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory Usage (%)",
+      "targets": [
+        {
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+          "legendFormat": "{{instance}}"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "DB Active Connections",
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{pool=\"HangHaePlusDataSource\"}",
+          "legendFormat": "active"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "DB Connection Pool Usage (%)",
+      "targets": [
+        {
+          "expr": "(hikaricp_connections_active{pool=\"HangHaePlusDataSource\"} / hikaricp_connections_max{pool=\"HangHaePlusDataSource\"}) * 100",
+          "legendFormat": "usage %"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 }
+    }
+  ]
+}
