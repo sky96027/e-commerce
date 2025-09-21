@@ -1,7 +1,7 @@
 ## 리팩토링 배경
 
 현재 쿠폰 발급의 로직은 Redis ZSet으로 Queue를 구성하고 Drain 하는 방식으로 구현되어 있다.
-[쿠폰에 Redis 자료 구조 적용하기](https://www.notion.so/Redis-25413a3e1bfc8098a3b6f09a7f1f71f7?pvs=21)
+[쿠폰에 Redis 자료 구조 적용하기](https://github.com/sky96027/e-commerce/blob/main/docs/%EA%B8%B0%EB%8A%A5%20%EA%B0%9C%EC%84%A0%20%EB%B3%B4%EA%B3%A0%EC%84%9C/%EC%BF%A0%ED%8F%B0%20%EB%8F%84%EB%A9%94%EC%9D%B8%20Redis%20Hash%2C%20Redis%20ZSet(Queue)%20%EC%A0%81%EC%9A%A9%20%EB%AC%B8%EC%84%9C.md)
 
 또한 결제 로직은 주요 로직 → 이벤트 발행 → 부가 로직(거래 내역 저장, 외부 데이터 플랫폼에 데이터 전송) 으로 이루어져 있다.
 
